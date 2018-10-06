@@ -103,15 +103,9 @@ describe("Testing Rewrite", () => {
       {
         age: 24,
         friends: [
-          {
-            id: 0
-          },
-          {
-            id: 1
-          },
-          {
-            id: 2
-          }
+          { id: 0 },
+          { id: 1 },
+          { id: 2 }
         ],
         id: "5bb8088bd415a8d887a44ca7",
         accountAge: "1320 days"
