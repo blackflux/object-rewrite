@@ -9,7 +9,7 @@
 
 # object-rewrite
 
-Rewrite an Object
+Rewrite an Object by defining exactly what gets excluded, rewritten and included.
 
 ## Install
 
