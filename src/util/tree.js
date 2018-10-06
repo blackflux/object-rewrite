@@ -1,7 +1,6 @@
 const LEAF = Symbol("leaf");
 
-const markLeaf = input => Object
-  .defineProperty(input, LEAF, { value: true, writable: false });
+const markLeaf = input => Object.defineProperty(input, LEAF, { value: true, writable: false });
 const isLeaf = input => input[LEAF] === true;
 
 const build = (needles) => {
@@ -19,15 +18,6 @@ const build = (needles) => {
   return result;
 };
 
-const pruneKey = (input, key, isArray) => {
-  if (isArray) {
-    input.splice(key, 1);
-  } else {
-    // eslint-disable-next-line no-param-reassign
-    delete input[key];
-  }
-};
-
 // prune either all needles or all not needles
 const pruneRec = (input, include, exclude) => {
   const isArray = Array.isArray(input);
@@ -41,7 +31,12 @@ const pruneRec = (input, include, exclude) => {
       (exclude[key] !== undefined && isLeaf(exclude[key]))
       || (include[key] === undefined)
     ) {
-      pruneKey(input, key, isArray);
+      if (isArray) {
+        input.splice(key, 1);
+      } else {
+        // eslint-disable-next-line no-param-reassign
+        delete input[key];
+      }
     } else {
       pruneRec(value, include[key], exclude[key] || {});
     }
