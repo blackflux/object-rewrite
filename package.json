@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "js-gardener": "1.31.7",
-    "object-scan": "1.9.4"
+    "object-scan": "1.9.5"
   },
   "devDependencies": {
     "babel-cli": "7.0.0-beta.3",
