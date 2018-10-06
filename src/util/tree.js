@@ -18,7 +18,6 @@ const build = (needles) => {
   return result;
 };
 
-// prune either all needles or all not needles
 const pruneRec = (input, include, exclude) => {
   const isArray = Array.isArray(input);
   const inputEntries = Object.entries(input);

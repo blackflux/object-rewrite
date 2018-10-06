@@ -133,11 +133,11 @@ describe("Testing Rewrite", () => {
     }];
     const rewriter = index({
       exclude: {
-        "": (key, value) => value.active !== true,
-        tags: (key, value) => value.id !== 4
+        "": (key, value, parents) => value.active !== true,
+        tags: (key, value, parents) => value.id !== 4
       },
       inject: {
-        "": (key, value) => ({ count: value.count + 100 })
+        "": (key, value, parents) => ({ count: value.count + 100 })
       },
       include: ["count", "active", "tags.id"]
     });

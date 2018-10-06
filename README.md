@@ -9,7 +9,7 @@
 
 # object-rewrite
 
-Rewrite an Object by defining exactly what gets excluded, rewritten and included.
+Rewrite an Object by defining exactly what gets excluded, injected and included.
 
 ## Install
 
@@ -19,7 +19,7 @@ npm i --save object-rewrite
 
 ## Getting Started
 
-Modify the data object in place. If you need to create a copy consider using [_.deepClone()](https://lodash.com/docs/#cloneDeep).
+Modifies the data object in place. If you need to create a copy consider using [_.deepClone()](https://lodash.com/docs/#cloneDeep).
 
 <!-- eslint-disable-next-line import/no-unresolved -->
 ```js
@@ -44,11 +44,11 @@ const data = [{
 
 const rewriter = objectRewrite({
   exclude: {
-    "": (key, value) => value.active !== true,
-    tags: (key, value) => value.id !== 4
+    "": (key, value, parents) => value.active !== true,
+    tags: (key, value, parents) => value.id !== 4
   },
   inject: {
-    "": (key, value) => ({ count: value.count + 100 })
+    "": (key, value, parents) => ({ count: value.count + 100 })
   },
   include: ["count", "active", "tags.id"]
 });
@@ -69,7 +69,7 @@ rewriter(data);
 */
 ```
 
-The empty needle `""` matches top level objects when `data` is an array.  
+The empty needle `""` matches top level object(s).  
 
 ## Modifiers
 
@@ -77,16 +77,16 @@ Needles are specified according to [object-scan](https://github.com/blackflux/ob
 
 Internally the option `useArraySelector` is set to false.
 
-Functions have signature `Fn(key, value, parents)` as specified by *object-scan*. Keys are split (`joined = false`),
+Functions have signature `Fn(key, value, parents)` as specified by *object-scan*. Keys are split (`joined` is false),
 
 ### Exclude
 
-Takes object where keys are needles and values are functions. The matches for a needle are excluded from the rewritten object iff the function returns true.
+Takes object where keys are needles and values are functions. The matches for a needle are removed from the object iff the corresponding function execution returns true.
 
 ### Inject
 
-Takes object where keys are needles and values are functions. The result of the function is merged into every match for the needle. Both, the match and the function response, are expected to be objects.
+Takes object where keys are needles and values are functions. For every match the corresponding function is executed and the result merged into the match. The match and the function response are expected to be objects.
 
 ### Include
 
-Array of all fields that are included in the modified object. All entries not matched are excluded.
+Array of needles. Matches are kept if not excluded previously. All entries not matched are excluded.
