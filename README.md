@@ -89,4 +89,4 @@ Takes object where keys are needles and values are functions. For every match th
 
 ### Retain
 
-Array of needles. Matches are kept if not excluded previously. All entries not matched are excluded.
+Array of needles. Matches are kept if not excluded previously. All entries not matched are excluded. Defaults to `["**"]` which matches all entries.
