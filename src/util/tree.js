@@ -29,34 +29,25 @@ const pruneKey = (input, key, isArray) => {
 };
 
 // prune either all needles or all not needles
-const pruneRec = (input, tree, pruneNeedles) => {
+const pruneRec = (input, include, exclude) => {
   const isArray = Array.isArray(input);
-  const iterable = pruneNeedles ? Object.entries(tree) : Object.entries(input);
+  const inputEntries = Object.entries(input);
   if (isArray) {
     // sort inverse so delete matches correctly
-    iterable.sort((a, b) => parseInt(b[0], 10) - parseInt(a[0], 10));
+    inputEntries.sort((a, b) => parseInt(b[0], 10) - parseInt(a[0], 10));
   }
-  if (pruneNeedles) {
-    iterable.forEach(([key, value]) => {
-      if (input[key] !== undefined) {
-        if (isLeaf(value)) {
-          pruneKey(input, key, isArray);
-        } else {
-          pruneRec(input[key], value, pruneNeedles);
-        }
-      }
-    });
-  } else {
-    iterable.forEach(([key, value]) => {
-      if (tree[key] === undefined) {
-        pruneKey(input, key, isArray);
-      } else {
-        pruneRec(value, tree[key], pruneNeedles);
-      }
-    });
-  }
+  inputEntries.forEach(([key, value]) => {
+    if (
+      (exclude[key] !== undefined && isLeaf(exclude[key]))
+      || (include[key] === undefined)
+    ) {
+      pruneKey(input, key, isArray);
+    } else {
+      pruneRec(value, include[key], exclude[key] || {});
+    }
+  });
 };
 
-module.exports.prune = (input, needles, pruneNeedles) => {
-  pruneRec(input, build(needles), pruneNeedles);
+module.exports.prune = (input, include, exclude) => {
+  pruneRec(input, build(include), build(exclude));
 };

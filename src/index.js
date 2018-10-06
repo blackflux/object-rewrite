@@ -34,8 +34,7 @@ module.exports = ({ exclude = {}, inject = {}, include = ["**"] }) => {
   return (input) => {
     scanner(input);
 
-    tree.prune(input, included, false);
-    tree.prune(input, excluded, true);
+    tree.prune(input, included, excluded);
 
     excluded.length = 0;
     included.length = 0;
