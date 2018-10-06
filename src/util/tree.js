@@ -2,6 +2,7 @@ const LEAF = Symbol("leaf");
 
 const markLeaf = input => Object.defineProperty(input, LEAF, { value: true, writable: false });
 const isLeaf = input => input[LEAF] === true;
+module.exports.isLeaf = isLeaf;
 
 const build = (needles) => {
   const result = {};
@@ -17,6 +18,7 @@ const build = (needles) => {
   });
   return result;
 };
+module.exports.build = build;
 
 const pruneRec = (input, exclude, retain) => {
   const isArray = Array.isArray(input);
