@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const expect = require('chai').expect;
 const index = require("../src/index");
 
@@ -72,5 +74,48 @@ describe("Testing Rewrite", () => {
       tags: ["phone", "electronics"],
       age: "81648000000 ms"
     }]);
+  });
+
+  it("Testing User Rewrite", () => {
+    const users = JSON.parse(fs.readFileSync(path.join(__dirname, "resources", "users-sample.json")));
+    const rewriter = index({
+      exclude: {
+        users: (key, value) => value.isActive !== true,
+        "users.friends": (key, value, parents) => parents[parents.length - 1].age > 25
+      },
+      inject: {
+        users: (key, value, parents) => ({
+          // eslint-disable-next-line no-underscore-dangle
+          id: value._id,
+          accountAge: `${Math.ceil((new Date("2018-01-01") - new Date(value.registered)) / (1000 * 60 * 60 * 24))} days`
+        })
+      },
+      include: ["users.id", "users.accountAge", "users.friends.id", "users.age"]
+    });
+    rewriter({ users });
+    expect(users).to.deep.equal([
+      {
+        age: 26,
+        friends: [],
+        id: "5bb8088b9934a34e92095fc0",
+        accountAge: "331 days"
+      },
+      {
+        age: 24,
+        friends: [
+          {
+            id: 0
+          },
+          {
+            id: 1
+          },
+          {
+            id: 2
+          }
+        ],
+        id: "5bb8088bd415a8d887a44ca7",
+        accountAge: "1320 days"
+      }
+    ]);
   });
 });
