@@ -87,7 +87,8 @@ describe("Testing Rewrite", () => {
         users: (key, value, parents) => ({
           // eslint-disable-next-line no-underscore-dangle
           id: value._id,
-          accountAge: `${Math.ceil((new Date("2018-01-01") - new Date(value.registered)) / (1000 * 60 * 60 * 24))} days`
+          accountAge: `${Math
+            .ceil((new Date("2018-01-10T10:00:00+04:00") - new Date(value.registered)) / (1000 * 60 * 60 * 24))} days`
         })
       },
       include: ["users.id", "users.accountAge", "users.friends.id", "users.age"]
@@ -98,7 +99,7 @@ describe("Testing Rewrite", () => {
         age: 26,
         friends: [],
         id: "5bb8088b9934a34e92095fc0",
-        accountAge: "331 days"
+        accountAge: "3699 days"
       },
       {
         age: 24,
@@ -108,7 +109,7 @@ describe("Testing Rewrite", () => {
           { id: 2 }
         ],
         id: "5bb8088bd415a8d887a44ca7",
-        accountAge: "1320 days"
+        accountAge: "2357 days"
       }
     ]);
   });
