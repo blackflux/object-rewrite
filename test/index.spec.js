@@ -58,16 +58,16 @@ describe("Testing Rewrite", () => {
     }];
     const rewriter = index({
       exclude: {
-        purchases: (key, value, parents) => value.client.version === "1.2.3"
+        "": (key, value) => value.client.version === "1.2.3"
       },
       inject: {
-        purchases: (key, value, parents) => ({
+        "": (key, value) => ({
           age: `${new Date("2018-01-10T10:00:00+04:00") - new Date(value.timestamp)} ms`
         })
       },
-      include: ["purchases.id", "purchases.client.version", "purchases.tags", "purchases.age"]
+      include: ["id", "client.version", "tags", "age"]
     });
-    rewriter({ purchases });
+    rewriter(purchases);
     expect(purchases).to.deep.equal([{
       id: 2,
       client: { version: "1.2.4" },
@@ -80,20 +80,20 @@ describe("Testing Rewrite", () => {
     const users = JSON.parse(fs.readFileSync(path.join(__dirname, "resources", "users-sample.json")));
     const rewriter = index({
       exclude: {
-        users: (key, value) => value.isActive !== true,
-        "users.friends": (key, value, parents) => parents[parents.length - 1].age > 25
+        "": (key, value) => value.isActive !== true,
+        friends: (key, value, parents) => parents[parents.length - 1].age > 25
       },
       inject: {
-        users: (key, value, parents) => ({
+        "": (key, value) => ({
           // eslint-disable-next-line no-underscore-dangle
           id: value._id,
           accountAge: `${Math
             .ceil((new Date("2018-01-10T10:00:00+04:00") - new Date(value.registered)) / (1000 * 60 * 60 * 24))} days`
         })
       },
-      include: ["users.id", "users.accountAge", "users.friends.id", "users.age"]
+      include: ["id", "accountAge", "friends.id", "age"]
     });
-    rewriter({ users });
+    rewriter(users);
     expect(users).to.deep.equal([
       {
         age: 26,

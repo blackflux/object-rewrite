@@ -25,7 +25,7 @@ Modify the data object in place. If you need to create a copy consider using [_.
 ```js
 const objectRewrite = require("object-rewrite");
 
-const data = {/* ... */};
+const data = [{/* ... */}, {/* ... */}];
 
 const rewriter = objectRewrite({
   exclude: {/* ... */},
@@ -36,6 +36,8 @@ const rewriter = objectRewrite({
 rewriter(data);
 // => data is now modified
 ```
+
+The empty needle `""` matches top level objects when `data` is an array.  
 
 ## Modifiers
 
