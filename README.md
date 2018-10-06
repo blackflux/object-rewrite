@@ -19,4 +19,42 @@ npm i --save object-rewrite
 
 ## Getting Started
 
-...
+Modify the data object in place. If you need to create a copy consider using [_.deepClone()](https://lodash.com/docs/#cloneDeep).
+
+<!-- eslint-disable-next-line import/no-unresolved -->
+```js
+const objectRewrite = require("object-rewrite");
+
+const data = [{/* ... */}, {/* ... */}];
+
+const rewriter = objectRewrite({
+  exclude: {/* ... */},
+  inject: {/* ... */},
+  include: [/* ... */]
+});
+
+rewriter(data);
+// => data is now modified
+```
+
+The empty needle `""` matches top level objects when `data` is an array.  
+
+## Modifiers
+
+Needles are specified according to [object-scan](https://github.com/blackflux/object-scan).
+
+Internally the option `useArraySelector` is set to false.
+
+Functions have signature `Fn(key, value, parents)` as specified by *object-scan*. Keys are split (`joined = false`),
+
+### Exclude
+
+Takes object where keys are needles and values are functions. The matches for a needle are excluded from the rewritten object iff the function returns true.
+
+### Inject
+
+Takes object where keys are needles and values are functions. The result of the function is merged into every match for the needle. Both, the match and the function response, are expected to be objects.
+
+### Include
+
+Array of all fields that are included in the modified object. All entries not matched are excluded.

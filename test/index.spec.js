@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const expect = require('chai').expect;
 const index = require("../src/index");
 
@@ -56,21 +58,59 @@ describe("Testing Rewrite", () => {
     }];
     const rewriter = index({
       exclude: {
-        purchases: (key, value, parents) => value.client.version === "1.2.3"
+        "": (key, value) => value.client.version === "1.2.3"
       },
       inject: {
-        purchases: (key, value, parents) => ({
+        "": (key, value) => ({
           age: `${new Date("2018-01-10T10:00:00+04:00") - new Date(value.timestamp)} ms`
         })
       },
-      include: ["purchases.id", "purchases.client.version", "purchases.tags", "purchases.age"]
+      include: ["id", "client.version", "tags", "age"]
     });
-    rewriter({ purchases });
+    rewriter(purchases);
     expect(purchases).to.deep.equal([{
       id: 2,
       client: { version: "1.2.4" },
       tags: ["phone", "electronics"],
       age: "81648000000 ms"
     }]);
+  });
+
+  it("Testing User Rewrite", () => {
+    const users = JSON.parse(fs.readFileSync(path.join(__dirname, "resources", "users-sample.json")));
+    const rewriter = index({
+      exclude: {
+        "": (key, value) => value.isActive !== true,
+        friends: (key, value, parents) => parents[parents.length - 1].age > 25
+      },
+      inject: {
+        "": (key, value) => ({
+          // eslint-disable-next-line no-underscore-dangle
+          id: value._id,
+          accountAge: `${Math
+            .ceil((new Date("2018-01-10T10:00:00+04:00") - new Date(value.registered)) / (1000 * 60 * 60 * 24))} days`
+        })
+      },
+      include: ["id", "accountAge", "friends.id", "age"]
+    });
+    rewriter(users);
+    expect(users).to.deep.equal([
+      {
+        age: 26,
+        friends: [],
+        id: "5bb8088b9934a34e92095fc0",
+        accountAge: "3699 days"
+      },
+      {
+        age: 24,
+        friends: [
+          { id: 0 },
+          { id: 1 },
+          { id: 2 }
+        ],
+        id: "5bb8088bd415a8d887a44ca7",
+        accountAge: "2357 days"
+      }
+    ]);
   });
 });
