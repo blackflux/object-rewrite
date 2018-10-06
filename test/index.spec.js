@@ -65,7 +65,7 @@ describe("Testing Rewrite", () => {
           age: `${new Date("2018-01-10T10:00:00+04:00") - new Date(value.timestamp)} ms`
         })
       },
-      include: ["id", "client.version", "tags", "age"]
+      retain: ["id", "client.version", "tags", "age"]
     });
     rewriter(purchases);
     expect(purchases).to.deep.equal([{
@@ -91,7 +91,7 @@ describe("Testing Rewrite", () => {
             .ceil((new Date("2018-01-10T10:00:00+04:00") - new Date(value.registered)) / (1000 * 60 * 60 * 24))} days`
         })
       },
-      include: ["id", "accountAge", "friends.id", "age"]
+      retain: ["id", "accountAge", "friends.id", "age"]
     });
     rewriter(users);
     expect(users).to.deep.equal([
@@ -139,7 +139,7 @@ describe("Testing Rewrite", () => {
       inject: {
         "": (key, value, parents) => ({ count: value.count + 100 })
       },
-      include: ["count", "active", "tags.id"]
+      retain: ["count", "active", "tags.id"]
     });
     rewriter(data);
     expect(data).to.deep.equal([{
