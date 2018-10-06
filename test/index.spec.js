@@ -113,4 +113,43 @@ describe("Testing Rewrite", () => {
       }
     ]);
   });
+
+  it("Testing Readme Example", () => {
+    const data = [{
+      guid: "aad8b948-a3de-4bff-a50f-3d59e9510aa9",
+      count: 3,
+      active: true,
+      tags: [{ id: 1 }, { id: 2 }, { id: 3 }]
+    }, {
+      guid: "4409fb72-36e3-4385-b3da-b4944d028dcb",
+      count: 4,
+      active: true,
+      tags: [{ id: 2 }, { id: 3 }, { id: 4 }]
+    }, {
+      guid: "96067a3c-caa2-4018-bcec-6969a874dad9",
+      count: 5,
+      active: false,
+      tags: [{ id: 3 }, { id: 4 }, { id: 5 }]
+    }];
+    const rewriter = index({
+      exclude: {
+        "": (key, value) => value.active !== true,
+        tags: (key, value) => value.id !== 4
+      },
+      inject: {
+        "": (key, value) => ({ count: value.count + 100 })
+      },
+      include: ["count", "active", "tags.id"]
+    });
+    rewriter(data);
+    expect(data).to.deep.equal([{
+      count: 103,
+      active: true,
+      tags: []
+    }, {
+      count: 104,
+      active: true,
+      tags: [{ id: 4 }]
+    }]);
+  });
 });
