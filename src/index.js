@@ -1,28 +1,43 @@
 const objectScan = require("object-scan");
+const tree = require("./util/tree");
 
-module.exports = ({ exclude = {} }) => {
-  const scanner = objectScan(Object.keys(exclude), {
+module.exports = ({ exclude = {}, inject = {}, include = ["**"] }) => {
+  const needles = [
+    ...Object.keys(exclude),
+    ...Object.keys(inject),
+    ...include
+  ];
+
+  const excluded = [];
+  const included = [];
+
+  const scanner = objectScan(needles, {
     useArraySelector: false,
     joined: false,
     breakFn: (key, value, { isMatch, needle, parents }) => {
-      if (isMatch && exclude[needle](key, value, parents) === true) {
-        // make sure we get the direct parent accounting for arrays
-        const parent = key
-          .slice(key.reduce((p, c, i) => (typeof c === "number" ? p : i), 0), -1)
-          .reduce((p, c) => p[c], parents[parents.length - 1]);
-        if (Array.isArray(parent)) {
-          parent.splice(key[key.length - 1], 1);
-        } else {
-          // eslint-disable-next-line no-param-reassign
-          delete parent[key[key.length - 1]];
-        }
+      if (isMatch && exclude[needle] !== undefined && exclude[needle](key, value, parents) === true) {
+        excluded.push(key);
         return true;
       }
       return false;
+    },
+    callbackFn: (key, value, { isMatch, needle, parents }) => {
+      if (isMatch && include.includes(needle)) {
+        included.push(key);
+      }
+      if (isMatch && inject[needle] !== undefined) {
+        Object.assign(value, inject[needle](key, value, parents));
+      }
     }
   });
 
-  return {
-    rewrite: input => scanner(input)
+  return (input) => {
+    scanner(input);
+
+    tree.prune(input, included, false);
+    tree.prune(input, excluded, true);
+
+    excluded.length = 0;
+    included.length = 0;
   };
 };

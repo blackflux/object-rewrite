@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "js-gardener": "1.31.7",
-    "lodash.isplainobject": "4.0.6",
     "object-scan": "1.9.4"
   },
   "devDependencies": {
