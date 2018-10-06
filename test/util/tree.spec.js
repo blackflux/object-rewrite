@@ -10,10 +10,10 @@ describe("Testing tree.js", () => {
     expect(data).to.deep.equal({ 1: { a: { 2: { c: {} }, 1: { c: {} } } } });
   });
 
-  it("Testing object included", () => {
-    const included = [[1, "a", 2, "b"], [1, "a", 1, "b"]];
+  it("Testing object retained", () => {
+    const retained = [[1, "a", 2, "b"], [1, "a", 1, "b"]];
     const data = { 1: { a: { 2: { b: {}, c: {} }, 1: { b: {}, c: {} } } } };
-    tree.prune(data, included, []);
+    tree.prune(data, retained, []);
     expect(data).to.deep.equal({ 1: { a: { 2: { b: {} }, 1: { b: {} } } } });
   });
 
@@ -24,10 +24,10 @@ describe("Testing tree.js", () => {
     expect(data).to.deep.equal([{ a: [{ c: {} }, { c: {} }] }]);
   });
 
-  it("Testing array included", () => {
-    const included = [[0, "a", 1, "b"], [0, "a", 0, "b"]];
+  it("Testing array retained", () => {
+    const retained = [[0, "a", 1, "b"], [0, "a", 0, "b"]];
     const data = [{ a: [{ b: {}, c: {} }, { c: {} }] }];
-    tree.prune(data, included, []);
+    tree.prune(data, retained, []);
     expect(data).to.deep.equal([{ a: [{ b: {} }, {}] }]);
   });
 
@@ -38,10 +38,10 @@ describe("Testing tree.js", () => {
     expect(data).to.deep.equal([{}]);
   });
 
-  it("Testing object parent included", () => {
-    const included = [[0, "a"]];
+  it("Testing object parent retained", () => {
+    const retained = [[0, "a"]];
     const data = [{ a: [{ b: {}, c: {} }, { c: {} }] }];
-    tree.prune(data, included, []);
+    tree.prune(data, retained, []);
     expect(data).to.deep.equal([{ a: [] }]);
   });
 });

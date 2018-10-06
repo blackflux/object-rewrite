@@ -2,14 +2,14 @@ const assert = require("assert");
 const objectScan = require("object-scan");
 const tree = require("./util/tree");
 
-module.exports = ({ exclude = {}, inject = {}, include = ["**"] }) => {
+module.exports = ({ exclude = {}, inject = {}, retain = ["**"] }) => {
   const needles = [
     ...Object.keys(exclude),
     ...Object.keys(inject),
-    ...include
+    ...retain
   ];
 
-  const included = [];
+  const retained = [];
   const excluded = [];
 
   const scanner = objectScan(needles, {
@@ -17,8 +17,8 @@ module.exports = ({ exclude = {}, inject = {}, include = ["**"] }) => {
     joined: false,
     callbackFn: (key, value, { isMatch, needle, parents }) => {
       assert(isMatch === true);
-      if (include.includes(needle)) {
-        included.push(key);
+      if (retain.includes(needle)) {
+        retained.push(key);
       }
       if (exclude[needle] !== undefined && exclude[needle](key, value, parents) === true) {
         excluded.push(key);
@@ -31,8 +31,8 @@ module.exports = ({ exclude = {}, inject = {}, include = ["**"] }) => {
 
   return (input) => {
     scanner(input);
-    tree.prune(input, included, excluded);
-    included.length = 0;
+    tree.prune(input, retained, excluded);
+    retained.length = 0;
     excluded.length = 0;
   };
 };

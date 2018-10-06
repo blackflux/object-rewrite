@@ -9,7 +9,7 @@
 
 # object-rewrite
 
-Rewrite an Object by defining exactly what gets excluded, injected and included.
+Rewrite an Object by defining exactly what gets excluded, injected and retained.
 
 ## Install
 
@@ -50,7 +50,7 @@ const rewriter = objectRewrite({
   inject: {
     "": (key, value, parents) => ({ count: value.count + 100 })
   },
-  include: ["count", "active", "tags.id"]
+  retain: ["count", "active", "tags.id"]
 });
 
 rewriter(data);
@@ -87,6 +87,6 @@ Takes object where keys are needles and values are functions. The matches for a 
 
 Takes object where keys are needles and values are functions. For every match the corresponding function is executed and the result merged into the match. The match and the function response are expected to be objects.
 
-### Include
+### Retain
 
 Array of needles. Matches are kept if not excluded previously. All entries not matched are excluded.
