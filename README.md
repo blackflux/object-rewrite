@@ -85,7 +85,7 @@ Takes object where keys are needles and values are functions. The matches for a 
 
 ### Inject
 
-Takes object where keys are needles and values are functions. The result of the function is merged into every match for the needle. Both, the match and the function response, are expected to be objects.
+Takes object where keys are needles and values are functions. The result of the function is merged into the corresponding execution match. Both, the match and the function response, are expected to be objects.
 
 ### Include
 
