@@ -8,18 +8,18 @@
   },
   "dependencies": {
     "js-gardener": "1.31.7",
-    "object-scan": "1.9.4"
+    "object-scan": "1.9.5"
   },
   "devDependencies": {
     "babel-cli": "7.0.0-beta.3",
-    "babel-eslint": "8.2.3",
+    "babel-eslint": "10.0.1",
     "babel-plugin-transform-flow-comments": "7.0.0-beta.3",
     "babel-preset-flow": "7.0.0-beta.3",
     "babel-register": "7.0.0-beta.3",
     "chai": "4.2.0",
-    "coveralls": "3.0.0",
-    "nyc": "12.0.2",
-    "semantic-release": "15.7.1"
+    "coveralls": "3.0.2",
+    "nyc": "13.0.1",
+    "semantic-release": "15.9.17"
   },
   "scripts": {
     "test": "npm run clean && npm run gardener && npm run test-simple",
