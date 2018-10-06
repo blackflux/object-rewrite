@@ -9,19 +9,19 @@ module.exports = ({ exclude = {}, inject = {}, retain = ["**"] }) => {
     ...retain
   ];
 
-  const retained = [];
   const excluded = [];
+  const retained = [];
 
   const scanner = objectScan(needles, {
     useArraySelector: false,
     joined: false,
     callbackFn: (key, value, { isMatch, needle, parents }) => {
       assert(isMatch === true);
-      if (retain.includes(needle)) {
-        retained.push(key);
-      }
       if (exclude[needle] !== undefined && exclude[needle](key, value, parents) === true) {
         excluded.push(key);
+      }
+      if (retain.includes(needle)) {
+        retained.push(key);
       }
       if (inject[needle] !== undefined) {
         Object.assign(value, inject[needle](key, value, parents));
@@ -31,8 +31,8 @@ module.exports = ({ exclude = {}, inject = {}, retain = ["**"] }) => {
 
   return (input) => {
     scanner(input);
-    tree.prune(input, retained, excluded);
-    retained.length = 0;
+    tree.prune(input, excluded, retained);
     excluded.length = 0;
+    retained.length = 0;
   };
 };
