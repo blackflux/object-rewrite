@@ -23,7 +23,7 @@ const pruneRec = (input, include, exclude) => {
   const isArray = Array.isArray(input);
   const inputEntries = Object.entries(input);
   if (isArray) {
-    // sort inverse so delete matches correctly
+    // sort inverse so array delete matches correct index
     inputEntries.sort((a, b) => parseInt(b[0], 10) - parseInt(a[0], 10));
   }
   inputEntries.forEach(([key, value]) => {
