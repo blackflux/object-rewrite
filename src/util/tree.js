@@ -38,7 +38,7 @@ const pruneRec = (input, exclude, retain) => {
         // eslint-disable-next-line no-param-reassign
         delete input[key];
       }
-    } else {
+    } else if (value instanceof Object) {
       pruneRec(value, exclude[key] || {}, retain[key]);
     }
   });
