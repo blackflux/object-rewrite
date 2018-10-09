@@ -50,6 +50,9 @@ const rewriter = objectRewrite({
   inject: {
     "": (key, value, parents) => ({ count: value.count + 100 })
   },
+  overwrite: {
+    active: () => "yes"
+  },
   retain: ["count", "active", "tags.id"]
 });
 
@@ -59,11 +62,11 @@ rewriter(data);
 /*
 [{
   "count": 103,
-  "active": true,
+  "active": "yes",
   "tags": []
 }, {
   "count": 104,
-  "active": true,
+  "active": "yes",
   "tags": [{"id": 4}]
 }]
 */
@@ -86,6 +89,10 @@ Takes object where keys are needles and values are functions. The matches for a 
 ### Inject
 
 Takes object where keys are needles and values are functions. For every match the corresponding function is executed and the result merged into the match. The match and the function response are expected to be objects.
+
+### Overwrite
+
+Takes object where keys are needles and values are functions. For every match the corresponding function is executed and the result is assigned to the key.
 
 ### Retain
 

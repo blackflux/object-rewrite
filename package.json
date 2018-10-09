@@ -7,7 +7,7 @@
     "test": "test"
   },
   "dependencies": {
-    "object-scan": "1.10.6"
+    "object-scan": "1.10.7"
   },
   "devDependencies": {
     "js-gardener": "1.31.7",
