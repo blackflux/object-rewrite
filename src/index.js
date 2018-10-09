@@ -34,7 +34,7 @@ module.exports = ({
       }
       if (overwrite[needle] !== undefined) {
         // eslint-disable-next-line no-param-reassign
-        parents.slice(-1)[0][key.slice(-1)[0]] = overwrite[needle](key, value, parents);
+        parents[0][key.slice(-1)[0]] = overwrite[needle](key, value, parents);
       }
     }
   });
