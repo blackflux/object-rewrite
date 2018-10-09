@@ -44,7 +44,7 @@ const data = [{
 
 const rewriter = objectRewrite({
   exclude: {
-    "": (key, value, parents) => ![true, "yes"].includes(value.active),
+    "": (key, value, parents) => value.active !== "yes",
     tags: (key, value, parents) => value.id !== 4
   },
   inject: {
