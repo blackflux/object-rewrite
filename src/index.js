@@ -2,10 +2,16 @@ const assert = require("assert");
 const objectScan = require("object-scan");
 const tree = require("./util/tree");
 
-module.exports = ({ exclude = {}, inject = {}, retain = ["**"] }) => {
+module.exports = ({
+  exclude = {},
+  inject = {},
+  overwrite = {},
+  retain = ["**"]
+}) => {
   const needles = [
     ...Object.keys(exclude),
     ...Object.keys(inject),
+    ...Object.keys(overwrite),
     ...retain
   ];
 
@@ -25,6 +31,10 @@ module.exports = ({ exclude = {}, inject = {}, retain = ["**"] }) => {
       }
       if (inject[needle] !== undefined) {
         Object.assign(value, inject[needle](key, value, parents));
+      }
+      if (overwrite[needle] !== undefined) {
+        // eslint-disable-next-line no-param-reassign
+        parents.slice(-1)[0][key.slice(-1)[0]] = overwrite[needle](key, value, parents);
       }
     }
   });

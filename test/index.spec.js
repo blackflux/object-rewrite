@@ -34,10 +34,16 @@ describe("Testing Rewrite", () => {
     expect(input).to.deep.equal({ test: [{ test: "b" }] });
   });
 
-  it("Test Update", () => {
+  it("Test Inject", () => {
     const input = { test: {} };
     index({ inject: { test: () => ({ key: "value" }) } })(input);
     expect(input).to.deep.equal({ test: { key: "value" } });
+  });
+
+  it("Test Overwrite", () => {
+    const input = { test: [{ key: "before" }] };
+    index({ overwrite: { "test.key": () => "after" } })(input);
+    expect(input).to.deep.equal({ test: [{ key: "after" }] });
   });
 
   it("Test Complex Use Case", () => {
@@ -139,16 +145,19 @@ describe("Testing Rewrite", () => {
       inject: {
         "": (key, value, parents) => ({ count: value.count + 100 })
       },
+      overwrite: {
+        active: () => "yes"
+      },
       retain: ["count", "active", "tags.id"]
     });
     rewriter(data);
     expect(data).to.deep.equal([{
       count: 103,
-      active: true,
+      active: "yes",
       tags: []
     }, {
       count: 104,
-      active: true,
+      active: "yes",
       tags: [{ id: 4 }]
     }]);
   });
