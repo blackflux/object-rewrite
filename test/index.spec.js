@@ -124,40 +124,42 @@ describe("Testing Rewrite", () => {
     const data = [{
       guid: "aad8b948-a3de-4bff-a50f-3d59e9510aa9",
       count: 3,
-      active: true,
+      active: "yes",
       tags: [{ id: 1 }, { id: 2 }, { id: 3 }]
     }, {
       guid: "4409fb72-36e3-4385-b3da-b4944d028dcb",
       count: 4,
-      active: true,
+      active: "yes",
       tags: [{ id: 2 }, { id: 3 }, { id: 4 }]
     }, {
       guid: "96067a3c-caa2-4018-bcec-6969a874dad9",
       count: 5,
-      active: false,
+      active: "no",
       tags: [{ id: 3 }, { id: 4 }, { id: 5 }]
     }];
     const rewriter = index({
       exclude: {
-        "": (key, value, parents) => value.active !== true,
+        "": (key, value, parents) => ![true, "yes"].includes(value.active),
         tags: (key, value, parents) => value.id !== 4
       },
       inject: {
-        "": (key, value, parents) => ({ count: value.count + 100 })
+        "": (key, value, parents) => ({ countNext: value.count + 1 })
       },
       overwrite: {
-        active: () => "yes"
+        active: (key, value) => value === "yes"
       },
-      retain: ["count", "active", "tags.id"]
+      retain: ["count", "countNext", "active", "tags.id"]
     });
     rewriter(data);
     expect(data).to.deep.equal([{
-      count: 103,
-      active: "yes",
+      count: 3,
+      countNext: 4,
+      active: true,
       tags: []
     }, {
-      count: 104,
-      active: "yes",
+      count: 4,
+      countNext: 5,
+      active: true,
       tags: [{ id: 4 }]
     }]);
   });
