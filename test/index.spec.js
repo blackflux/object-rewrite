@@ -46,6 +46,7 @@ describe("Testing Rewrite", () => {
       index({ overwrite: { "test.key": () => "after" } })(input);
       expect(input).to.deep.equal({ test: [{ key: "after" }] });
     });
+
     it("Test Array Overwrite", () => {
       const input = { test: [{ key: "before" }] };
       index({ overwrite: { test: () => "after" } })(input);
