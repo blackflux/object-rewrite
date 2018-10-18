@@ -10,6 +10,12 @@ describe("Testing Rewrite", () => {
     expect(input).to.deep.equal({});
   });
 
+  it("Testing Retain Empty List", () => {
+    const input = { test: [] };
+    index({ retain: ["test"] })(input);
+    expect(input).to.deep.equal({ test: [] });
+  });
+
   it("Testing Array Exclude", () => {
     const input = { test: [{ test: "" }] };
     index({ exclude: { test: () => true } })(input);
