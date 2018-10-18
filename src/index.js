@@ -38,6 +38,11 @@ module.exports = ({
         // eslint-disable-next-line no-param-reassign
         directParent[key.slice(-1)[0]] = overwrite[needle](key, value, parents);
       }
+    },
+    arrayCallbackFn: (key, value, { needle }) => {
+      if (retain.includes(needle)) {
+        retained.push(key);
+      }
     }
   });
 
