@@ -3,13 +3,13 @@ const objectScan = require("object-scan");
 const tree = require("./util/tree");
 
 module.exports = ({
-  exclude = {},
+  filter = {},
   inject = {},
   overwrite = {},
   retain = ["**"]
 }) => {
   const needles = [
-    ...Object.keys(exclude),
+    ...Object.keys(filter),
     ...Object.keys(inject),
     ...Object.keys(overwrite),
     ...retain
@@ -23,7 +23,7 @@ module.exports = ({
     joined: false,
     callbackFn: (key, value, { isMatch, needle, parents }) => {
       assert(isMatch === true);
-      if (exclude[needle] !== undefined && exclude[needle](key, value, parents) === true) {
+      if (filter[needle] !== undefined && filter[needle](key, value, parents) === false) {
         excluded.push(key);
       }
       if (retain.includes(needle)) {
