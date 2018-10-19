@@ -20,7 +20,7 @@ const build = (needles) => {
 };
 module.exports.build = build;
 
-const pruneRec = (input, exclude, retain) => {
+const pruneRec = (input, remove, retain) => {
   const isArray = Array.isArray(input);
   const inputEntries = Object.entries(input);
   if (isArray) {
@@ -29,7 +29,7 @@ const pruneRec = (input, exclude, retain) => {
   }
   inputEntries.forEach(([key, value]) => {
     if (
-      (exclude[key] !== undefined && isLeaf(exclude[key]))
+      (remove[key] !== undefined && isLeaf(remove[key]))
       || (retain[key] === undefined)
     ) {
       if (isArray) {
@@ -39,11 +39,11 @@ const pruneRec = (input, exclude, retain) => {
         delete input[key];
       }
     } else if (value instanceof Object) {
-      pruneRec(value, exclude[key] || {}, retain[key]);
+      pruneRec(value, remove[key] || {}, retain[key]);
     }
   });
 };
 
-module.exports.prune = (input, exclude, retain) => {
-  pruneRec(input, build(exclude), build(retain));
+module.exports.prune = (input, remove, retain) => {
+  pruneRec(input, build(remove), build(retain));
 };

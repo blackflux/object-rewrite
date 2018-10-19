@@ -16,10 +16,10 @@ describe("Testing tree.js", () => {
   });
 
   describe("Testing tree.prune()", () => {
-    it("Testing object excluded", () => {
-      const excluded = [[1, "a", 2, "b"], [1, "a", 1, "b"]];
+    it("Testing object remove", () => {
+      const remove = [[1, "a", 2, "b"], [1, "a", 1, "b"]];
       const data = { 1: { a: { 2: { b: {}, c: {} }, 1: { c: {} } } } };
-      tree.prune(data, excluded, objectScan(["**"], { joined: false })(data));
+      tree.prune(data, remove, objectScan(["**"], { joined: false })(data));
       expect(data).to.deep.equal({ 1: { a: { 2: { c: {} }, 1: { c: {} } } } });
     });
 
@@ -30,10 +30,10 @@ describe("Testing tree.js", () => {
       expect(data).to.deep.equal({ 1: { a: { 2: { b: {} }, 1: { b: {} } } } });
     });
 
-    it("Testing array excluded", () => {
-      const excluded = [[0, "a", 1, "b"], [0, "a", 0, "b"]];
+    it("Testing array remove", () => {
+      const remove = [[0, "a", 1, "b"], [0, "a", 0, "b"]];
       const data = [{ a: [{ b: {}, c: {} }, { c: {} }] }];
-      tree.prune(data, excluded, objectScan(["**"], { joined: false })(data));
+      tree.prune(data, remove, objectScan(["**"], { joined: false })(data));
       expect(data).to.deep.equal([{ a: [{ c: {} }, { c: {} }] }]);
     });
 
@@ -44,10 +44,10 @@ describe("Testing tree.js", () => {
       expect(data).to.deep.equal([{ a: [{ b: {} }, {}] }]);
     });
 
-    it("Testing object parent excluded", () => {
-      const excluded = [[0, "a"]];
+    it("Testing object parent remove", () => {
+      const remove = [[0, "a"]];
       const data = [{ a: [{ b: {}, c: {} }, { c: {} }] }];
-      tree.prune(data, excluded, objectScan(["**"], { joined: false })(data));
+      tree.prune(data, remove, objectScan(["**"], { joined: false })(data));
       expect(data).to.deep.equal([{}]);
     });
 
