@@ -9,7 +9,7 @@
 
 # object-rewrite
 
-Rewrite an Object by defining exactly what gets excluded, injected and retained.
+Rewrite an Object by defining exactly what gets filtered, injected and retained.
 
 ## Install
 
@@ -43,9 +43,9 @@ const data = [{
 }];
 
 const rewriter = objectRewrite({
-  exclude: {
-    "": (key, value, parents) => value.active !== "yes",
-    tags: (key, value, parents) => value.id !== 4
+  filter: {
+    "": (key, value, parents) => value.active === "yes",
+    tags: (key, value, parents) => value.id === 4
   },
   inject: {
     "": (key, value, parents) => ({ countNext: value.count + 1 })
@@ -84,9 +84,9 @@ Internally the option `useArraySelector` is set to false.
 
 Functions have signature `Fn(key, value, parents)` as specified by *object-scan*. Keys are split (`joined` is false),
 
-### Exclude
+### Filter
 
-Takes object where keys are needles and values are functions. The matches for a needle are removed from the object iff the corresponding function execution returns true.
+Takes object where keys are needles and values are functions. The matches for a needle are removed from the object iff the corresponding function execution returns false.
 
 ### Inject
 
@@ -98,9 +98,9 @@ Takes object where keys are needles and values are functions. For every match th
 
 ### Retain
 
-Array of needles. Matches are kept if not excluded previously. All entries not matched are excluded. Defaults to `["**"]` which matches all entries.
+Array of needles. Matches are kept if not filtered previously. All entries not matched are removed. Defaults to `["**"]` which matches all entries.
 
 ## Deficiencies
 
-Problems when different matchers are used between exclude, inject, overwrite, retain that target the same elements.
+Problems when different matchers are used between filter, inject, overwrite, retain that target the same elements.
 E.g. using `**` for retain, but `*.field` for inject.

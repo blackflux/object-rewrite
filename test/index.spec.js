@@ -4,9 +4,9 @@ const expect = require('chai').expect;
 const index = require("../src/index");
 
 describe("Testing Rewrite", () => {
-  it("Testing Simple Exclude", () => {
+  it("Testing Simple Filter", () => {
     const input = { test: 123 };
-    index({ exclude: { test: () => true } })(input);
+    index({ filter: { test: () => false } })(input);
     expect(input).to.deep.equal({});
   });
 
@@ -16,27 +16,27 @@ describe("Testing Rewrite", () => {
     expect(input).to.deep.equal({ test: [] });
   });
 
-  it("Testing Array Exclude", () => {
+  it("Testing Array Filter", () => {
     const input = { test: [{ test: "" }] };
-    index({ exclude: { test: () => true } })(input);
+    index({ filter: { test: () => false } })(input);
     expect(input).to.deep.equal({ test: [] });
   });
 
-  it("Testing Nested Array Exclude Object", () => {
+  it("Testing Nested Array Filter Object", () => {
     const input = { test: [[{ test: "" }]] };
-    index({ exclude: { test: () => true } })(input);
+    index({ filter: { test: () => false } })(input);
     expect(input).to.deep.equal({ test: [[]] });
   });
 
-  it("Testing Nested Array Exclude Object Content", () => {
+  it("Testing Nested Array Filter Object Content", () => {
     const input = { test: [[{ test: "" }]] };
-    index({ exclude: { "test.test": () => true } })(input);
+    index({ filter: { "test.test": () => false } })(input);
     expect(input).to.deep.equal({ test: [[{}]] });
   });
 
-  it("Testing Partial Exclude", () => {
+  it("Testing Partial Filter", () => {
     const input = { test: [{ test: "a" }, { test: "b" }] };
-    index({ exclude: { test: (key, value) => value.test === "a" } })(input);
+    index({ filter: { test: (key, value) => value.test !== "a" } })(input);
     expect(input).to.deep.equal({ test: [{ test: "b" }] });
   });
 
@@ -77,8 +77,8 @@ describe("Testing Rewrite", () => {
       timestamp: "2015-06-10T10:00:00+04:00"
     }];
     const rewriter = index({
-      exclude: {
-        "": (key, value) => value.client.version === "1.2.3"
+      filter: {
+        "": (key, value) => value.client.version !== "1.2.3"
       },
       inject: {
         "": (key, value) => ({
@@ -99,9 +99,9 @@ describe("Testing Rewrite", () => {
   it("Testing User Rewrite", () => {
     const users = JSON.parse(fs.readFileSync(path.join(__dirname, "resources", "users-sample.json")));
     const rewriter = index({
-      exclude: {
-        "": (key, value) => value.isActive !== true,
-        friends: (key, value, parents) => parents[parents.length - 1].age > 25
+      filter: {
+        "": (key, value) => value.isActive === true,
+        friends: (key, value, parents) => parents[parents.length - 1].age <= 25
       },
       inject: {
         "": (key, value) => ({
@@ -152,9 +152,9 @@ describe("Testing Rewrite", () => {
       tags: [{ id: 3 }, { id: 4 }, { id: 5 }]
     }];
     const rewriter = index({
-      exclude: {
-        "": (key, value, parents) => value.active !== "yes",
-        tags: (key, value, parents) => value.id !== 4
+      filter: {
+        "": (key, value, parents) => value.active === "yes",
+        tags: (key, value, parents) => value.id === 4
       },
       inject: {
         "": (key, value, parents) => ({ countNext: value.count + 1 })

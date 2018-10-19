@@ -3,31 +3,31 @@ const objectScan = require("object-scan");
 const tree = require("./util/tree");
 
 module.exports = ({
-  exclude = {},
+  filter = {},
   inject = {},
   overwrite = {},
   retain = ["**"]
 }) => {
   const needles = [
-    ...Object.keys(exclude),
+    ...Object.keys(filter),
     ...Object.keys(inject),
     ...Object.keys(overwrite),
     ...retain
   ];
 
-  const excluded = [];
-  const retained = [];
+  const toRemove = [];
+  const toRetain = [];
 
   const scanner = objectScan(needles, {
     useArraySelector: false,
     joined: false,
     callbackFn: (key, value, { isMatch, needle, parents }) => {
       assert(isMatch === true);
-      if (exclude[needle] !== undefined && exclude[needle](key, value, parents) === true) {
-        excluded.push(key);
+      if (filter[needle] !== undefined && filter[needle](key, value, parents) === false) {
+        toRemove.push(key);
       }
       if (retain.includes(needle)) {
-        retained.push(key);
+        toRetain.push(key);
       }
       if (inject[needle] !== undefined) {
         Object.assign(value, inject[needle](key, value, parents));
@@ -41,15 +41,15 @@ module.exports = ({
     },
     arrayCallbackFn: (key, value, { needle }) => {
       if (retain.includes(needle)) {
-        retained.push(key);
+        toRetain.push(key);
       }
     }
   });
 
   return (input) => {
     scanner(input);
-    tree.prune(input, excluded, retained);
-    excluded.length = 0;
-    retained.length = 0;
+    tree.prune(input, toRemove, toRetain);
+    toRemove.length = 0;
+    toRetain.length = 0;
   };
 };
