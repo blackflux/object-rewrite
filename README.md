@@ -98,7 +98,7 @@ Takes object where keys are needles and values are functions. For every match th
 
 ### Retain
 
-Array of needles. Matches are kept if not filtered previously. All entries not matched are excluded. Defaults to `["**"]` which matches all entries.
+Array of needles. Matches are kept if not filtered previously. All entries not matched are removed. Defaults to `["**"]` which matches all entries.
 
 ## Deficiencies
 
