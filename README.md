@@ -105,7 +105,7 @@ Array of needles. Matches are kept if not filtered previously. All entries not m
 ### retainEmptyParents
 
 Default `true`<br>
-When `false`, empty "parents" are only retained when exactly matched by `retain` array entry. When `true` empty parents are also retained if a `retain` array entry partially matches them (i.e. targets a "child").
+When `false`, empty "parents" are only retained when exactly matched by `retain` array entry. When `true`, empty parents are also retained if a `retain` array entry targets a "child".
 
 ## Deficiencies
 
