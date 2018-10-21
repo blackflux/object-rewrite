@@ -6,7 +6,8 @@ module.exports = ({
   filter = {},
   inject = {},
   overwrite = {},
-  retain = ["**"]
+  retain = ["**"],
+  retainEmptyParents = true
 }) => {
   const needles = [
     ...Object.keys(filter),
@@ -43,6 +44,12 @@ module.exports = ({
       if (retain.includes(needle)) {
         toRetain.push(key);
       }
+    },
+    breakFn: (key, value, { needles: ndls }) => {
+      if (retainEmptyParents === true && ndls.some(ndl => retain.includes(ndl))) {
+        toRetain.push(key);
+      }
+      return false;
     }
   });
 

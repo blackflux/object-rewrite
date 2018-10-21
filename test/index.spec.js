@@ -10,10 +10,52 @@ describe("Testing Rewrite", () => {
     expect(input).to.deep.equal({});
   });
 
-  it("Testing Retain Empty List", () => {
-    const input = { test: [] };
-    index({ retain: ["test"] })(input);
-    expect(input).to.deep.equal({ test: [] });
+  describe("Testing Retain Empty List", () => {
+    const execTest = (retain, retainEmptyParents) => {
+      const input = { test: [] };
+      index({ retain, retainEmptyParents })(input);
+      return input;
+    };
+
+    it("Testing Retain Empty List (Exact Match), retainEmptyParents = true", () => {
+      expect(execTest(["test"], true)).to.deep.equal({ test: [] });
+    });
+
+    it("Testing Retain Empty List (Exact Match), retainEmptyParents = false", () => {
+      expect(execTest(["test"], false)).to.deep.equal({ test: [] });
+    });
+
+    it("Testing Retain Empty List (Child Match), retainEmptyParents = true", () => {
+      expect(execTest(["test.id"], true)).to.deep.equal({ test: [] });
+    });
+
+    it("Testing Retain Empty List (Child Match), retainEmptyParents = false", () => {
+      expect(execTest(["test.id"], false)).to.deep.equal({});
+    });
+
+    it("Testing Retain Empty List (No Match), retainEmptyParents = true", () => {
+      expect(execTest(["unknown"], true)).to.deep.equal({});
+    });
+
+    it("Testing Retain Empty List (No Match), retainEmptyParents = false", () => {
+      expect(execTest(["unknown"], false)).to.deep.equal({});
+    });
+  });
+
+  describe("Testing Nothing Retained, but overwrite matching", () => {
+    const execTest = (retain, retainEmptyParents) => {
+      const input = { test: [{ id: 1 }] };
+      index({ retain, overwrite: { "test.id": () => 3 }, retainEmptyParents })(input);
+      return input;
+    };
+
+    it("Testing Retain List (No Match) with overwrite, retainEmptyParents = true", () => {
+      expect(execTest(["unknown"], true)).to.deep.equal({});
+    });
+
+    it("Testing Retain List (No Match) with overwrite, retainEmptyParents = false", () => {
+      expect(execTest(["unknown"], false)).to.deep.equal({});
+    });
   });
 
   it("Testing Array Filter", () => {
