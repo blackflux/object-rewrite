@@ -46,7 +46,7 @@ module.exports = ({
       }
     },
     breakFn: (key, value, { needles: ndls }) => {
-      if (retainEmptyParents === true && ndls.some(needle => retain.includes(needle))) {
+      if (retainEmptyParents === true && ndls.some(ndl => retain.includes(ndl))) {
         toRetain.push(key);
       }
       return false;
