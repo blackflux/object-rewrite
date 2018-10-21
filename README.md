@@ -104,7 +104,9 @@ Array of needles. Matches are kept if not filtered previously. All entries not m
 
 ### retainEmptyParents
 
-Default `true`<br>
+Type: `boolean`<br>
+Default: `true`
+
 Empty parents are only retained when exactly matched, when this is set to false.
 
 ## Deficiencies
