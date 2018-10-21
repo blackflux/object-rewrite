@@ -100,6 +100,15 @@ Takes object where keys are needles and values are functions. For every match th
 
 Array of needles. Matches are kept if not filtered previously. All entries not matched are removed. Defaults to `["**"]` which matches all entries.
 
+## Options
+
+### retainEmptyParents
+
+Type: `boolean`<br>
+Default: `true`
+
+When `false`, empty "parents" are only retained when exactly matched by `retain` array entry. When `true`, empty parents are also retained if a `retain` array entry targets a "child".
+
 ## Deficiencies
 
 Problems when different matchers are used between filter, inject, overwrite, retain that target the same elements.
