@@ -7,7 +7,7 @@
     "test": "test"
   },
   "dependencies": {
-    "object-scan": "2.0.3"
+    "object-scan": "2.0.4"
   },
   "devDependencies": {
     "babel-cli": "7.0.0-beta.3",
