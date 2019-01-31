@@ -1,4 +1,4 @@
-const LEAF = Symbol("leaf");
+const LEAF = Symbol('leaf');
 
 const markLeaf = input => Object.defineProperty(input, LEAF, { value: true, writable: false });
 const isLeaf = input => input[LEAF] === true;

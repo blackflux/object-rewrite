@@ -1,12 +1,12 @@
-const assert = require("assert");
-const objectScan = require("object-scan");
-const tree = require("./util/tree");
+const assert = require('assert');
+const objectScan = require('object-scan');
+const tree = require('./util/tree');
 
 module.exports = ({
   filter = {},
   inject = {},
   overwrite = {},
-  retain = ["**"],
+  retain = ['**'],
   retainEmptyParents = true
 }) => {
   const needles = [
@@ -34,7 +34,7 @@ module.exports = ({
         Object.assign(value, inject[needle](key, value, parents));
       }
       if (overwrite[needle] !== undefined) {
-        const lastStringIndex = key.reduce((p, c, idx) => (typeof c === "string" ? idx : p), 0);
+        const lastStringIndex = key.reduce((p, c, idx) => (typeof c === 'string' ? idx : p), 0);
         const directParent = key.slice(lastStringIndex, -1).reduce((p, c) => p[c], parents[0]);
         // eslint-disable-next-line no-param-reassign
         directParent[key.slice(-1)[0]] = overwrite[needle](key, value, parents);
