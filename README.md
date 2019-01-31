@@ -23,37 +23,37 @@ Modifies the data object in place. If you need to create a copy consider using [
 
 <!-- eslint-disable-next-line import/no-unresolved -->
 ```js
-const objectRewrite = require("object-rewrite");
+const objectRewrite = require('object-rewrite');
 
 const data = [{
-  guid: "aad8b948-a3de-4bff-a50f-3d59e9510aa9",
+  guid: 'aad8b948-a3de-4bff-a50f-3d59e9510aa9',
   count: 3,
-  active: "yes",
+  active: 'yes',
   tags: [{ id: 1 }, { id: 2 }, { id: 3 }]
 }, {
-  guid: "4409fb72-36e3-4385-b3da-b4944d028dcb",
+  guid: '4409fb72-36e3-4385-b3da-b4944d028dcb',
   count: 4,
-  active: "yes",
+  active: 'yes',
   tags: [{ id: 2 }, { id: 3 }, { id: 4 }]
 }, {
-  guid: "96067a3c-caa2-4018-bcec-6969a874dad9",
+  guid: '96067a3c-caa2-4018-bcec-6969a874dad9',
   count: 5,
-  active: "no",
+  active: 'no',
   tags: [{ id: 3 }, { id: 4 }, { id: 5 }]
 }];
 
 const rewriter = objectRewrite({
   filter: {
-    "": (key, value, parents) => value.active === "yes",
+    '': (key, value, parents) => value.active === 'yes',
     tags: (key, value, parents) => value.id === 4
   },
   inject: {
-    "": (key, value, parents) => ({ countNext: value.count + 1 })
+    '': (key, value, parents) => ({ countNext: value.count + 1 })
   },
   overwrite: {
-    active: (key, value) => value === "yes"
+    active: (key, value) => value === 'yes'
   },
-  retain: ["count", "countNext", "active", "tags.id"]
+  retain: ['count', 'countNext', 'active', 'tags.id']
 });
 
 rewriter(data);
