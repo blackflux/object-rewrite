@@ -22,31 +22,36 @@ module.exports = ({
   const scanner = objectScan(needles, {
     useArraySelector: false,
     joined: false,
-    callbackFn: (key, value, { isMatch, needle, parents }) => {
+    callbackFn: (key, value, { isMatch, matchedBy, parents }) => {
       assert(isMatch === true);
-      if (filter[needle] !== undefined && filter[needle](key, value, parents) === false) {
+      matchedBy.sort();
+      if (matchedBy.some(n => filter[n] !== undefined && filter[n](key, value, parents) === false)) {
         toRemove.push(key);
       }
-      if (retain.includes(needle)) {
+      if (matchedBy.some(n => retain.includes(n))) {
         toRetain.push(key);
       }
-      if (inject[needle] !== undefined) {
-        Object.assign(value, inject[needle](key, value, parents));
-      }
-      if (overwrite[needle] !== undefined) {
-        const lastStringIndex = key.reduce((p, c, idx) => (typeof c === 'string' ? idx : p), 0);
-        const directParent = key.slice(lastStringIndex, -1).reduce((p, c) => p[c], parents[0]);
-        // eslint-disable-next-line no-param-reassign
-        directParent[key.slice(-1)[0]] = overwrite[needle](key, value, parents);
-      }
+      matchedBy.forEach((n) => {
+        if (inject[n] !== undefined) {
+          Object.assign(value, inject[n](key, value, parents));
+        }
+      });
+      matchedBy.forEach((n) => {
+        if (overwrite[n] !== undefined) {
+          const lastStringIndex = key.reduce((p, c, idx) => (typeof c === 'string' ? idx : p), 0);
+          const directParent = key.slice(lastStringIndex, -1).reduce((p, c) => p[c], parents[0]);
+          // eslint-disable-next-line no-param-reassign
+          directParent[key.slice(-1)[0]] = overwrite[n](key, directParent[key.slice(-1)[0]], parents);
+        }
+      });
     },
-    arrayCallbackFn: (key, value, { needle }) => {
-      if (retain.includes(needle)) {
+    arrayCallbackFn: (key, value, { matchedBy }) => {
+      if (matchedBy.some(n => retain.includes(n))) {
         toRetain.push(key);
       }
     },
-    breakFn: (key, value, { needles: ndls }) => {
-      if (retainEmptyParents === true && ndls.some(ndl => retain.includes(ndl))) {
+    breakFn: (key, value, { traversedBy }) => {
+      if (retainEmptyParents === true && traversedBy.some(n => retain.includes(n))) {
         toRetain.push(key);
       }
       return false;
