@@ -109,7 +109,7 @@ Default: `true`
 
 When `false`, empty "parents" are only retained when exactly matched by `retain` array entry. When `true`, empty parents are also retained if a `retain` array entry targets a "child".
 
-## Deficiencies
+## Edge Cases
 
-Problems when different matchers are used between filter, inject, overwrite, retain that target the same elements.
-E.g. using `**` for retain, but `*.field` for inject.
+When different matchers target the same elements, all matcher functions are run in key-alphabetical order.
+Example of multi targeting would be e.g. using `**` and `*.field`.
