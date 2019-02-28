@@ -7,7 +7,7 @@
     "test": "test"
   },
   "dependencies": {
-    "object-scan": "3.0.0"
+    "object-scan": "3.1.0"
   },
   "devDependencies": {
     "babel-eslint": "10.0.1",
