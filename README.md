@@ -43,15 +43,15 @@ const data = [{
 }];
 
 const rewriter = objectRewrite({
-  filter: {
-    '': (key, value, parents) => value.active === 'yes',
-    tags: (key, value, parents) => value.id === 4
-  },
   inject: {
     '': (key, value, parents) => ({ countNext: value.count + 1 })
   },
   overwrite: {
     active: (key, value) => value === 'yes'
+  },
+  filter: {
+    '': (key, value, parents) => value.active === true,
+    tags: (key, value, parents) => value.id === 4
   },
   retain: ['count', 'countNext', 'active', 'tags.id']
 });
@@ -84,9 +84,7 @@ Internally the option `useArraySelector` is set to false.
 
 Functions have signature `Fn(key, value, parents)` as specified by *object-scan*. Keys are split (`joined` is false),
 
-### Filter
-
-Takes object where keys are needles and values are functions. The matches for a needle are removed from the object iff the corresponding function execution returns false.
+Execution order happens as follows: inject and overwrite (where inject happens before overwrite on a key bases) and then filter and retain as a separate pass on the modified data.
 
 ### Inject
 
@@ -95,6 +93,10 @@ Takes object where keys are needles and values are functions. For every match th
 ### Overwrite
 
 Takes object where keys are needles and values are functions. For every match the corresponding function is executed and the result is assigned to the key.
+
+### Filter
+
+Takes object where keys are needles and values are functions. The matches for a needle are removed from the object iff the corresponding function execution returns false.
 
 ### Retain
 
