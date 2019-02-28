@@ -138,6 +138,27 @@ describe('Testing Rewrite', () => {
     }]);
   });
 
+  it('Testing Rewrite and Retain', () => {
+    const data = {
+      parent: {
+        properties: {
+          child: 'value'
+        }
+      }
+    };
+    const rewriter = index({
+      overwrite: {
+        parent: (key, value) => value.properties
+      }
+    });
+    rewriter(data);
+    expect(data).to.deep.equal({
+      parent: {
+        child: 'value'
+      }
+    });
+  });
+
   it('Testing User Rewrite', () => {
     const users = JSON.parse(fs.readFileSync(path.join(__dirname, 'resources', 'users-sample.json')));
     const rewriter = index({
@@ -194,15 +215,15 @@ describe('Testing Rewrite', () => {
       tags: [{ id: 3 }, { id: 4 }, { id: 5 }]
     }];
     const rewriter = index({
-      filter: {
-        '': (key, value, parents) => value.active === 'yes',
-        tags: (key, value, parents) => value.id === 4
-      },
       inject: {
         '': (key, value, parents) => ({ countNext: value.count + 1 })
       },
       overwrite: {
         active: (key, value) => value === 'yes'
+      },
+      filter: {
+        '': (key, value, parents) => value.active === true,
+        tags: (key, value, parents) => value.id === 4
       },
       retain: ['count', 'countNext', 'active', 'tags.id']
     });
