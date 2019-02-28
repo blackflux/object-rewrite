@@ -1,4 +1,3 @@
-const assert = require('assert');
 const objectScan = require('object-scan');
 const tree = require('./util/tree');
 
@@ -35,22 +34,30 @@ module.exports = ({
   const scannerRemoveAndRetain = objectScan(Object.keys(filter).concat(retain), {
     useArraySelector: false,
     joined: false,
-    callbackFn: (key, value, { isMatch, matchedBy, parents }) => {
-      assert(isMatch === true);
-      if (matchedBy.some(n => filter[n] !== undefined && filter[n](key, value, parents) === false)) {
+    breakFn: (key, value, {
+      isMatch, matchedBy, traversedBy, parents
+    }) => {
+      // mark as removed if:
+      // - not targeting array and
+      // - it's filtered
+      if (
+        !Array.isArray(value)
+        && matchedBy.some(n => filter[n] !== undefined && filter[n](key, value, parents) === false)
+      ) {
         toRemove.push(key);
+        return true;
       }
-      if (matchedBy.some(n => retain.includes(n))) {
-        toRetain.push(key);
-      }
-    },
-    arrayCallbackFn: (key, value, { matchedBy }) => {
-      if (matchedBy.some(n => retain.includes(n))) {
-        toRetain.push(key);
-      }
-    },
-    breakFn: (key, value, { traversedBy }) => {
-      if (retainEmptyParents === true && traversedBy.some(n => retain.includes(n))) {
+      // mark as retained if:
+      // - targeted by retain or
+      // - we retain empty parents, targeting array, and traversed by a retain
+      if (
+        matchedBy.some(n => retain.includes(n))
+        || (
+          retainEmptyParents === true
+          && Array.isArray(value)
+          && traversedBy.some(n => retain.includes(n))
+        )
+      ) {
         toRetain.push(key);
       }
       return false;
