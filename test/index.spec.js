@@ -215,15 +215,15 @@ describe('Testing Rewrite', () => {
       tags: [{ id: 3 }, { id: 4 }, { id: 5 }]
     }];
     const rewriter = index({
-      filter: {
-        '': (key, value, parents) => value.active === true,
-        tags: (key, value, parents) => value.id === 4
-      },
       inject: {
         '': (key, value, parents) => ({ countNext: value.count + 1 })
       },
       overwrite: {
         active: (key, value) => value === 'yes'
+      },
+      filter: {
+        '': (key, value, parents) => value.active === true,
+        tags: (key, value, parents) => value.id === 4
       },
       retain: ['count', 'countNext', 'active', 'tags.id']
     });
