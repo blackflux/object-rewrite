@@ -1,0 +1,386 @@
+{
+  "intervals": [
+    {
+      "intervalStart": "2019-01-10T04:00:00.000Z",
+      "intervalIndex": 1,
+      "reach": {
+        "events": {
+          "sum": 4,
+          "breakdown": null
+        },
+        "gender": {
+          "sum": 21,
+          "breakdown": [
+            [
+              "female",
+              {
+                "ageRange": null
+              }
+            ],
+            [
+              "male",
+              {
+                "ageRange": null
+              }
+            ],
+            [
+              "unknown",
+              {
+                "ageRange": null
+              }
+            ]
+          ]
+        },
+        "ageRange": {
+          "sum": 21,
+          "breakdown": [
+            [
+              "25to34",
+              {
+                "gender": null
+              }
+            ],
+            [
+              "35to44",
+              {
+                "gender": null
+              }
+            ],
+            [
+              "unknown",
+              {
+                "gender": null
+              }
+            ]
+          ]
+        }
+      },
+      "response": {
+        "gender": {
+          "sum": 4,
+          "breakdown": null
+        },
+        "ageRange": {
+          "sum": 4,
+          "breakdown": null
+        },
+        "events": {
+          "sum": 4,
+          "breakdown": null
+        }
+      }
+    },
+    {
+      "intervalStart": "2019-01-10T12:00:00.000Z",
+      "intervalIndex": 3,
+      "reach": {
+        "events": {
+          "sum": 4,
+          "breakdown": null
+        },
+        "gender": {
+          "sum": 21,
+          "breakdown": [
+            [
+              "female",
+              {
+                "ageRange": null
+              }
+            ],
+            [
+              "male",
+              {
+                "ageRange": null
+              }
+            ],
+            [
+              "unknown",
+              {
+                "ageRange": null
+              }
+            ]
+          ]
+        },
+        "ageRange": {
+          "sum": 21,
+          "breakdown": [
+            [
+              "25to34",
+              {
+                "gender": null
+              }
+            ],
+            [
+              "35to44",
+              {
+                "gender": null
+              }
+            ],
+            [
+              "unknown",
+              {
+                "gender": null
+              }
+            ]
+          ]
+        }
+      },
+      "response": {
+        "gender": {
+          "sum": 4,
+          "breakdown": null
+        },
+        "ageRange": {
+          "sum": 4,
+          "breakdown": null
+        },
+        "events": {
+          "sum": 4,
+          "breakdown": null
+        }
+      }
+    },
+    {
+      "intervalStart": "2019-01-10T16:00:00.000Z",
+      "intervalIndex": 4,
+      "reach": {
+        "events": {
+          "sum": 8,
+          "breakdown": null
+        },
+        "gender": {
+          "sum": 42,
+          "breakdown": [
+            [
+              "female",
+              {
+                "ageRange": null
+              }
+            ],
+            [
+              "male",
+              {
+                "ageRange": {
+                  "sum": 28,
+                  "breakdown": [
+                    [
+                      null,
+                      28
+                    ]
+                  ]
+                }
+              }
+            ],
+            [
+              "unknown",
+              {
+                "ageRange": null
+              }
+            ]
+          ]
+        },
+        "ageRange": {
+          "sum": 42,
+          "breakdown": [
+            [
+              "25to34",
+              {
+                "gender": {
+                  "sum": 20,
+                  "breakdown": [
+                    [
+                      null,
+                      20
+                    ]
+                  ]
+                }
+              }
+            ],
+            [
+              "35to44",
+              {
+                "gender": null
+              }
+            ],
+            [
+              "unknown",
+              {
+                "gender": null
+              }
+            ]
+          ]
+        }
+      },
+      "response": {
+        "gender": {
+          "sum": 8,
+          "breakdown": null
+        },
+        "ageRange": {
+          "sum": 8,
+          "breakdown": null
+        },
+        "events": {
+          "sum": 8,
+          "breakdown": null
+        }
+      }
+    }
+  ],
+  "totals": {
+    "reach": {
+      "events": {
+        "sum": 16,
+        "breakdown": [
+          [
+            "business_shown",
+            16
+          ]
+        ]
+      },
+      "gender": {
+        "sum": 84,
+        "breakdown": [
+          [
+            "female",
+            {
+              "ageRange": null
+            }
+          ],
+          [
+            "male",
+            {
+              "ageRange": {
+                "sum": 56,
+                "breakdown": [
+                  [
+                    "25to34",
+                    28
+                  ],
+                  [
+                    "35to44",
+                    28
+                  ]
+                ]
+              }
+            }
+          ],
+          [
+            "unknown",
+            {
+              "ageRange": {
+                "sum": 16,
+                "breakdown": [
+                  [
+                    "unknown",
+                    16
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      },
+      "ageRange": {
+        "sum": 84,
+        "breakdown": [
+          [
+            "25to34",
+            {
+              "gender": {
+                "sum": 40,
+                "breakdown": [
+                  [
+                    null,
+                    12
+                  ],
+                  [
+                    "male",
+                    28
+                  ]
+                ]
+              }
+            }
+          ],
+          [
+            "35to44",
+            {
+              "gender": {
+                "sum": 28,
+                "breakdown": [
+                  [
+                    "male",
+                    28
+                  ]
+                ]
+              }
+            }
+          ],
+          [
+            "unknown",
+            {
+              "gender": {
+                "sum": 16,
+                "breakdown": [
+                  [
+                    "unknown",
+                    16
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "response": {
+      "gender": {
+        "sum": 16,
+        "breakdown": [
+          [
+            "unknown",
+            {
+              "ageRange": {
+                "sum": 16,
+                "breakdown": [
+                  [
+                    "unknown",
+                    16
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      },
+      "ageRange": {
+        "sum": 16,
+        "breakdown": [
+          [
+            "unknown",
+            {
+              "gender": {
+                "sum": 16,
+                "breakdown": [
+                  [
+                    "unknown",
+                    16
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      },
+      "events": {
+        "sum": 16,
+        "breakdown": [
+          [
+            "offer_viewed",
+            16
+          ]
+        ]
+      }
+    }
+  }
+}
