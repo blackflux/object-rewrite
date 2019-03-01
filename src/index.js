@@ -54,7 +54,6 @@ module.exports = ({
         matchedBy.some(n => retain.includes(n))
         || (
           retainEmptyParents === true
-          && Array.isArray(value)
           && traversedBy.some(n => retain.includes(n))
         )
       ) {
