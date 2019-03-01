@@ -11,7 +11,7 @@ module.exports = ({
   const scannerInjectAndOverwrite = objectScan(Object.keys(inject).concat(Object.keys(overwrite)), {
     useArraySelector: false,
     joined: false,
-    callbackFn: (key, value, { isMatch, matchedBy, parents }) => {
+    filterFn: (key, value, { isMatch, matchedBy, parents }) => {
       matchedBy.sort();
       matchedBy.forEach((n) => {
         if (inject[n] !== undefined) {
@@ -26,6 +26,7 @@ module.exports = ({
           directParent[key.slice(-1)[0]] = overwrite[n](key, directParent[key.slice(-1)[0]], parents);
         }
       });
+      return true;
     }
   });
 
