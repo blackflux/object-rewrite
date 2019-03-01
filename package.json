@@ -7,13 +7,13 @@
     "test": "test"
   },
   "dependencies": {
-    "object-scan": "3.1.1"
+    "object-scan": "5.0.0"
   },
   "devDependencies": {
     "babel-eslint": "10.0.1",
     "chai": "4.2.0",
     "coveralls": "3.0.3",
-    "js-gardener": "1.37.5",
+    "js-gardener": "1.37.6",
     "nyc": "13.3.0",
     "semantic-release": "15.13.3",
     "@babel/register": "7.0.0",
