@@ -50,7 +50,7 @@ module.exports = ({
       }
       // mark as retained if:
       // - targeted by retain or
-      // - we retain empty parents, targeting array, and traversed by a retain
+      // - we retain empty parents and traversed by a retain
       if (
         matchedBy.some(n => retain.includes(n))
         || (
