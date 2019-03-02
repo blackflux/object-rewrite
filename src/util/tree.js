@@ -22,12 +22,7 @@ module.exports.build = build;
 
 const pruneRec = (input, remove, retain) => {
   const isArray = Array.isArray(input);
-  const inputEntries = Object.entries(input);
-  if (isArray) {
-    // sort inverse so array delete matches correct index
-    inputEntries.sort((a, b) => parseInt(b[0], 10) - parseInt(a[0], 10));
-  }
-  inputEntries.forEach(([key, value]) => {
+  Object.entries(input).reverse().forEach(([key, value]) => {
     if (
       (remove[key] !== undefined && isLeaf(remove[key]))
       || (retain[key] === undefined)
