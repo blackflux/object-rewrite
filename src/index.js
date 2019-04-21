@@ -8,7 +8,8 @@ module.exports = ({
   retain = ['**'],
   retainEmptyParents = true
 }) => {
-  const scannerInjectAndOverwrite = objectScan(Object.keys(inject).concat(Object.keys(overwrite)), {
+  // todo: remove inject since the functionality can be achived with overwrite (!)
+  const scannerInjectAndOverwrite = objectScan([...new Set(Object.keys(inject).concat(Object.keys(overwrite)))], {
     useArraySelector: false,
     joined: false,
     filterFn: (key, value, { isMatch, matchedBy, parents }) => {
@@ -32,7 +33,8 @@ module.exports = ({
 
   const toRemove = [];
   const toRetain = [];
-  const scannerRemoveAndRetain = objectScan(Object.keys(filter).concat(retain), {
+  // todo: now that we have negation this might have to be two traversals?
+  const scannerRemoveAndRetain = objectScan([...new Set(Object.keys(filter).concat(retain))], {
     useArraySelector: false,
     joined: false,
     breakFn: (key, value, {

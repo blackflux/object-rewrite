@@ -86,6 +86,8 @@ Functions have signature `Fn(key, value, parents)` as specified by *object-scan*
 
 Execution order happens as follows: inject and overwrite (where inject happens before overwrite on a key bases) and then filter and retain as a separate pass on the modified data.
 
+Note that filtering is only applied once the full object traversal has finished.
+
 ### Inject
 
 Takes object where keys are needles and values are functions. For every match the corresponding function is executed and the result merged into the match. The match and the function response are expected to be objects.
