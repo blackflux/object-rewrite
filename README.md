@@ -79,6 +79,7 @@ The empty needle `""` matches top level object(s).
 ## Modifiers
 
 Needles are specified according to [object-scan](https://github.com/blackflux/object-scan).
+However using the exclusion pattern is strongly discouraged.
 
 Internally the option `useArraySelector` is set to false.
 
