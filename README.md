@@ -79,12 +79,15 @@ The empty needle `""` matches top level object(s).
 ## Modifiers
 
 Needles are specified according to [object-scan](https://github.com/blackflux/object-scan).
+However using the exclusion pattern is strongly discouraged.
 
 Internally the option `useArraySelector` is set to false.
 
 Functions have signature `Fn(key, value, parents)` as specified by *object-scan*. Keys are split (`joined` is false),
 
 Execution order happens as follows: inject and overwrite (where inject happens before overwrite on a key bases) and then filter and retain as a separate pass on the modified data.
+
+Note that filtering is only applied once the full object traversal has finished.
 
 ### Inject
 

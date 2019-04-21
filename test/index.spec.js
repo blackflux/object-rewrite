@@ -102,6 +102,12 @@ describe('Testing Rewrite', () => {
     });
   });
 
+  describe('Testing Post Execution Filtering', () => {
+    const fixture = { a: {}, e: {} };
+    index({ filter: { '**': (key, value, parents) => Object.keys(parents).length > 1 } })(fixture);
+    expect(fixture).to.deep.equal({});
+  });
+
   it('Test Complex Use Case', () => {
     const purchases = [{
       id: 1,
