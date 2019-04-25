@@ -9,6 +9,7 @@ module.exports = ({
   retainEmptyParents = true
 }) => {
   const scannerInjectAndOverwrite = objectScan([...new Set(Object.keys(inject).concat(Object.keys(overwrite)))], {
+    strict: false,
     useArraySelector: false,
     joined: false,
     filterFn: (key, value, { isMatch, matchedBy, parents }) => {
@@ -33,6 +34,7 @@ module.exports = ({
   const toRemove = [];
   const toRetain = [];
   const scannerRemoveAndRetain = objectScan([...new Set(Object.keys(filter).concat(retain))], {
+    strict: false,
     useArraySelector: false,
     joined: false,
     breakFn: (key, value, {
