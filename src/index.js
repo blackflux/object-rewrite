@@ -21,10 +21,8 @@ module.exports = ({
       });
       matchedBy.forEach((n) => {
         if (overwrite[n] !== undefined) {
-          const lastStringIndex = key.reduce((p, c, idx) => (typeof c === 'string' ? idx : p), 0);
-          const directParent = key.slice(lastStringIndex, -1).reduce((p, c) => p[c], parents[0]);
           // eslint-disable-next-line no-param-reassign
-          directParent[key.slice(-1)[0]] = overwrite[n](key, directParent[key.slice(-1)[0]], parents);
+          parents[0][key.slice(-1)[0]] = overwrite[n](key, parents[0][key.slice(-1)[0]], parents);
         }
       });
       return true;
