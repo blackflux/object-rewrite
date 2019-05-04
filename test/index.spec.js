@@ -170,7 +170,7 @@ describe('Testing Rewrite', () => {
     const rewriter = index({
       filter: {
         '': (key, value) => value.isActive === true,
-        friends: (key, value, parents) => parents[parents.length - 1].age <= 25
+        friends: (key, value, parents) => parents[1].age <= 25
       },
       inject: {
         '': (key, value) => ({
