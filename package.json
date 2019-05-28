@@ -1,13 +1,16 @@
 {
   "name": "object-rewrite",
   "version": "0.0.0-development",
-  "description": "Rewrite an Object",
+  "description": "Rewrite Object(s) in place using plugins.",
   "main": "lib/index.js",
   "directories": {
     "test": "test"
   },
   "dependencies": {
-    "object-scan": "10.0.2"
+    "joi-strict": "1.0.2",
+    "object-fields": "1.3.7",
+    "object-scan": "10.0.2",
+    "smart-fs": "1.7.8"
   },
   "devDependencies": {
     "@babel/cli": "7.4.4",
