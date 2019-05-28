@@ -1,5 +1,7 @@
 const assert = require('assert');
 
+const pluginTypes = ['FILTER', 'INJECT', 'SORT'];
+
 const join = (input) => {
   const result = input.filter(e => !!e).join('.');
   if (result === '*') {
@@ -12,7 +14,7 @@ const join = (input) => {
 };
 
 const plugin = (type, options) => {
-  assert(['FILTER', 'INJECT', 'SORT'].includes(type));
+  assert(pluginTypes.includes(type));
   assert(options instanceof Object && !Array.isArray(options));
   assert(Object.keys(options).length === 3);
 
@@ -30,6 +32,6 @@ const plugin = (type, options) => {
   });
 };
 
-module.exports.injectPlugin = options => plugin('INJECT', options);
-module.exports.filterPlugin = options => plugin('FILTER', options);
-module.exports.sortPlugin = options => plugin('SORT', options);
+module.exports = pluginTypes.reduce((prev, t) => Object.assign(prev, {
+  [`${t.toLowerCase()}Plugin`]: options => plugin(t, options)
+}), { pluginTypes });

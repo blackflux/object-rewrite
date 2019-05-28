@@ -2,13 +2,14 @@ const assert = require('assert');
 const objectScan = require('object-scan');
 const objectFields = require('object-fields');
 const sortFn = require('../util/sort-fn');
+const { pluginTypes } = require('./plugin');
 
 const defineProperty = (target, k, v) => Object.defineProperty(target, k, { value: v, writable: false });
 const SORT_VALUE = Symbol('sortValue');
 const setSortValue = (input, value) => defineProperty(input, SORT_VALUE, value);
 const getSortValue = input => input[SORT_VALUE];
 
-const rewritePlugins = (type, plugins) => {
+const compilePlugins = (type, plugins) => {
   const targets = plugins
     .filter(plugin => plugin.type === type)
     .reduce((prev, plugin) => {
@@ -44,6 +45,36 @@ const rewritePlugins = (type, plugins) => {
     }), {});
 };
 
+const extractMeta = (plugins, fields) => {
+  const pluginsByType = pluginTypes.reduce((p, c) => Object.assign(p, { [c]: [] }), {});
+
+  const inactivePlugins = [...plugins];
+  const fieldsToObtain = [...fields];
+  const injectedFields = [];
+  for (let i = 0; i < fieldsToObtain.length; i += 1) {
+    const field = fieldsToObtain[i];
+    for (let j = 0; j < inactivePlugins.length; j += 1) {
+      const plugin = inactivePlugins[j];
+      if (
+        field === plugin.target
+        || (plugin.type !== 'INJECT' && field.startsWith(plugin.target))
+      ) {
+        fieldsToObtain.push(...plugin.requires);
+        inactivePlugins.splice(j, 1);
+        j -= 1;
+        pluginsByType[plugin.type].push(plugin);
+        if (plugin.type === 'INJECT') {
+          injectedFields.push(plugin.target);
+        }
+      }
+    }
+  }
+
+  return Object.entries(pluginsByType).reduce((p, [type, ps]) => Object.assign(p, {
+    [`${type.toLowerCase()}Plugins`]: ps
+  }), { fieldsToObtain, injectedFields });
+};
+
 module.exports = (pluginMap) => {
   const plugins = Object.entries(pluginMap).reduce((prev, [prefix, ps]) => {
     prev.push(...ps.map(p => p(prefix)));
@@ -52,43 +83,17 @@ module.exports = (pluginMap) => {
 
   return (fields) => {
     assert(Array.isArray(fields));
-    const injectPlugins = [];
-    const filterPlugins = [];
-    const sortPlugins = [];
 
-    const inactivePlugins = [...plugins];
-    const fieldsToObtain = [...fields];
-    const injectedFields = [];
-    for (let i = 0; i < fieldsToObtain.length; i += 1) {
-      const field = fieldsToObtain[i];
-      for (let j = 0; j < inactivePlugins.length; j += 1) {
-        const plugin = inactivePlugins[j];
-        if (
-          field === plugin.target
-          || (plugin.type !== 'INJECT' && field.startsWith(plugin.target))
-        ) {
-          fieldsToObtain.push(...plugin.requires);
-          inactivePlugins.splice(j, 1);
-          j -= 1;
-          switch (plugin.type) {
-            case 'INJECT':
-              injectedFields.push(plugin.target);
-              injectPlugins.push(plugin);
-              break;
-            case 'FILTER':
-              filterPlugins.push(plugin);
-              break;
-            case 'SORT':
-            default:
-              sortPlugins.push(plugin);
-              break;
-          }
-        }
-      }
-    }
+    const {
+      injectPlugins,
+      filterPlugins,
+      sortPlugins,
+      fieldsToObtain,
+      injectedFields
+    } = extractMeta(plugins, fields);
 
     const injectRewriter = (() => {
-      const rew = rewritePlugins('INJECT', injectPlugins);
+      const rew = compilePlugins('INJECT', injectPlugins);
       return (input, context) => objectScan(Object.keys(rew), {
         useArraySelector: false,
         joined: false,
@@ -101,7 +106,7 @@ module.exports = (pluginMap) => {
       })(input);
     })();
     const filterRewriter = (() => {
-      const rew = rewritePlugins('FILTER', filterPlugins);
+      const rew = compilePlugins('FILTER', filterPlugins);
       return (input, context) => objectScan(Object.keys(rew), {
         useArraySelector: false,
         joined: false,
@@ -118,7 +123,7 @@ module.exports = (pluginMap) => {
     })();
     const sortRewriter = (() => {
       const targets = new Set();
-      const rew = rewritePlugins('SORT', sortPlugins);
+      const rew = compilePlugins('SORT', sortPlugins);
       return (input, context) => {
         targets.clear();
         objectScan(Object.keys(rew), {
