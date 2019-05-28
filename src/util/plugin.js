@@ -30,6 +30,6 @@ const plugin = (type, options) => {
   });
 };
 
-module.exports.filter = options => plugin('FILTER', options);
-module.exports.inject = options => plugin('INJECT', options);
-module.exports.sort = options => plugin('SORT', options);
+module.exports.filterPlugin = options => plugin('FILTER', options);
+module.exports.injectPlugin = options => plugin('INJECT', options);
+module.exports.sortPlugin = options => plugin('SORT', options);
