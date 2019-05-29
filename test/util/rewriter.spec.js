@@ -76,4 +76,27 @@ describe('Testing rewriter', () => {
     rew.rewrite(data);
     expect(data).to.deep.equal([{ id: 2 }, { id: 1 }]);
   });
+
+  it('Testing inject is bottom up', () => {
+    const data = [
+      { id: 2, c: [{ id: 3 }, { id: 4 }] },
+      { id: 1, c: [{ id: 5 }, { id: 6 }] }
+    ];
+    const fields = ['idSum', 'c.idSum'];
+    const plugin = injectPlugin({
+      target: 'idSum',
+      requires: ['id'],
+      fn: ({ value }) => value.id + (value.c || []).reduce((p, c) => p + c.id, 0)
+    });
+    const rew = rewriter({
+      '': [plugin],
+      c: [plugin]
+    })(fields);
+    expect(rew.toRequest).to.deep.equal(['id', 'c.id']);
+    rew.rewrite(data);
+    expect(data).to.deep.equal([
+      { idSum: 9, c: [{ idSum: 3 }, { idSum: 4 }] },
+      { idSum: 12, c: [{ idSum: 5 }, { idSum: 6 }] }
+    ]);
+  });
 });
