@@ -60,8 +60,8 @@ There are three types of plugins `INJECT`, `FILTER` and `SORT`.
 
 All plugins require a `target` of type `String`, a `required` of type `Array` and `fn` of type `Functions`.
 
-- `target`: specifies the relative field this plugin acts on
-- `required`: specifies the relative required fields for this plugin to operate. Will influence `toRequest`.
+- `target`: specifies the relative field or object this plugin acts on
+- `required`: specifies the relative required fields. Will influence `toRequest`.
 - `fn`: result of this function is used by the plugin. Signature is `fn({ key, value, parents, context })`.
 
 ### Inject Plugin
@@ -77,7 +77,7 @@ Used to inject data
 Used to filter arrays 
 
 - `target`: array that should be filtered
-- `required`: fields relative to the target
+- `required`: fields relative to the target elements
 - `fn`: target is removed iff function returns `false`. Similar to 
 [Array.filter()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter).
 
@@ -86,7 +86,7 @@ Used to filter arrays
 Used to sort arrays
 
 - `target`: array that should be sorted
-- `required`: fields relative to the target
+- `required`: fields relative to the target elements
 - `fn`: called for each object in array. Final array is sorted using the result
 
 Only one sort plugin can be specified per target.
@@ -98,7 +98,14 @@ Allows for complex sort comparisons and uses `sort-fn.js` under the hood (see so
 Used to combine multiple plugins. Plugins can be re-used in different rewriters. Rewriters are then
 used to modify input data.
 
-Constructor takes in an object that maps absolute paths to plugins. 
+Constructor takes in an object that maps absolute paths to plugins. Could for example re-use a plugin as
+
+```js
+rewriter({
+  '': [plugin],
+  'nodes': [plugin]
+})
+```
 
 ### `toRequest`
 
@@ -109,7 +116,14 @@ would not be present in the data store.
 
 Pass in object that should be rewritten. The context allows for additional data to be made available for all plugins.
 
-## Notes on Execution Order
+## Notes
+
+### Dynamic Keys
+
+Under the hood this library uses [object-scan](https://github.com/blackflux/object-scan).
+Please refer to the docs for what key pattern are supported.
+
+### Execution Order
 
 Plugins are executed in the order `INJECT`, `FILTER` and then `SORT`.
 
