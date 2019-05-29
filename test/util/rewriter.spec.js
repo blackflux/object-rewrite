@@ -48,6 +48,23 @@ describe('Testing rewriter', () => {
     });
   });
 
+  it('Testing inject with context', () => {
+    const dataStoreFields = ['id'];
+    const data = [{ id: 2 }, { id: 1 }];
+    const fields = ['idPlus'];
+    const plugin = injectPlugin({
+      target: 'idPlus',
+      requires: ['id'],
+      fn: ({ value, context }) => value.id + context.inc
+    });
+    const rew = rewriter({
+      '': [plugin]
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(['id']);
+    rew.rewrite(data, { inc: 2 });
+    expect(data).to.deep.equal([{ idPlus: 4 }, { idPlus: 3 }]);
+  });
+
   it('Testing filter array element', () => {
     const dataStoreFields = ['id'];
     const data = [{ id: 2 }, { id: 1 }];
