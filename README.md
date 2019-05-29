@@ -9,7 +9,10 @@
 [![Semantic-Release](https://github.com/blackflux/js-gardener/blob/master/assets/icons/semver.svg)](https://github.com/semantic-release/semantic-release)
 [![Gardener](https://github.com/blackflux/js-gardener/blob/master/assets/badge.svg)](https://github.com/blackflux/js-gardener)
 
-Rewrite an Object by defining exactly what gets filtered, injected and retained.
+Rewrite Object(s) in place using plugins.
+
+This library is used for doing complex in-memory modifications of data. It allows to define use cases
+in a dynamic way that allows for powerful abstraction.
 
 ## Install
 
@@ -19,102 +22,125 @@ npm i --save object-rewrite
 
 ## Getting Started
 
-Modifies the data object in place. If you need to create a copy consider using [_.deepClone()](https://lodash.com/docs/#cloneDeep).
-
-<!-- eslint-disable-next-line import/no-unresolved -->
+<!-- eslint-disable import/no-unresolved, import/no-extraneous-dependencies -->
 ```js
-const objectRewrite = require('object-rewrite');
+const {
+  injectPlugin,
+  filterPlugin,
+  sortPlugin,
+  rewriter
+} = require('object-rewrite');
 
-const data = [{
-  guid: 'aad8b948-a3de-4bff-a50f-3d59e9510aa9',
-  count: 3,
-  active: 'yes',
-  tags: [{ id: 1 }, { id: 2 }, { id: 3 }]
-}, {
-  guid: '4409fb72-36e3-4385-b3da-b4944d028dcb',
-  count: 4,
-  active: 'yes',
-  tags: [{ id: 2 }, { id: 3 }, { id: 4 }]
-}, {
-  guid: '96067a3c-caa2-4018-bcec-6969a874dad9',
-  count: 5,
-  active: 'no',
-  tags: [{ id: 3 }, { id: 4 }, { id: 5 }]
-}];
+const queryDataStore = (fields) => { /* ... */ };
 
-const rewriter = objectRewrite({
-  inject: {
-    '': (key, value, parents) => ({ countNext: value.count + 1 })
-  },
-  overwrite: {
-    active: (key, value) => value === 'yes'
-  },
-  filter: {
-    '': (key, value, parents) => value.active === true,
-    tags: (key, value, parents) => value.id === 4
-  },
-  retain: ['count', 'countNext', 'active', 'tags.id']
+const inject = injectPlugin({
+  target: 'idNeg',
+  requires: ['id'],
+  fn: ({ value }) => -value.id
 });
+const filter = filterPlugin({
+  target: '*',
+  requires: ['idNeg'],
+  fn: ({ value }) => [-2, -1].includes(value.idNeg)
+});
+const sort = sortPlugin({
+  target: '*',
+  requires: ['idNeg'],
+  fn: ({ value }) => value.idNeg
+});
+const rew = rewriter({ '': [inject, filter, sort] });
 
-rewriter(data);
+const desiredFields = ['id'];
+const rewInstance = rew(desiredFields);
 
-// => data is now modified
-/*
-[{
-  "count": 3,
-  "countNext": 4,
-  "active": true,
-  "tags": []
-}, {
-  "count": 4,
-  "countNext": 5,
-  "active": true,
-  "tags": [{"id": 4}]
-}]
-*/
+const data = queryDataStore(rewInstance.toRequest);
+// data => [{ id: 0 }, { id: 1 }, { id: 2 }]
+
+rewInstance.rewrite(data);
+// data => [{ id: 2 }, { id: 1 }]
 ```
 
-The empty needle `""` matches top level object(s).  
+Please see the tests for more in-depth examples on how to use this library.
 
-## Modifiers
+## Plugins
 
-Needles are specified according to [object-scan](https://github.com/blackflux/object-scan).
-However using the exclusion pattern is strongly discouraged.
+There are three types of plugins `INJECT`, `FILTER` and `SORT`.
 
-Internally the option `useArraySelector` is set to false.
+All plugins require:
 
-Functions have signature `Fn(key, value, parents)` as specified by *object-scan*. Keys are split (`joined` is false),
+- `target` _String_: specifies the relative field or object this plugin acts on
+- `required` _Array_: specifies the relative required fields. Will influence `toRequest`.
+- `fn` _Function_: result of this function is used by the plugin. Signature is `fn({ key, value, parents, context })`.
 
-Execution order happens as follows: inject and overwrite (where inject happens before overwrite on a key bases) and then filter and retain as a separate pass on the modified data.
+### Inject Plugin
 
-Note that filtering is only applied once the full object traversal has finished.
+Used to inject data
 
-### Inject
+- `target`: field that is created or overwritten
+- `requires`: required fields relative to the target parent
+- `fn`: return value is used for target
 
-Takes object where keys are needles and values are functions. For every match the corresponding function is executed and the result merged into the match. The match and the function response are expected to be objects.
+### Filter Plugin
 
-### Overwrite
+Used to filter arrays 
 
-Takes object where keys are needles and values are functions. For every match the corresponding function is executed and the result is assigned to the key.
+- `target`: array that should be filtered
+- `required`: fields relative to the target elements
+- `fn`: target is removed iff function returns `false`. Similar to 
+[Array.filter()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter).
 
-### Filter
+### Sort Plugin
 
-Takes object where keys are needles and values are functions. The matches for a needle are removed from the object iff the corresponding function execution returns false.
+Used to sort arrays
 
-### Retain
+- `target`: array that should be sorted
+- `required`: fields relative to the target elements
+- `fn`: called for each object in array. Final array is sorted using the result
 
-Array of needles. Matches are kept if not filtered previously. All entries not matched are removed. Defaults to `["**"]` which matches all entries.
+Only one sort plugin can be specified per target.
 
-## Options
+Allows for complex sort comparisons and uses `sort-fn.js` under the hood (see source code).
 
-### retainEmptyParents
+## Rewriter
 
-Type: `boolean`<br>
-Default: `true`
+Used to combine multiple plugins. Plugins can be re-used in different rewriters. Rewriters are then
+used to modify input data.
 
-When `false`, empty "parents" are only retained when exactly matched by `retain` array entry. When `true`, empty parents are also retained if a `retain` array entry targets a "child".
+Constructor takes in an object that maps absolute paths to plugins. Could for example re-use a plugin as
 
-## Edge Cases
+<!-- eslint-disable-next-line import/no-unresolved, import/no-extraneous-dependencies -->
+```js
+const { injectPlugin, rewriter } = require('object-rewrite');
 
-When different matchers target the same elements, all matcher functions are run in key-alphabetical order.
-Example of multi targeting would be e.g. using `**` and `*.field`.
+const plugin = injectPlugin(/* ... */);
+
+rewriter({
+  '': [plugin],
+  nodes: [plugin]
+});
+```
+
+### `toRequest`
+
+Exposes fields which should be requested from data store. Dynamically computed fields are excluded since they
+would not be present in the data store.
+
+### `rewrite(data: Object/Array, context: Object = {})`
+
+Pass in object that should be rewritten. The context allows for additional data to be made available for all plugins.
+
+## Notes
+
+### Dynamic Keys
+
+Under the hood this library uses [object-scan](https://github.com/blackflux/object-scan).
+Please refer to the docs for what key pattern are supported.
+
+### Execution Order
+
+Plugins are executed in the order `INJECT`, `FILTER` and then `SORT`.
+
+Plugins within the same type are evaluated bottom-up. While this is less performant,
+it allows plugins to rely on previous executed plugins of the same type.
+
+Plugins of the same type that operate on the same target are executed in order.

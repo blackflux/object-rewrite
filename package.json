@@ -1,12 +1,13 @@
 {
   "name": "object-rewrite",
   "version": "0.0.0-development",
-  "description": "Rewrite an Object",
+  "description": "Rewrite Object(s) in place using plugins.",
   "main": "lib/index.js",
   "directories": {
     "test": "test"
   },
   "dependencies": {
+    "object-fields": "1.3.8",
     "object-scan": "10.0.3"
   },
   "devDependencies": {
@@ -21,6 +22,7 @@
     "coveralls": "3.0.3",
     "eslint": "5.16.0",
     "js-gardener": "2.0.35",
+    "lodash.get": "4.4.2",
     "nyc": "14.1.1",
     "semantic-release": "15.13.12"
   },
