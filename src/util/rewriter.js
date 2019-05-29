@@ -17,8 +17,7 @@ const compileTargetToCallback = (type, plugins) => {
       const target = plugin.target.endsWith('.') ? plugin.target.slice(0, -1) : plugin.target;
       const key = type === 'INJECT' ? target.split('.').slice(0, -1).join('.') : target;
       if (prev[key] === undefined) {
-        // eslint-disable-next-line no-param-reassign
-        prev[key] = [];
+        Object.assign(prev, { [key]: [] });
       }
       prev[key].push(plugin);
       return prev;
