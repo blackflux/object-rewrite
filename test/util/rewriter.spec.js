@@ -5,6 +5,7 @@ const { injectPlugin, filterPlugin, sortPlugin } = require('../../src/util/plugi
 
 describe('Testing rewriter', () => {
   it('Testing inject', () => {
+    const dataStoreFields = ['id'];
     const data = [{ id: 2 }, { id: 1 }];
     const fields = ['idPlus'];
     const plugin = injectPlugin({
@@ -14,13 +15,14 @@ describe('Testing rewriter', () => {
     });
     const rew = rewriter({
       '': [plugin]
-    })(fields);
-    expect(rew.toRequest).to.deep.equal(['id']);
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(['id']);
     rew.rewrite(data);
     expect(data).to.deep.equal([{ idPlus: 3 }, { idPlus: 2 }]);
   });
 
   it('Testing inject with **', () => {
+    const dataStoreFields = ['**.id'];
     const data = {
       data: [
         { id: 2, c: [{ id: 3 }, { id: 4 }] },
@@ -35,8 +37,8 @@ describe('Testing rewriter', () => {
     });
     const rew = rewriter({
       '**': [plugin]
-    })(fields);
-    expect(rew.toRequest).to.deep.equal(fields);
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(fields);
     rew.rewrite(data);
     expect(data).to.deep.equal({
       data: [
@@ -47,6 +49,7 @@ describe('Testing rewriter', () => {
   });
 
   it('Testing filter array element', () => {
+    const dataStoreFields = ['id'];
     const data = [{ id: 2 }, { id: 1 }];
     const fields = ['id'];
     const plugin = filterPlugin({
@@ -56,13 +59,14 @@ describe('Testing rewriter', () => {
     });
     const rew = rewriter({
       '': [plugin]
-    })(fields);
-    expect(rew.toRequest).to.deep.equal(fields);
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(fields);
     rew.rewrite(data);
     expect(data).to.deep.equal([{ id: 1 }]);
   });
 
   it('Testing filter object key', () => {
+    const dataStoreFields = ['obj.id'];
     const data = [{ obj: { id: 2 } }, { obj: { id: 1 } }];
     const fields = ['obj.id'];
     const plugin = filterPlugin({
@@ -72,13 +76,14 @@ describe('Testing rewriter', () => {
     });
     const rew = rewriter({
       obj: [plugin]
-    })(fields);
-    expect(rew.toRequest).to.deep.equal(fields);
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(fields);
     rew.rewrite(data);
     expect(data).to.deep.equal([{}, { obj: { id: 1 } }]);
   });
 
   it('Testing sort', () => {
+    const dataStoreFields = ['id'];
     const data = [{ id: 2 }, { id: 1 }];
     const fields = ['id'];
     const plugin = sortPlugin({
@@ -88,13 +93,14 @@ describe('Testing rewriter', () => {
     });
     const rew = rewriter({
       '': [plugin]
-    })(fields);
-    expect(rew.toRequest).to.deep.equal(fields);
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(fields);
     rew.rewrite(data);
     expect(data).to.deep.equal([{ id: 1 }, { id: 2 }]);
   });
 
   it('Testing multiple sort plugins', () => {
+    const dataStoreFields = ['idA', 'idB'];
     const data = [
       { idA: 2, idB: 4 },
       { idA: 2, idB: 3 },
@@ -114,8 +120,8 @@ describe('Testing rewriter', () => {
     });
     const rew = rewriter({
       '': [plugin1, plugin2]
-    })(fields);
-    expect(rew.toRequest).to.deep.equal(fields);
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(fields);
     rew.rewrite(data);
     expect(data).to.deep.equal([
       { idA: 1, idB: 1 },
@@ -126,6 +132,7 @@ describe('Testing rewriter', () => {
   });
 
   it('Testing inject + filter + sort', () => {
+    const dataStoreFields = ['id'];
     const data = [{ id: 0 }, { id: 1 }, { id: 2 }];
     const fields = ['id'];
     const plugin1 = injectPlugin({
@@ -145,13 +152,14 @@ describe('Testing rewriter', () => {
     });
     const rew = rewriter({
       '': [plugin1, plugin2, plugin3]
-    })(fields);
-    expect(rew.toRequest).to.deep.equal(fields);
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(fields);
     rew.rewrite(data);
     expect(data).to.deep.equal([{ id: 2 }, { id: 1 }]);
   });
 
   it('Testing inject is bottom up', () => {
+    const dataStoreFields = ['id', 'c.id'];
     const data = [
       { id: 2, c: [{ id: 3 }, { id: 4 }] },
       { id: 1, c: [{ id: 5 }, { id: 6 }] }
@@ -165,8 +173,8 @@ describe('Testing rewriter', () => {
     const rew = rewriter({
       '': [plugin],
       c: [plugin]
-    })(fields);
-    expect(rew.toRequest).to.deep.equal(['id', 'c.id']);
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(['id', 'c.id']);
     rew.rewrite(data);
     expect(data).to.deep.equal([
       { idSum: 9, c: [{ idSum: 3 }, { idSum: 4 }] },
@@ -175,6 +183,7 @@ describe('Testing rewriter', () => {
   });
 
   it('Testing filter is bottom up', () => {
+    const dataStoreFields = ['id', 'c.id'];
     const data = [
       { id: 2, c: [{ id: 3 }, { id: 4 }] },
       { id: 1, c: [{ id: 5 }, { id: 6 }] }
@@ -188,13 +197,14 @@ describe('Testing rewriter', () => {
     const rew = rewriter({
       '': [plugin],
       c: [plugin]
-    })(fields);
-    expect(rew.toRequest).to.deep.equal(fields);
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(fields);
     rew.rewrite(data);
     expect(data).to.deep.equal([{ id: 1, c: [{ id: 6 }] }]);
   });
 
   it('Testing sort is bottom up', () => {
+    const dataStoreFields = ['id', 'c.id'];
     const data = [
       { id: 1, c: [{ id: 4 }, { id: 5 }] },
       { id: 2, c: [{ id: 6 }, { id: 3 }] }
@@ -208,8 +218,8 @@ describe('Testing rewriter', () => {
     const rew = rewriter({
       '': [plugin],
       c: [plugin]
-    })(fields);
-    expect(rew.toRequest).to.deep.equal(fields);
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(fields);
     rew.rewrite(data);
     expect(data).to.deep.equal([
       { id: 2, c: [{ id: 3 }, { id: 6 }] },
@@ -218,6 +228,7 @@ describe('Testing rewriter', () => {
   });
 
   it('Testing inject can overwrite existing field', () => {
+    const dataStoreFields = ['id'];
     const data = [{ id: 2 }, { id: 1 }];
     const fields = ['id'];
     const plugin = injectPlugin({
@@ -227,13 +238,14 @@ describe('Testing rewriter', () => {
     });
     const rew = rewriter({
       '': [plugin]
-    })(fields);
-    expect(rew.toRequest).to.deep.equal(['id']);
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(['id']);
     rew.rewrite(data);
     expect(data).to.deep.equal([{ id: 3 }, { id: 2 }]);
   });
 
   it('Testing inject can overwrite existing dynamic field', () => {
+    const dataStoreFields = ['id'];
     const data = [{ id: 2 }, { id: 1 }];
     const fields = ['idPlus'];
     const plugin1 = injectPlugin({
@@ -248,9 +260,13 @@ describe('Testing rewriter', () => {
     });
     const rew = rewriter({
       '': [plugin1, plugin2]
-    })(fields);
-    expect(rew.toRequest).to.deep.equal(['id']);
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(['id']);
     rew.rewrite(data);
     expect(data).to.deep.equal([{ idPlus: 4 }, { idPlus: 3 }]);
+  });
+
+  it('Testing bad field requested', () => {
+    expect(() => rewriter({}, []).init(['id'])).to.throw('Bad field requested: id');
   });
 });
