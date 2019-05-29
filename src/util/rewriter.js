@@ -12,7 +12,7 @@ const getSortValue = input => input[SORT_VALUE];
 const compileTargetToCallback = (type, plugins) => {
   assert(plugins.every(p => p.type === type));
 
-  const targetTwoPlugins = plugins
+  const targetToPlugins = plugins
     .reduce((prev, plugin) => {
       const target = plugin.target.endsWith('.') ? plugin.target.slice(0, -1) : plugin.target;
       const key = type === 'INJECT' ? target.split('.').slice(0, -1).join('.') : target;
@@ -25,7 +25,7 @@ const compileTargetToCallback = (type, plugins) => {
     }, {});
 
   return Object
-    .entries(targetTwoPlugins)
+    .entries(targetToPlugins)
     .reduce((prev, [target, ps]) => Object.assign(prev, {
       [target]: (key, value, parents, context) => {
         const args = {
