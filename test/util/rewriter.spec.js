@@ -99,4 +99,24 @@ describe('Testing rewriter', () => {
       { idSum: 12, c: [{ idSum: 5 }, { idSum: 6 }] }
     ]);
   });
+
+  it('Testing filter is bottom up', () => {
+    const data = [
+      { id: 2, c: [{ id: 3 }, { id: 4 }] },
+      { id: 1, c: [{ id: 5 }, { id: 6 }] }
+    ];
+    const fields = ['id', 'c.id'];
+    const plugin = filterPlugin({
+      target: '*',
+      requires: ['id'],
+      fn: ({ value }) => (value.c || []).length !== 0 || value.id === 6
+    });
+    const rew = rewriter({
+      '': [plugin],
+      c: [plugin]
+    })(fields);
+    expect(rew.toRequest).to.deep.equal(fields);
+    rew.rewrite(data);
+    expect(data).to.deep.equal([{ id: 1, c: [{ id: 6 }] }]);
+  });
 });
