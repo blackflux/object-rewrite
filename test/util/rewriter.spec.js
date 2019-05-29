@@ -68,6 +68,37 @@ describe('Testing rewriter', () => {
     expect(data).to.deep.equal([{ id: 1 }, { id: 2 }]);
   });
 
+  it('Testing multiple sort plugins', () => {
+    const data = [
+      { idA: 2, idB: 4 },
+      { idA: 2, idB: 3 },
+      { idA: 1, idB: 2 },
+      { idA: 1, idB: 1 }
+    ];
+    const fields = ['idA', 'idB'];
+    const plugin1 = sortPlugin({
+      target: '*',
+      requires: ['idA'],
+      fn: ({ value }) => value.idA
+    });
+    const plugin2 = sortPlugin({
+      target: '*',
+      requires: ['idB'],
+      fn: ({ value }) => value.idB
+    });
+    const rew = rewriter({
+      '': [plugin1, plugin2]
+    })(fields);
+    expect(rew.toRequest).to.deep.equal(fields);
+    rew.rewrite(data);
+    expect(data).to.deep.equal([
+      { idA: 1, idB: 1 },
+      { idA: 1, idB: 2 },
+      { idA: 2, idB: 3 },
+      { idA: 2, idB: 4 }
+    ]);
+  });
+
   it('Testing inject + filter + sort', () => {
     const data = [{ id: 0 }, { id: 1 }, { id: 2 }];
     const fields = ['id'];

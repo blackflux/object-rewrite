@@ -38,8 +38,7 @@ const compileTargetToCallback = (type, plugins) => {
             return ps.every(p => p.fn(args));
           case 'SORT':
           default:
-            assert(ps.length === 1, 'Only one sort plugin per target allowed!');
-            return ps[0].fn(args);
+            return ps.map(p => p.fn(args));
         }
       }
     }), {});
@@ -125,7 +124,6 @@ module.exports = (pluginMap) => {
       joined: false,
       filterFn: (key, value, { matchedBy, parents }) => {
         assert(Array.isArray(parents[0]), 'Sort must be on "Array" type.');
-        assert(matchedBy.length === 1, 'Only one sort plugin per target allowed!');
         setSortValue(value, sortCbs[matchedBy[0]](key, value, parents, context));
         if (key[key.length - 1] === 0) {
           parents[0].sort((a, b) => sortFn(getSortValue(a), getSortValue(b)));
