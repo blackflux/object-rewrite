@@ -20,7 +20,7 @@ describe('Testing rewriter', () => {
     expect(data).to.deep.equal([{ idPlus: 3 }, { idPlus: 2 }]);
   });
 
-  it('Testing filter', () => {
+  it('Testing filter array element', () => {
     const data = [{ id: 2 }, { id: 1 }];
     const fields = ['id'];
     const plugin = filterPlugin({
@@ -34,6 +34,22 @@ describe('Testing rewriter', () => {
     expect(rew.toRequest).to.deep.equal(fields);
     rew.rewrite(data);
     expect(data).to.deep.equal([{ id: 1 }]);
+  });
+
+  it('Testing filter object key', () => {
+    const data = [{ obj: { id: 2 } }, { obj: { id: 1 } }];
+    const fields = ['obj.id'];
+    const plugin = filterPlugin({
+      target: '*',
+      requires: ['id'],
+      fn: ({ value }) => value.id === 1
+    });
+    const rew = rewriter({
+      obj: [plugin]
+    })(fields);
+    expect(rew.toRequest).to.deep.equal(fields);
+    rew.rewrite(data);
+    expect(data).to.deep.equal([{}, { obj: { id: 1 } }]);
   });
 
   it('Testing sort', () => {

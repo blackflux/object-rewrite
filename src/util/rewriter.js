@@ -111,8 +111,11 @@ module.exports = (pluginMap) => {
         const result = matchedBy.some(m => filterCbs[m](key, value, parents, context) === true);
         if (result === false) {
           const parent = key.length === 1 ? input : parents[0];
-          assert(Array.isArray(parent), 'Should only filter Array entries?');
-          parent.splice(key[key.length - 1], 1);
+          if (Array.isArray(parent)) {
+            parent.splice(key[key.length - 1], 1);
+          } else {
+            delete parent[key[key.length - 1]];
+          }
         }
         return result;
       }
