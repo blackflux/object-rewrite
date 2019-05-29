@@ -68,8 +68,8 @@ There are three types of plugins `INJECT`, `FILTER` and `SORT`.
 
 All plugins require:
 
-- `target`: specifies the relative field or object this plugin acts on
-- `required`: specifies the relative required fields. Will influence `toRequest`.
+- `target` _String_: specifies the relative field or object this plugin acts on
+- `required` _Array_: specifies the relative required fields. Will influence `toRequest`.
 - `fn` _Function_: result of this function is used by the plugin. Signature is `fn({ key, value, parents, context })`.
 
 ### Inject Plugin
