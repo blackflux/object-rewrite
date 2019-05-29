@@ -48,12 +48,12 @@ const sort = sortPlugin({
   requires: ['idNeg'],
   fn: ({ value }) => value.idNeg
 });
-const rew = rewriter({ '': [inject, filter, sort] });
+const rew = rewriter({ '': [inject, filter, sort] }, ['id']);
 
 const desiredFields = ['id'];
-const rewInstance = rew(desiredFields);
+const rewInstance = rew.init(desiredFields);
 
-const data = queryDataStore(rewInstance.toRequest);
+const data = queryDataStore(rewInstance.fieldsToRequest);
 // data => [{ id: 0 }, { id: 1 }, { id: 2 }]
 
 rewInstance.rewrite(data);
@@ -101,12 +101,13 @@ Only one sort plugin can be specified per target.
 
 Allows for complex sort comparisons and uses `sort-fn.js` under the hood (see source code).
 
-## Rewriter
+## `rewriter(pluginMap: Object, dataStoreFields: Array)`
 
 Used to combine multiple plugins. Plugins can be re-used in different rewriters. Rewriters are then
 used to modify input data.
 
-Constructor takes in an object that maps absolute paths to plugins. Could for example re-use a plugin as
+Constructor takes in an object that maps absolute paths to plugins and the available `dataStoreFields`.
+Could for example re-use a plugin as
 
 <!-- eslint-disable-next-line import/no-unresolved, import/no-extraneous-dependencies -->
 ```js
@@ -117,15 +118,23 @@ const plugin = injectPlugin(/* ... */);
 rewriter({
   '': [plugin],
   nodes: [plugin]
-});
+}, [/* data store fields */]);
 ```
 
-### `toRequest`
+### `allowedFields: Array`
+
+Fields that are allowed to be requested.
+
+### `init(fields: Array)`
+
+Initialize the rewriter for a specific set of fields.
+
+#### `fieldsToRequest`
 
 Exposes fields which should be requested from data store. Dynamically computed fields are excluded since they
 would not be present in the data store.
 
-### `rewrite(data: Object/Array, context: Object = {})`
+#### `rewrite(data: Object/Array, context: Object = {})`
 
 Pass in object that should be rewritten. The context allows for additional data to be made available for all plugins.
 
