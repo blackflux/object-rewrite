@@ -50,4 +50,30 @@ describe('Testing rewriter', () => {
     rew.rewrite(data);
     expect(data).to.deep.equal([{ id: 1 }, { id: 2 }]);
   });
+
+  it('Testing inject + filter + sort', () => {
+    const data = [{ id: 0 }, { id: 1 }, { id: 2 }];
+    const fields = ['id'];
+    const plugin1 = injectPlugin({
+      target: 'idNeg',
+      requires: ['id'],
+      fn: ({ value }) => -value.id
+    });
+    const plugin2 = filterPlugin({
+      target: '*',
+      requires: ['idNeg'],
+      fn: ({ value }) => [-2, -1].includes(value.idNeg)
+    });
+    const plugin3 = sortPlugin({
+      target: '*',
+      requires: ['idNeg'],
+      fn: ({ value }) => value.idNeg
+    });
+    const rew = rewriter({
+      '': [plugin1, plugin2, plugin3]
+    })(fields);
+    expect(rew.toRequest).to.deep.equal(fields);
+    rew.rewrite(data);
+    expect(data).to.deep.equal([{ id: 2 }, { id: 1 }]);
+  });
 });
