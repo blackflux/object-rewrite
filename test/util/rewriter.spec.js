@@ -20,6 +20,32 @@ describe('Testing rewriter', () => {
     expect(data).to.deep.equal([{ idPlus: 3 }, { idPlus: 2 }]);
   });
 
+  it('Testing inject with **', () => {
+    const data = {
+      data: [
+        { id: 2, c: [{ id: 3 }, { id: 4 }] },
+        { id: 1, c: [{ id: 5 }, { id: 6 }] }
+      ]
+    };
+    const fields = ['**.id'];
+    const plugin = injectPlugin({
+      target: 'id',
+      requires: ['id'],
+      fn: ({ value }) => value.id + 1
+    });
+    const rew = rewriter({
+      '**': [plugin]
+    })(fields);
+    expect(rew.toRequest).to.deep.equal(fields);
+    rew.rewrite(data);
+    expect(data).to.deep.equal({
+      data: [
+        { id: 3, c: [{ id: 4 }, { id: 5 }] },
+        { id: 2, c: [{ id: 6 }, { id: 7 }] }
+      ]
+    });
+  });
+
   it('Testing filter array element', () => {
     const data = [{ id: 2 }, { id: 1 }];
     const fields = ['id'];
