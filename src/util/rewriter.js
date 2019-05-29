@@ -9,10 +9,10 @@ const SORT_VALUE = Symbol('sortValue');
 const setSortValue = (input, value) => defineProperty(input, SORT_VALUE, value);
 const getSortValue = input => input[SORT_VALUE];
 
-// todo: refactor more
-const compilePlugins = (type, plugins) => {
-  const targets = plugins
-    .filter(plugin => plugin.type === type)
+const compileTargetToCallback = (type, plugins) => {
+  assert(plugins.every(p => p.type === type));
+
+  const targetTwoPlugins = plugins
     .reduce((prev, plugin) => {
       const target = plugin.target.endsWith('.') ? plugin.target.slice(0, -1) : plugin.target;
       const key = type === 'INJECT' ? target.split('.').slice(0, -1).join('.') : target;
@@ -25,7 +25,7 @@ const compilePlugins = (type, plugins) => {
     }, {});
 
   return Object
-    .entries(targets)
+    .entries(targetTwoPlugins)
     .reduce((prev, [target, ps]) => Object.assign(prev, {
       [target]: (key, value, parents, context) => {
         const args = {
@@ -46,7 +46,7 @@ const compilePlugins = (type, plugins) => {
     }), {});
 };
 
-const extractMeta = (plugins, fields) => {
+const compileMeta = (plugins, fields) => {
   const pluginsByType = pluginTypes.reduce((p, c) => Object.assign(p, { [c]: [] }), {});
 
   const inactivePlugins = [...plugins];
@@ -73,7 +73,7 @@ const extractMeta = (plugins, fields) => {
   }
 
   return Object.entries(pluginsByType).reduce((p, [type, ps]) => Object.assign(p, {
-    [`${type.toLowerCase()}Plugins`]: ps
+    [`${type.toLowerCase()}Cbs`]: compileTargetToCallback(type, ps)
   }), {
     toRequest: [...new Set(requiredFields)].filter(e => !ignoredFields.has(e))
   });
@@ -89,57 +89,48 @@ module.exports = (pluginMap) => {
     assert(Array.isArray(fields));
 
     const {
-      injectPlugins,
-      filterPlugins,
-      sortPlugins,
+      injectCbs,
+      filterCbs,
+      sortCbs,
       toRequest
-    } = extractMeta(plugins, fields);
+    } = compileMeta(plugins, fields);
 
-    const injectRewriter = (() => {
-      const rew = compilePlugins('INJECT', injectPlugins);
-      return (input, context) => objectScan(Object.keys(rew), {
-        useArraySelector: false,
-        joined: false,
-        filterFn: (key, value, { matchedBy, parents }) => {
-          matchedBy.forEach((m) => {
-            Object.assign(value, rew[m](key, value, parents, context));
-          });
-          return true;
+    const injectRewriter = (input, context) => objectScan(Object.keys(injectCbs), {
+      useArraySelector: false,
+      joined: false,
+      filterFn: (key, value, { matchedBy, parents }) => {
+        matchedBy.forEach((m) => {
+          Object.assign(value, injectCbs[m](key, value, parents, context));
+        });
+        return true;
+      }
+    })(input);
+    const filterRewriter = (input, context) => objectScan(Object.keys(filterCbs), {
+      useArraySelector: false,
+      joined: false,
+      filterFn: (key, value, { matchedBy, parents }) => {
+        const result = matchedBy.some(m => filterCbs[m](key, value, parents, context) === true);
+        if (result === false) {
+          const parent = key.length === 1 ? input : parents[0];
+          assert(Array.isArray(parent), 'Should only filter Array entries?');
+          parent.splice(key[key.length - 1], 1);
         }
-      })(input);
-    })();
-    const filterRewriter = (() => {
-      const rew = compilePlugins('FILTER', filterPlugins);
-      return (input, context) => objectScan(Object.keys(rew), {
-        useArraySelector: false,
-        joined: false,
-        filterFn: (key, value, { matchedBy, parents }) => {
-          const result = matchedBy.some(m => rew[m](key, value, parents, context) === true);
-          if (result === false) {
-            const parent = key.length === 1 ? input : parents[0];
-            assert(Array.isArray(parent), 'Should only filter Array entries?');
-            parent.splice(key[key.length - 1], 1);
-          }
-          return result;
+        return result;
+      }
+    })(input);
+    const sortRewriter = (input, context) => objectScan(Object.keys(sortCbs), {
+      useArraySelector: false,
+      joined: false,
+      filterFn: (key, value, { matchedBy, parents }) => {
+        assert(Array.isArray(parents[0]), 'Sort must be on "Array" type.');
+        assert(matchedBy.length === 1, 'Only one sort plugin per target allowed!');
+        setSortValue(value, sortCbs[matchedBy[0]](key, value, parents, context));
+        if (key[key.length - 1] === 0) {
+          parents[0].sort((a, b) => sortFn(getSortValue(a), getSortValue(b)));
         }
-      })(input);
-    })();
-    const sortRewriter = (() => {
-      const rew = compilePlugins('SORT', sortPlugins);
-      return (input, context) => objectScan(Object.keys(rew), {
-        useArraySelector: false,
-        joined: false,
-        filterFn: (key, value, { matchedBy, parents }) => {
-          assert(Array.isArray(parents[0]), 'Sort must be on "Array" type.');
-          assert(matchedBy.length === 1, 'Only one sort plugin per target allowed!');
-          setSortValue(value, rew[matchedBy[0]](key, value, parents, context));
-          if (key[key.length - 1] === 0) {
-            parents[0].sort((a, b) => sortFn(getSortValue(a), getSortValue(b)));
-          }
-          return true;
-        }
-      })(input);
-    })();
+        return true;
+      }
+    })(input);
 
     return {
       toRequest,
