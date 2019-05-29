@@ -122,23 +122,20 @@ module.exports = (pluginMap) => {
       })(input);
     })();
     const sortRewriter = (() => {
-      const targets = new Set();
       const rew = compilePlugins('SORT', sortPlugins);
-      return (input, context) => {
-        targets.clear();
-        objectScan(Object.keys(rew), {
-          useArraySelector: false,
-          joined: false,
-          filterFn: (key, value, { matchedBy, parents }) => {
-            assert(Number.isInteger(key[key.length - 1]), 'Sort must be on "Array" type.');
-            assert(matchedBy.length === 1, 'Only one sort plugin per target allowed!');
-            setSortValue(value, rew[matchedBy[0]](key, value, parents, context));
-            targets.add(parents[0]);
-            return true;
+      return (input, context) => objectScan(Object.keys(rew), {
+        useArraySelector: false,
+        joined: false,
+        filterFn: (key, value, { matchedBy, parents }) => {
+          assert(Array.isArray(parents[0]), 'Sort must be on "Array" type.');
+          assert(matchedBy.length === 1, 'Only one sort plugin per target allowed!');
+          setSortValue(value, rew[matchedBy[0]](key, value, parents, context));
+          if (parents[0][0] === value) {
+            parents[0].sort((a, b) => sortFn(getSortValue(a), getSortValue(b)));
           }
-        })(input);
-        targets.forEach(target => target.sort((a, b) => sortFn(getSortValue(a), getSortValue(b))));
-      };
+          return true;
+        }
+      })(input);
     })();
 
     return {

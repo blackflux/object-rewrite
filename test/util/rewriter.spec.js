@@ -1,3 +1,4 @@
+const get = require('lodash.get');
 const { expect } = require('chai');
 const rewriter = require('../../src/util/rewriter');
 const { injectPlugin, filterPlugin, sortPlugin } = require('../../src/util/plugin');
@@ -118,5 +119,28 @@ describe('Testing rewriter', () => {
     expect(rew.toRequest).to.deep.equal(fields);
     rew.rewrite(data);
     expect(data).to.deep.equal([{ id: 1, c: [{ id: 6 }] }]);
+  });
+
+  it('Testing sort is bottom up', () => {
+    const data = [
+      { id: 1, c: [{ id: 4 }, { id: 5 }] },
+      { id: 2, c: [{ id: 6 }, { id: 3 }] }
+    ];
+    const fields = ['id', 'c.id'];
+    const plugin = sortPlugin({
+      target: '*',
+      requires: ['id'],
+      fn: ({ value }) => get(value, 'c[0].id', value.id)
+    });
+    const rew = rewriter({
+      '': [plugin],
+      c: [plugin]
+    })(fields);
+    expect(rew.toRequest).to.deep.equal(fields);
+    rew.rewrite(data);
+    expect(data).to.deep.equal([
+      { id: 2, c: [{ id: 3 }, { id: 6 }] },
+      { id: 1, c: [{ id: 4 }, { id: 5 }] }
+    ]);
   });
 });
