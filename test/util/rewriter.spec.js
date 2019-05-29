@@ -159,4 +159,25 @@ describe('Testing rewriter', () => {
     rew.rewrite(data);
     expect(data).to.deep.equal([{ id: 3 }, { id: 2 }]);
   });
+
+  it('Testing inject can overwrite existing dynamic field', () => {
+    const data = [{ id: 2 }, { id: 1 }];
+    const fields = ['idPlus'];
+    const plugin1 = injectPlugin({
+      target: 'idPlus',
+      requires: ['id'],
+      fn: ({ value }) => value.id + 1
+    });
+    const plugin2 = injectPlugin({
+      target: 'idPlus',
+      requires: ['idPlus'],
+      fn: ({ value }) => value.idPlus + 1
+    });
+    const rew = rewriter({
+      '': [plugin1, plugin2]
+    })(fields);
+    expect(rew.toRequest).to.deep.equal(['id']);
+    rew.rewrite(data);
+    expect(data).to.deep.equal([{ idPlus: 4 }, { idPlus: 3 }]);
+  });
 });
