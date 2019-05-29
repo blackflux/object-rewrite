@@ -70,7 +70,7 @@ All plugins require:
 
 - `target`: specifies the relative field or object this plugin acts on
 - `required`: specifies the relative required fields. Will influence `toRequest`.
-- `fn`: result of this function is used by the plugin. Signature is `fn({ key, value, parents, context })`.
+- `fn` _Function_: result of this function is used by the plugin. Signature is `fn({ key, value, parents, context })`.
 
 ### Inject Plugin
 
