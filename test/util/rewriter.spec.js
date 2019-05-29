@@ -143,4 +143,20 @@ describe('Testing rewriter', () => {
       { id: 1, c: [{ id: 4 }, { id: 5 }] }
     ]);
   });
+
+  it('Testing inject can overwrite existing field', () => {
+    const data = [{ id: 2 }, { id: 1 }];
+    const fields = ['id'];
+    const plugin = injectPlugin({
+      target: 'id',
+      requires: ['id'],
+      fn: ({ value }) => value.id + 1
+    });
+    const rew = rewriter({
+      '': [plugin]
+    })(fields);
+    expect(rew.toRequest).to.deep.equal(['id']);
+    rew.rewrite(data);
+    expect(data).to.deep.equal([{ id: 3 }, { id: 2 }]);
+  });
 });

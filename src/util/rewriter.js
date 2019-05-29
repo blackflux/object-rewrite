@@ -9,6 +9,7 @@ const SORT_VALUE = Symbol('sortValue');
 const setSortValue = (input, value) => defineProperty(input, SORT_VALUE, value);
 const getSortValue = input => input[SORT_VALUE];
 
+// todo: refactor more
 const compilePlugins = (type, plugins) => {
   const targets = plugins
     .filter(plugin => plugin.type === type)
@@ -49,22 +50,23 @@ const extractMeta = (plugins, fields) => {
   const pluginsByType = pluginTypes.reduce((p, c) => Object.assign(p, { [c]: [] }), {});
 
   const inactivePlugins = [...plugins];
-  const fieldsToObtain = [...fields];
-  const injectedFields = [];
-  for (let i = 0; i < fieldsToObtain.length; i += 1) {
-    const field = fieldsToObtain[i];
+  const requiredFields = [...fields];
+  const ignoredFields = new Set();
+
+  for (let i = 0; i < requiredFields.length; i += 1) {
+    const field = requiredFields[i];
     for (let j = 0; j < inactivePlugins.length; j += 1) {
       const plugin = inactivePlugins[j];
       if (
         field === plugin.target
         || (plugin.type !== 'INJECT' && field.startsWith(plugin.target))
       ) {
-        fieldsToObtain.push(...plugin.requires);
+        requiredFields.push(...plugin.requires);
         inactivePlugins.splice(j, 1);
         j -= 1;
         pluginsByType[plugin.type].push(plugin);
-        if (plugin.type === 'INJECT') {
-          injectedFields.push(plugin.target);
+        if (plugin.type === 'INJECT' && !plugin.requires.includes(plugin.target)) {
+          ignoredFields.add(plugin.target);
         }
       }
     }
@@ -72,7 +74,9 @@ const extractMeta = (plugins, fields) => {
 
   return Object.entries(pluginsByType).reduce((p, [type, ps]) => Object.assign(p, {
     [`${type.toLowerCase()}Plugins`]: ps
-  }), { fieldsToObtain, injectedFields });
+  }), {
+    toRequest: [...new Set(requiredFields)].filter(e => !ignoredFields.has(e))
+  });
 };
 
 module.exports = (pluginMap) => {
@@ -88,8 +92,7 @@ module.exports = (pluginMap) => {
       injectPlugins,
       filterPlugins,
       sortPlugins,
-      fieldsToObtain,
-      injectedFields
+      toRequest
     } = extractMeta(plugins, fields);
 
     const injectRewriter = (() => {
@@ -130,7 +133,7 @@ module.exports = (pluginMap) => {
           assert(Array.isArray(parents[0]), 'Sort must be on "Array" type.');
           assert(matchedBy.length === 1, 'Only one sort plugin per target allowed!');
           setSortValue(value, rew[matchedBy[0]](key, value, parents, context));
-          if (parents[0][0] === value) {
+          if (key[key.length - 1] === 0) {
             parents[0].sort((a, b) => sortFn(getSortValue(a), getSortValue(b)));
           }
           return true;
@@ -139,7 +142,7 @@ module.exports = (pluginMap) => {
     })();
 
     return {
-      toRequest: [...new Set(fieldsToObtain)].filter(f => !injectedFields.includes(f)),
+      toRequest,
       rewrite: (input, context = {}) => {
         assert(context instanceof Object && !Array.isArray(context));
         injectRewriter(input, context);
