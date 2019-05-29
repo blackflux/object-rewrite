@@ -73,74 +73,95 @@ const compileMeta = (plugins, fields) => {
   return Object.entries(pluginsByType).reduce((p, [type, ps]) => Object.assign(p, {
     [`${type.toLowerCase()}Cbs`]: compileTargetToCallback(type, ps)
   }), {
-    toRequest: [...new Set(requiredFields)].filter(e => !ignoredFields.has(e))
+    fieldsToRequest: [...new Set(requiredFields)].filter(e => !ignoredFields.has(e))
   });
 };
 
-module.exports = (pluginMap) => {
+module.exports = (pluginMap, dataStoreFields) => {
+  assert(pluginMap instanceof Object && !Array.isArray(pluginMap));
+  assert(Array.isArray(dataStoreFields) && dataStoreFields.every(e => typeof e === 'string'));
+
   const plugins = Object.entries(pluginMap).reduce((prev, [prefix, ps]) => {
-    prev.push(...ps.map(p => p(prefix)));
+    ps.forEach(p => prev.push(p(prefix)));
     return prev;
   }, []);
+  const allowedFields = [...plugins.reduce((p, c) => {
+    if (c.type === 'INJECT') {
+      p.add(c.target);
+    }
+    return p;
+  }, new Set(dataStoreFields))];
 
-  return (fields) => {
-    assert(Array.isArray(fields));
+  return {
+    allowedFields,
+    init: (fields) => {
+      assert(Array.isArray(fields));
 
-    const {
-      injectCbs,
-      filterCbs,
-      sortCbs,
-      toRequest
-    } = compileMeta(plugins, fields);
-
-    const injectRewriter = (input, context) => objectScan(Object.keys(injectCbs), {
-      useArraySelector: false,
-      joined: false,
-      filterFn: (key, value, { matchedBy, parents }) => {
-        matchedBy.forEach((m) => {
-          Object.assign(value, injectCbs[m](key, value, parents, context));
-        });
-        return true;
+      if (!fields.every(f => allowedFields.includes(f))) {
+        throw new Error(`Bad field requested: ${fields.filter(f => !allowedFields.includes(f)).join(', ')}`);
       }
-    })(input);
-    const filterRewriter = (input, context) => objectScan(Object.keys(filterCbs), {
-      useArraySelector: false,
-      joined: false,
-      filterFn: (key, value, { matchedBy, parents }) => {
-        const result = matchedBy.some(m => filterCbs[m](key, value, parents, context) === true);
-        if (result === false) {
-          const parent = key.length === 1 ? input : parents[0];
-          if (Array.isArray(parent)) {
-            parent.splice(key[key.length - 1], 1);
-          } else {
-            delete parent[key[key.length - 1]];
+
+      const {
+        injectCbs,
+        filterCbs,
+        sortCbs,
+        fieldsToRequest
+      } = compileMeta(plugins, fields);
+
+      assert(
+        fieldsToRequest.every(f => dataStoreFields.includes(f)),
+        `Bad Field Requested: ${fieldsToRequest.filter(f => !dataStoreFields.includes(f))}`
+      );
+
+      const injectRewriter = (input, context) => objectScan(Object.keys(injectCbs), {
+        useArraySelector: false,
+        joined: false,
+        filterFn: (key, value, { matchedBy, parents }) => {
+          matchedBy.forEach((m) => {
+            Object.assign(value, injectCbs[m](key, value, parents, context));
+          });
+          return true;
+        }
+      })(input);
+      const filterRewriter = (input, context) => objectScan(Object.keys(filterCbs), {
+        useArraySelector: false,
+        joined: false,
+        filterFn: (key, value, { matchedBy, parents }) => {
+          const result = matchedBy.some(m => filterCbs[m](key, value, parents, context) === true);
+          if (result === false) {
+            const parent = key.length === 1 ? input : parents[0];
+            if (Array.isArray(parent)) {
+              parent.splice(key[key.length - 1], 1);
+            } else {
+              delete parent[key[key.length - 1]];
+            }
           }
+          return result;
         }
-        return result;
-      }
-    })(input);
-    const sortRewriter = (input, context) => objectScan(Object.keys(sortCbs), {
-      useArraySelector: false,
-      joined: false,
-      filterFn: (key, value, { matchedBy, parents }) => {
-        assert(Array.isArray(parents[0]), 'Sort must be on "Array" type.');
-        setSortValue(value, sortCbs[matchedBy[0]](key, value, parents, context));
-        if (key[key.length - 1] === 0) {
-          parents[0].sort((a, b) => sortFn(getSortValue(a), getSortValue(b)));
+      })(input);
+      const sortRewriter = (input, context) => objectScan(Object.keys(sortCbs), {
+        useArraySelector: false,
+        joined: false,
+        filterFn: (key, value, { matchedBy, parents }) => {
+          assert(Array.isArray(parents[0]), 'Sort must be on "Array" type.');
+          setSortValue(value, sortCbs[matchedBy[0]](key, value, parents, context));
+          if (key[key.length - 1] === 0) {
+            parents[0].sort((a, b) => sortFn(getSortValue(a), getSortValue(b)));
+          }
+          return true;
         }
-        return true;
-      }
-    })(input);
+      })(input);
 
-    return {
-      toRequest,
-      rewrite: (input, context = {}) => {
-        assert(context instanceof Object && !Array.isArray(context));
-        injectRewriter(input, context);
-        filterRewriter(input, context);
-        sortRewriter(input, context);
-        objectFields.retain(input, fields);
-      }
-    };
+      return {
+        fieldsToRequest,
+        rewrite: (input, context = {}) => {
+          assert(context instanceof Object && !Array.isArray(context));
+          injectRewriter(input, context);
+          filterRewriter(input, context);
+          sortRewriter(input, context);
+          objectFields.retain(input, fields);
+        }
+      };
+    }
   };
 };
