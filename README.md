@@ -66,7 +66,7 @@ Please see the tests for more in-depth examples on how to use this library.
 
 There are three types of plugins `INJECT`, `FILTER` and `SORT`.
 
-All plugins require a `target` of type `String`, a `required` of type `Array` and `fn` of type `Functions`.
+All plugins require:
 
 - `target`: specifies the relative field or object this plugin acts on
 - `required`: specifies the relative required fields. Will influence `toRequest`.
