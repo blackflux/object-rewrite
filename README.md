@@ -11,6 +11,9 @@
 
 Rewrite Object(s) in place using plugins.
 
+This library is used for doing complex in-memory modifications of data. It allows to define use cases
+in a dynamic way that allows for powerful abstraction.
+
 ## Install
 
 ```bash
@@ -18,3 +21,99 @@ npm i --save object-rewrite
 ```
 
 ## Getting Started
+
+```js
+const desiredFields = ['id'];
+
+const inject = injectPlugin({
+  target: 'idNeg',
+  requires: ['id'],
+  fn: ({ value }) => -value.id
+});
+const filter = filterPlugin({
+  target: '*',
+  requires: ['idNeg'],
+  fn: ({ value }) => [-2, -1].includes(value.idNeg)
+});
+const sort = sortPlugin({
+  target: '*',
+  requires: ['idNeg'],
+  fn: ({ value }) => value.idNeg
+});
+
+const rew = rewriter({
+  '': [inject, filter, sort]
+})(desiredFields);
+
+const data = queryRawData({ fields: rew.toRequest });
+// data => [{ id: 0 }, { id: 1 }, { id: 2 }]
+
+rew.rewrite(data);
+// data => [{ id: 2 }, { id: 1 }]
+```
+
+Please see the tests for more in-depth examples on how to use this library.
+
+## Plugins
+
+There are three types of plugins `INJECT`, `FILTER` and `SORT`.
+
+All plugins require a `target` of type `String`, a `required` of type `Array` and `fn` of type `Functions`.
+
+- `target`: specifies the relative field this plugin acts on
+- `required`: specifies the relative required fields for this plugin to operate. Will influence `toRequest`.
+- `fn`: result of this function is used by the plugin. Signature is `fn({ key, value, parents, context })`.
+
+### Inject Plugin
+
+Used to inject data
+
+- `target`: field that is created or overwritten
+- `requires`: required fields relative to the target parent
+- `fn`: return value is used for target
+
+### Filter Plugin
+
+Used to filter arrays 
+
+- `target`: array that should be filtered
+- `required`: fields relative to the target
+- `fn`: target is removed iff function returns `false`. Similar to 
+[Array.filter()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter).
+
+### Sort Plugin
+
+Used to sort arrays
+
+- `target`: array that should be sorted
+- `required`: fields relative to the target
+- `fn`: called for each object in array. Final array is sorted using the result
+
+Only one sort plugin can be specified per target.
+
+Allows for complex sort comparisons and uses `sort-fn.js` under the hood (see source code).
+
+## Rewriter
+
+Used to combine multiple plugins. Plugins can be re-used in different rewriters. Rewriters are then
+used to modify input data.
+
+Constructor takes in an object that maps absolute paths to plugins. 
+
+### `toRequest`
+
+Exposes fields which should requested from data store. Dynamically computed fields are excluded since they
+would not be present in the data store.
+
+### `rewrite(data: Object/Array, context: Object = {})`
+
+Pass in object that should be rewritten. The context allows for additional data to be made available for all plugins.
+
+## Notes on Execution Order
+
+Plugins are executed in the order `INJECT`, `FILTER` and then `SORT`.
+
+Plugins within the same type are evaluated bottom-up. While this is less performant,
+it allows plugins to rely on previous executed plugins of the same type.
+
+Plugins of the same type that operate on the same target are executed in order.
