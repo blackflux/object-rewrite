@@ -22,8 +22,16 @@ npm i --save object-rewrite
 
 ## Getting Started
 
+<!-- eslint-disable import/no-unresolved, import/no-extraneous-dependencies -->
 ```js
-const desiredFields = ['id'];
+const {
+  injectPlugin,
+  filterPlugin,
+  sortPlugin,
+  rewriter
+} = require('object-rewrite');
+
+const queryDataStore = (fields) => { /* ... */ };
 
 const inject = injectPlugin({
   target: 'idNeg',
@@ -40,15 +48,15 @@ const sort = sortPlugin({
   requires: ['idNeg'],
   fn: ({ value }) => value.idNeg
 });
+const rew = rewriter({ '': [inject, filter, sort] });
 
-const rew = rewriter({
-  '': [inject, filter, sort]
-})(desiredFields);
+const desiredFields = ['id'];
+const rewInstance = rew(desiredFields);
 
-const data = queryRawData({ fields: rew.toRequest });
+const data = queryDataStore(rewInstance.toRequest);
 // data => [{ id: 0 }, { id: 1 }, { id: 2 }]
 
-rew.rewrite(data);
+rewInstance.rewrite(data);
 // data => [{ id: 2 }, { id: 1 }]
 ```
 
@@ -100,16 +108,21 @@ used to modify input data.
 
 Constructor takes in an object that maps absolute paths to plugins. Could for example re-use a plugin as
 
+<!-- eslint-disable-next-line import/no-unresolved, import/no-extraneous-dependencies -->
 ```js
+const { injectPlugin, rewriter } = require('object-rewrite');
+
+const plugin = injectPlugin(/* ... */);
+
 rewriter({
   '': [plugin],
-  'nodes': [plugin]
-})
+  nodes: [plugin]
+});
 ```
 
 ### `toRequest`
 
-Exposes fields which should requested from data store. Dynamically computed fields are excluded since they
+Exposes fields which should be requested from data store. Dynamically computed fields are excluded since they
 would not be present in the data store.
 
 ### `rewrite(data: Object/Array, context: Object = {})`
