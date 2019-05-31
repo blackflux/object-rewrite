@@ -68,8 +68,8 @@ There are three types of plugins `INJECT`, `FILTER` and `SORT`.
 
 All plugins require:
 
-- `target` _String_: specifies the relative field or object this plugin acts on
-- `required` _Array_: specifies the relative required fields. Will influence `toRequest`.
+- `target` _String_: target field relative to the plugin path.
+- `required` _Array_: required fields relative to the plugin path. Will influence `fieldsToRequest`.
 - `fn` _Function_: result of this function is used by the plugin. Signature is `fn({ key, value, parents, context })`.
 
 ### Inject Plugin
@@ -77,7 +77,7 @@ All plugins require:
 Used to inject data
 
 - `target`: field that is created or overwritten
-- `requires`: required fields relative to the target parent
+- `requires`: See above
 - `fn`: return value is used for target
 
 ### Filter Plugin
@@ -85,7 +85,7 @@ Used to inject data
 Used to filter arrays 
 
 - `target`: array that should be filtered
-- `required`: fields relative to the target elements
+- `required`: See above
 - `fn`: target is removed iff function returns `false`. Similar to 
 [Array.filter()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter).
 
@@ -94,7 +94,7 @@ Used to filter arrays
 Used to sort arrays
 
 - `target`: array that should be sorted
-- `required`: fields relative to the target elements
+- `required`: See above
 - `fn`: called for each object in array. Final array is sorted using the result
 
 Only one sort plugin can be specified per target.
