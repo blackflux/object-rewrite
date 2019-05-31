@@ -69,7 +69,7 @@ There are three types of plugins `INJECT`, `FILTER` and `SORT`.
 All plugins require:
 
 - `target` _String_: target field relative to the plugin path.
-- `required` _Array_: required fields relative to the plugin path. Will influence `toRequest`.
+- `required` _Array_: required fields relative to the plugin path. Will influence `fieldsToRequest`.
 - `fn` _Function_: result of this function is used by the plugin. Signature is `fn({ key, value, parents, context })`.
 
 ### Inject Plugin
