@@ -135,16 +135,20 @@ module.exports = (pluginMap, dataStoreFields) => {
         }
       })(input);
       const sortRewriter = (input, context) => {
-        const lookup = new Map();
+        const lookups = [];
         return objectScan(Object.keys(sortCbs), {
           useArraySelector: false,
           joined: false,
           filterFn: (key, value, { matchedBy, parents }) => {
             assert(Array.isArray(parents[0]), 'Sort must be on "Array" type.');
+            if (lookups[key.length - 1] === undefined) {
+              lookups[key.length - 1] = new Map();
+            }
+            const lookup = lookups[key.length - 1];
             lookup.set(value, sortCbs[matchedBy[0]](key, value, parents, context));
             if (key[key.length - 1] === 0) {
               parents[0].sort((a, b) => sortFn(lookup.get(a), lookup.get(b)));
-              parents[0].forEach(e => lookup.delete(e));
+              lookups.splice(key.length - 1);
             }
             return true;
           }
