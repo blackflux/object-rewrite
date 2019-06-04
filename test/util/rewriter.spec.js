@@ -244,6 +244,33 @@ describe('Testing rewriter', () => {
     ]);
   });
 
+  it('Testing sort duplicate element', () => {
+    const dataStoreFields = ['id', 'c.id'];
+    const eA = { id: 5 };
+    const data = [
+      eA,
+      { id: 1, c: [{ id: 4 }, eA] },
+      { id: 2, c: [{ id: 6 }, { id: 3 }] }
+    ];
+    const fields = ['id', 'c.id'];
+    const plugin = sortPlugin({
+      target: '*',
+      requires: ['id'],
+      fn: ({ value }) => get(value, 'c[0].id', value.id)
+    });
+    const rew = rewriter({
+      '': [plugin],
+      c: [plugin]
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(fields);
+    rew.rewrite(data);
+    expect(data).to.deep.equal([
+      { id: 2, c: [{ id: 3 }, { id: 6 }] },
+      { id: 1, c: [{ id: 4 }, eA] },
+      eA
+    ]);
+  });
+
   it('Testing inject can overwrite existing field', () => {
     const dataStoreFields = ['id'];
     const data = [{ id: 2 }, { id: 1 }];
