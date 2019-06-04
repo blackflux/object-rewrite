@@ -4,11 +4,6 @@ const objectFields = require('object-fields');
 const sortFn = require('../util/sort-fn');
 const { pluginTypes } = require('./plugin');
 
-const defineProperty = (target, k, v) => Object.defineProperty(target, k, { value: v, writable: false });
-const SORT_VALUE = Symbol('sortValue');
-const setSortValue = (input, value) => defineProperty(input, SORT_VALUE, value);
-const getSortValue = input => input[SORT_VALUE];
-
 const compileTargetToCallback = (type, plugins) => {
   assert(plugins.every(p => p.type === type));
 
@@ -139,18 +134,26 @@ module.exports = (pluginMap, dataStoreFields) => {
           return result;
         }
       })(input);
-      const sortRewriter = (input, context) => objectScan(Object.keys(sortCbs), {
-        useArraySelector: false,
-        joined: false,
-        filterFn: (key, value, { matchedBy, parents }) => {
-          assert(Array.isArray(parents[0]), 'Sort must be on "Array" type.');
-          setSortValue(value, sortCbs[matchedBy[0]](key, value, parents, context));
-          if (key[key.length - 1] === 0) {
-            parents[0].sort((a, b) => sortFn(getSortValue(a), getSortValue(b)));
+      const sortRewriter = (input, context) => {
+        const lookups = [];
+        return objectScan(Object.keys(sortCbs), {
+          useArraySelector: false,
+          joined: false,
+          filterFn: (key, value, { matchedBy, parents }) => {
+            assert(Array.isArray(parents[0]), 'Sort must be on "Array" type.');
+            if (lookups[key.length - 1] === undefined) {
+              lookups[key.length - 1] = new Map();
+            }
+            const lookup = lookups[key.length - 1];
+            lookup.set(value, sortCbs[matchedBy[0]](key, value, parents, context));
+            if (key[key.length - 1] === 0) {
+              parents[0].sort((a, b) => sortFn(lookup.get(a), lookup.get(b)));
+              lookups.splice(key.length - 1);
+            }
+            return true;
           }
-          return true;
-        }
-      })(input);
+        })(input);
+      };
 
       return {
         fieldsToRequest,
