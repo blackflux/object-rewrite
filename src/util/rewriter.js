@@ -134,22 +134,22 @@ module.exports = (pluginMap, dataStoreFields) => {
           return result;
         }
       })(input);
-      const sortRewriter = (input, context) => {
-        const lookup = new Map();
-        return objectScan(Object.keys(sortCbs), {
+      const sortRewriter = (() => {
+        const sortLookup = new Map();
+        return (input, context) => objectScan(Object.keys(sortCbs), {
           useArraySelector: false,
           joined: false,
           filterFn: (key, value, { matchedBy, parents }) => {
             assert(Array.isArray(parents[0]), 'Sort must be on "Array" type.');
-            lookup.set(value, sortCbs[matchedBy[0]](key, value, parents, context));
+            sortLookup.set(value, sortCbs[matchedBy[0]](key, value, parents, context));
             if (key[key.length - 1] === 0) {
-              parents[0].sort((a, b) => sortFn(lookup.get(a), lookup.get(b)));
-              parents[0].forEach(e => lookup.delete(e));
+              parents[0].sort((a, b) => sortFn(sortLookup.get(a), sortLookup.get(b)));
+              parents[0].forEach(e => sortLookup.delete(e));
             }
             return true;
           }
         })(input);
-      };
+      })();
 
       return {
         fieldsToRequest,
