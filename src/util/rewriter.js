@@ -1,4 +1,5 @@
 const assert = require('assert');
+const set = require('lodash.set');
 const objectScan = require('object-scan');
 const objectFields = require('object-fields');
 const sortFn = require('../util/sort-fn');
@@ -9,8 +10,10 @@ const compileTargetToCallback = (type, plugins) => {
 
   const targetToPlugins = plugins
     .reduce((prev, plugin) => {
-      const target = plugin.target.endsWith('.') ? plugin.target.slice(0, -1) : plugin.target;
-      const key = type === 'INJECT' ? target.split('.').slice(0, -1).join('.') : target;
+      // eslint-disable-next-line no-nested-ternary
+      const key = type === 'INJECT'
+        ? plugin.prefix
+        : (plugin.target.endsWith('.') ? plugin.target.slice(0, -1) : plugin.target);
       if (prev[key] === undefined) {
         Object.assign(prev, { [key]: [] });
       }
@@ -27,7 +30,7 @@ const compileTargetToCallback = (type, plugins) => {
         };
         switch (type) {
           case 'INJECT':
-            ps.forEach(p => Object.assign(value, { [p.target.split('.').pop()]: p.fn(args) }));
+            ps.forEach(p => set(value, p.targetRel, p.fn(args)));
             return value;
           case 'FILTER':
             return ps.every(p => p.fn(args));

@@ -25,7 +25,9 @@ const plugin = (type, options) => {
   assert(target !== '', 'Use "*" instead.');
 
   return prefix => ({
+    prefix,
     target: join([prefix, target]),
+    targetRel: target,
     requires: requires.map(f => join([prefix, f])),
     type,
     fn
