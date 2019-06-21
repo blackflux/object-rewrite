@@ -10,8 +10,10 @@ const compileTargetToCallback = (type, plugins) => {
 
   const targetToPlugins = plugins
     .reduce((prev, plugin) => {
-      const target = plugin.target.endsWith('.') ? plugin.target.slice(0, -1) : plugin.target;
-      const key = type === 'INJECT' ? target.split('.').slice(0, -1).join('.') : target;
+      // eslint-disable-next-line no-nested-ternary
+      const key = type === 'INJECT'
+        ? plugin.prefix
+        : (plugin.target.endsWith('.') ? plugin.target.slice(0, -1) : plugin.target);
       if (prev[key] === undefined) {
         Object.assign(prev, { [key]: [] });
       }

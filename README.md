@@ -78,7 +78,7 @@ Used to inject data
 
 - `target`: field that is created or overwritten
 - `requires`: See above
-- `fn`: return value is used for target
+- `fn`: return value is used for target. Relative to prefix
 
 ### Filter Plugin
 
@@ -87,7 +87,7 @@ Used to filter arrays
 - `target`: array that should be filtered
 - `required`: See above
 - `fn`: target is removed iff function returns `false`. Similar to 
-[Array.filter()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter).
+[Array.filter()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter). Relative to target
 
 ### Sort Plugin
 
@@ -95,7 +95,7 @@ Used to sort arrays
 
 - `target`: array that should be sorted
 - `required`: See above
-- `fn`: called for each object in array. Final array is sorted using the result
+- `fn`: called for each object in array. Final array is sorted using the result. Relative to target
 
 Only one sort plugin can be specified per target.
 
