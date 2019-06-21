@@ -26,6 +26,7 @@ const plugin = (type, options) => {
 
   return prefix => ({
     target: join([prefix, target]),
+    targetRel: target,
     requires: requires.map(f => join([prefix, f])),
     type,
     fn
