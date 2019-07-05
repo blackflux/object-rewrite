@@ -12,20 +12,20 @@
     "object-scan": "10.0.3"
   },
   "devDependencies": {
-    "@babel/cli": "7.4.4",
-    "@babel/core": "7.4.5",
-    "@babel/plugin-proposal-object-rest-spread": "7.4.4",
+    "@babel/cli": "7.5.0",
+    "@babel/core": "7.5.0",
+    "@babel/plugin-proposal-object-rest-spread": "7.5.0",
     "@babel/register": "7.4.4",
-    "@blackflux/eslint-plugin-rules": "1.0.19",
-    "@blackflux/robo-config-plugin": "1.10.6",
+    "@blackflux/eslint-plugin-rules": "1.0.20",
+    "@blackflux/robo-config-plugin": "1.10.8",
     "babel-eslint": "10.0.2",
     "chai": "4.2.0",
     "coveralls": "3.0.4",
-    "eslint": "5.16.0",
+    "eslint": "6.0.1",
     "js-gardener": "2.0.40",
     "lodash.get": "4.4.2",
     "nyc": "14.1.1",
-    "semantic-release": "15.13.16"
+    "semantic-release": "15.13.18"
   },
   "scripts": {
     "clean": "rm -rf lib",
