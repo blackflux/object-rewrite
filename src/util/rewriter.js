@@ -6,7 +6,7 @@ const sortFn = require('../util/sort-fn');
 const { pluginTypes } = require('./plugin');
 
 const compileTargetToCallback = (type, plugins) => {
-  assert(plugins.every(p => p.type === type));
+  assert(plugins.every((p) => p.type === type));
 
   const targetToPlugins = plugins
     .reduce((prev, plugin) => {
@@ -30,13 +30,13 @@ const compileTargetToCallback = (type, plugins) => {
         };
         switch (type) {
           case 'INJECT':
-            ps.forEach(p => set(value, p.targetRel, p.fn(args)));
+            ps.forEach((p) => set(value, p.targetRel, p.fn(args)));
             return value;
           case 'FILTER':
-            return ps.every(p => p.fn(args));
+            return ps.every((p) => p.fn(args));
           case 'SORT':
           default:
-            return ps.map(p => p.fn(args));
+            return ps.map((p) => p.fn(args));
         }
       }
     }), {});
@@ -71,16 +71,16 @@ const compileMeta = (plugins, fields) => {
   return Object.entries(pluginsByType).reduce((p, [type, ps]) => Object.assign(p, {
     [`${type.toLowerCase()}Cbs`]: compileTargetToCallback(type, ps)
   }), {
-    fieldsToRequest: [...new Set(requiredFields)].filter(e => !ignoredFields.has(e))
+    fieldsToRequest: [...new Set(requiredFields)].filter((e) => !ignoredFields.has(e))
   });
 };
 
 module.exports = (pluginMap, dataStoreFields) => {
   assert(pluginMap instanceof Object && !Array.isArray(pluginMap));
-  assert(Array.isArray(dataStoreFields) && dataStoreFields.every(e => typeof e === 'string'));
+  assert(Array.isArray(dataStoreFields) && dataStoreFields.every((e) => typeof e === 'string'));
 
   const plugins = Object.entries(pluginMap).reduce((prev, [prefix, ps]) => {
-    ps.forEach(p => prev.push(p(prefix)));
+    ps.forEach((p) => prev.push(p(prefix)));
     return prev;
   }, []);
   const allowedFields = [...plugins.reduce((p, c) => {
@@ -95,8 +95,8 @@ module.exports = (pluginMap, dataStoreFields) => {
     init: (fields) => {
       assert(Array.isArray(fields));
 
-      if (!fields.every(f => allowedFields.includes(f))) {
-        throw new Error(`Bad field requested: ${fields.filter(f => !allowedFields.includes(f)).join(', ')}`);
+      if (!fields.every((f) => allowedFields.includes(f))) {
+        throw new Error(`Bad field requested: ${fields.filter((f) => !allowedFields.includes(f)).join(', ')}`);
       }
 
       const {
@@ -107,8 +107,8 @@ module.exports = (pluginMap, dataStoreFields) => {
       } = compileMeta(plugins, fields);
 
       assert(
-        fieldsToRequest.every(f => dataStoreFields.includes(f)),
-        `Bad Field Requested: ${fieldsToRequest.filter(f => !dataStoreFields.includes(f))}`
+        fieldsToRequest.every((f) => dataStoreFields.includes(f)),
+        `Bad Field Requested: ${fieldsToRequest.filter((f) => !dataStoreFields.includes(f))}`
       );
 
       const injectRewriter = (input, context) => objectScan(Object.keys(injectCbs), {
@@ -125,7 +125,7 @@ module.exports = (pluginMap, dataStoreFields) => {
         useArraySelector: false,
         joined: false,
         filterFn: (key, value, { matchedBy, parents }) => {
-          const result = matchedBy.some(m => filterCbs[m](key, value, parents, context) === true);
+          const result = matchedBy.some((m) => filterCbs[m](key, value, parents, context) === true);
           if (result === false) {
             const parent = key.length === 1 ? input : parents[0];
             if (Array.isArray(parent)) {
