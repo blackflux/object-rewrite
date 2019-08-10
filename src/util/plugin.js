@@ -3,7 +3,7 @@ const assert = require('assert');
 const pluginTypes = ['FILTER', 'INJECT', 'SORT'];
 
 const join = (input) => {
-  const result = input.filter(e => !!e).join('.');
+  const result = input.filter((e) => !!e).join('.');
   if (result === '*') {
     return '';
   }
@@ -24,16 +24,16 @@ const plugin = (type, options) => {
   assert(typeof fn === 'function');
   assert(target !== '', 'Use "*" instead.');
 
-  return prefix => ({
+  return (prefix) => ({
     prefix,
     target: join([prefix, target]),
     targetRel: target,
-    requires: requires.map(f => join([prefix, f])),
+    requires: requires.map((f) => join([prefix, f])),
     type,
     fn
   });
 };
 
 module.exports = pluginTypes.reduce((prev, t) => Object.assign(prev, {
-  [`${t.toLowerCase()}Plugin`]: options => plugin(t, options)
+  [`${t.toLowerCase()}Plugin`]: (options) => plugin(t, options)
 }), { pluginTypes });
