@@ -9,7 +9,7 @@
   "dependencies": {
     "lodash.set": "4.3.2",
     "object-fields": "1.3.13",
-    "object-scan": "10.0.6"
+    "object-scan": "10.0.7"
   },
   "devDependencies": {
     "@babel/cli": "7.5.5",
