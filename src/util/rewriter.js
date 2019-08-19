@@ -2,7 +2,7 @@ const assert = require('assert');
 const set = require('lodash.set');
 const objectScan = require('object-scan');
 const objectFields = require('object-fields');
-const sortFn = require('../util/sort-fn');
+const sortFn = require('./sort-fn');
 const { pluginTypes } = require('./plugin');
 
 const compileTargetToCallback = (type, plugins) => {
