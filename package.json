@@ -3,29 +3,33 @@
   "version": "0.0.0-development",
   "description": "Rewrite Object(s) in place using plugins.",
   "main": "lib/index.js",
-  "directories": {
-    "test": "test"
-  },
+  "directories": {"test": "test"},
   "dependencies": {
     "lodash.set": "4.3.2",
     "object-fields": "1.3.15",
-    "object-scan": "10.0.7"
+    "object-scan": "10.0.8"
   },
   "devDependencies": {
     "@babel/cli": "7.5.5",
     "@babel/core": "7.5.5",
     "@babel/plugin-proposal-object-rest-spread": "7.5.5",
     "@babel/register": "7.5.5",
-    "@blackflux/eslint-plugin-rules": "1.1.4",
-    "@blackflux/robo-config-plugin": "2.4.6",
+    "@blackflux/eslint-plugin-rules": "1.3.0",
+    "@blackflux/robo-config-plugin": "2.5.3",
     "babel-eslint": "10.0.2",
     "chai": "4.2.0",
     "coveralls": "3.0.6",
-    "eslint": "6.1.0",
-    "js-gardener": "2.0.66",
+    "eslint": "6.2.0",
+    "eslint-config-airbnb-base": "14.0.0",
+    "eslint-plugin-import": "2.18.2",
+    "eslint-plugin-mocha": "6.0.0",
+    "js-gardener": "2.0.67",
     "lodash.get": "4.4.2",
     "nyc": "14.1.1",
-    "semantic-release": "15.13.21"
+    "semantic-release": "15.13.21",
+    "eslint-plugin-jasmine": "2.10.1",
+    "eslint-plugin-json": "1.4.0",
+    "eslint-plugin-markdown": "1.0.0"
   },
   "scripts": {
     "clean": "rm -rf lib",
@@ -36,21 +40,14 @@
     "coveralls": "node ./node_modules/coveralls/bin/coveralls.js < ./coverage/lcov.info",
     "semantic-release": "npm run build-clean && npx semantic-release",
     "gardener": "node gardener",
-    "docker": "docker run -u`id -u`:`id -g` -v $(pwd):/user/project -v ~/.aws:/user/.aws -v ~/.npmrc:/user/.npmrc -w /user/project -it --entrypoint /bin/bash",
-    "yu": "yarn upgrade --latest --force",
-    "yi": "yarn install --frozen-lockfile",
+    "docker": "docker run --net host -u`id -u`:`id -g` -v $(pwd):/user/project -v ~/.aws:/user/.aws -v ~/.npmrc:/user/.npmrc -w /user/project -it --entrypoint /bin/bash",
     "t": "yarn test",
     "ts": "yarn run test-simple",
-    "tsv": "yarn run test-simple --verbose"
+    "tsv": "yarn run test-simple --verbose",
+    "u": "yarn upgrade --latest --force",
+    "i": "yarn install --frozen-lockfile"
   },
-  "keywords": [
-    "object",
-    "rewrite",
-    "scan",
-    "replace",
-    "filter",
-    "update"
-  ],
+  "keywords": ["object", "rewrite", "scan", "replace", "filter", "update"],
   "author": "Lukas Siemon",
   "license": "MIT",
   "nyc": {
@@ -62,26 +59,14 @@
     "statements": 100,
     "functions": 100,
     "branches": 100,
-    "include": [
-      "**/*.js"
-    ],
-    "reporter": [
-      "lcov",
-      "text-summary"
-    ],
-    "require": [
-      "@babel/register"
-    ],
+    "include": ["**/*.js"],
+    "reporter": ["lcov", "text-summary"],
+    "require": ["@babel/register"],
     "extension": [],
     "cache": true,
     "all": true,
     "babel": true,
-    "exclude": [
-      "gardener.js",
-      "node_modules/*",
-      "coverage/*",
-      "lib/*"
-    ]
+    "exclude": ["gardener.js", "node_modules/*", "coverage/*", "lib/*"]
   },
   "licenses": [
     {
@@ -90,17 +75,11 @@
     }
   ],
   "homepage": "https://github.com/blackflux/object-rewrite#readme",
-  "engines": {
-    "node": ">= 8.10"
-  },
+  "engines": {"node": ">= 8.10"},
   "repository": {
     "type": "git",
     "url": "https://github.com/blackflux/object-rewrite.git"
   },
-  "bugs": {
-    "url": "https://github.com/blackflux/object-rewrite/issues"
-  },
-  "files": [
-    "lib"
-  ]
+  "bugs": {"url": "https://github.com/blackflux/object-rewrite/issues"},
+  "files": ["lib"]
 }
