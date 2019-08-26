@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "lodash.set": "4.3.2",
-    "object-fields": "1.3.18",
+    "object-fields": "1.3.19",
     "object-scan": "10.0.10"
   },
   "devDependencies": {
