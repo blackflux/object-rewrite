@@ -116,6 +116,23 @@ describe('Testing rewriter', () => {
     expect(data).to.deep.equal([{ id: 1 }, { id: 2 }]);
   });
 
+  it('Testing sort primitives', () => {
+    const dataStoreFields = ['numbers'];
+    const data = [{ numbers: [2, 1] }];
+    const fields = ['numbers'];
+    const plugin = sortPlugin({
+      target: '*',
+      requires: [],
+      fn: ({ value }) => value
+    });
+    const rew = rewriter({
+      numbers: [plugin]
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(fields);
+    rew.rewrite(data);
+    expect(data).to.deep.equal([{ numbers: [1, 2] }]);
+  });
+
   it('Testing multiple sort plugins', () => {
     const dataStoreFields = ['idA', 'idB'];
     const data = [
