@@ -24,20 +24,23 @@ const compileTargetToCallback = (type, plugins) => {
   return Object
     .entries(targetToPlugins)
     .reduce((prev, [target, ps]) => Object.assign(prev, {
-      [target]: (key, value, parents, context) => {
-        const args = {
-          key, value, parents, context
-        };
-        switch (type) {
-          case 'INJECT':
-            ps.forEach((p) => set(value, p.targetRel, p.fn(args)));
-            return value;
-          case 'FILTER':
-            return ps.every((p) => p.fn(args));
-          case 'SORT':
-          default:
-            return ps.map((p) => p.fn(args));
-        }
+      [target]: {
+        fn: (key, value, parents, context) => {
+          const args = {
+            key, value, parents, context
+          };
+          switch (type) {
+            case 'INJECT':
+              ps.forEach((p) => set(value, p.targetRel, p.fn(args)));
+              return value;
+            case 'FILTER':
+              return ps.every((p) => p.fn(args));
+            case 'SORT':
+            default:
+              return ps.map((p) => p.fn(args));
+          }
+        },
+        plugins: ps
       }
     }), {});
 };
@@ -119,7 +122,7 @@ module.exports = (pluginMap, dataStoreFields) => {
         joined: false,
         filterFn: (key, value, { matchedBy, parents }) => {
           matchedBy.forEach((m) => {
-            Object.assign(value, injectCbs[m](key, value, parents, context));
+            Object.assign(value, injectCbs[m].fn(key, value, parents, context));
           });
           return true;
         }
@@ -128,7 +131,7 @@ module.exports = (pluginMap, dataStoreFields) => {
         useArraySelector: false,
         joined: false,
         filterFn: (key, value, { matchedBy, parents }) => {
-          const result = matchedBy.some((m) => filterCbs[m](key, value, parents, context) === true);
+          const result = matchedBy.some((m) => filterCbs[m].fn(key, value, parents, context) === true);
           if (result === false) {
             const parent = key.length === 1 ? input : parents[0];
             if (Array.isArray(parent)) {
@@ -151,9 +154,13 @@ module.exports = (pluginMap, dataStoreFields) => {
               lookups[key.length - 1] = new Map();
             }
             const lookup = lookups[key.length - 1];
-            lookup.set(value, sortCbs[matchedBy[0]](key, value, parents, context));
+            lookup.set(value, sortCbs[matchedBy[0]].fn(key, value, parents, context));
             if (key[key.length - 1] === 0) {
               parents[0].sort((a, b) => sortFn(lookup.get(a), lookup.get(b)));
+              const plugin = sortCbs[matchedBy[0]].plugins.find((p) => p.limit !== undefined);
+              if (plugin !== undefined) {
+                parents[0].splice(plugin.limit({ context }));
+              }
               lookups.splice(key.length - 1);
             }
             return true;

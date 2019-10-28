@@ -96,6 +96,7 @@ Used to sort arrays
 - `target`: array that should be sorted
 - `required`: See above
 - `fn`: called for each object in array. Final array is sorted using the result. Relative to target
+- `limit`: optional limit function that takes the `context` object as a kwarg and expected to return a non-negative number
 
 Only one sort plugin can be specified per target.
 

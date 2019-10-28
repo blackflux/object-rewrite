@@ -21,19 +21,23 @@ const plugin = (type, options) => {
       options: Joi.object({
         target: Joi.string(), // target can not be "", use "*" instead
         requires: Joi.array().items(Joi.string()),
-        fn: Joi.function()
+        fn: Joi.function(),
+        limit: type === 'SORT' ? Joi.function().optional() : Joi.forbidden()
       })
     })
   );
 
-  const { target, requires, fn } = options;
+  const {
+    target, requires, fn, limit
+  } = options;
   return (prefix) => ({
     prefix,
     target: join([prefix, target]),
     targetRel: target,
     requires: requires.map((f) => join([prefix, f])),
     type,
-    fn
+    fn,
+    limit
   });
 };
 

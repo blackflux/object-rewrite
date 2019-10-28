@@ -322,6 +322,28 @@ describe('Testing rewriter', () => {
     ]);
   });
 
+  it('Testing sort and limit', () => {
+    const dataStoreFields = ['id'];
+    const data = [
+      { id: 3 },
+      { id: 1 },
+      { id: 2 }
+    ];
+    const fields = ['id'];
+    const plugin = sortPlugin({
+      target: '*',
+      requires: ['id'],
+      fn: ({ value }) => value.id,
+      limit: ({ context }) => context.limit
+    });
+    const rew = rewriter({
+      '': [plugin]
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(fields);
+    rew.rewrite(data, { limit: 2 });
+    expect(data).to.deep.equal([{ id: 1 }, { id: 2 }]);
+  });
+
   it('Testing inject can overwrite existing field', () => {
     const dataStoreFields = ['id'];
     const data = [{ id: 2 }, { id: 1 }];
