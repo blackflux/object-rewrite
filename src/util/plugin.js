@@ -1,4 +1,4 @@
-const assert = require('assert');
+const Joi = require('joi-strict');
 
 const pluginTypes = ['FILTER', 'INJECT', 'SORT'];
 
@@ -14,16 +14,19 @@ const join = (input) => {
 };
 
 const plugin = (type, options) => {
-  assert(pluginTypes.includes(type));
-  assert(options instanceof Object && !Array.isArray(options));
-  assert(Object.keys(options).length === 3);
+  Joi.assert(
+    { type, options },
+    Joi.object({
+      type: Joi.string().valid(...pluginTypes),
+      options: Joi.object({
+        target: Joi.string(), // target can not be "", use "*" instead
+        requires: Joi.array().items(Joi.string()),
+        fn: Joi.function()
+      })
+    })
+  );
 
   const { target, requires, fn } = options;
-  assert(typeof target === 'string');
-  assert(Array.isArray(requires));
-  assert(typeof fn === 'function');
-  assert(target !== '', 'Use "*" instead.');
-
   return (prefix) => ({
     prefix,
     target: join([prefix, target]),
