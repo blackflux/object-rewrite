@@ -159,8 +159,10 @@ module.exports = (pluginMap, dataStoreFields) => {
               parents[0].sort((a, b) => sortFn(lookup.get(a), lookup.get(b)));
               const limits = sortCbs[matchedBy[0]].plugins
                 .filter((p) => p.limit !== undefined)
-                .map((p) => p.limit({ context }));
+                .map((p) => p.limit({ context }))
+                .filter((l) => l !== undefined);
               if (limits.length !== 0) {
+                assert(limits.every((l) => Number.isInteger(l) && l >= 0));
                 parents[0].splice(Math.min(...limits));
               }
               lookups.splice(key.length - 1);
