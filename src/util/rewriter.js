@@ -157,9 +157,11 @@ module.exports = (pluginMap, dataStoreFields) => {
             lookup.set(value, sortCbs[matchedBy[0]].fn(key, value, parents, context));
             if (key[key.length - 1] === 0) {
               parents[0].sort((a, b) => sortFn(lookup.get(a), lookup.get(b)));
-              const plugin = sortCbs[matchedBy[0]].plugins.find((p) => p.limit !== undefined);
-              if (plugin !== undefined) {
-                parents[0].splice(plugin.limit({ context }));
+              const limits = sortCbs[matchedBy[0]].plugins
+                .filter((p) => p.limit !== undefined)
+                .map((p) => p.limit({ context }));
+              if (limits.length !== 0) {
+                parents[0].splice(Math.min(...limits));
               }
               lookups.splice(key.length - 1);
             }
