@@ -79,6 +79,7 @@ Used to inject data
 - `target`: field that is created or overwritten
 - `requires`: See above
 - `fn`: return value is used for target. Relative to prefix
+- `schema`: Joi schema or object containing schema values of what is being injected
 
 ### Filter Plugin
 

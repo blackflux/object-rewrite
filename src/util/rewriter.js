@@ -1,5 +1,6 @@
 const assert = require('assert');
 const set = require('lodash.set');
+const Joi = require('joi-strict');
 const objectScan = require('object-scan');
 const objectFields = require('object-fields');
 const sortFn = require('./sort-fn');
@@ -31,7 +32,11 @@ const compileTargetToCallback = (type, plugins) => {
           };
           switch (type) {
             case 'INJECT':
-              ps.forEach((p) => set(value, p.targetRel, p.fn(args)));
+              ps.forEach((p) => {
+                const result = p.fn(args);
+                Joi.assert(result, p.schema);
+                set(value, p.targetRel, result);
+              });
               return value;
             case 'FILTER':
               return ps.every((p) => p.fn(args));
@@ -57,7 +62,7 @@ const compileMeta = (plugins, fields) => {
     for (let j = 0; j < inactivePlugins.length; j += 1) {
       const plugin = inactivePlugins[j];
       if (
-        field === plugin.target
+        plugin.targets.includes(field)
         || (plugin.type !== 'INJECT' && (
           `${field}.` === plugin.target
           || field.startsWith(plugin.target)
@@ -67,8 +72,12 @@ const compileMeta = (plugins, fields) => {
         inactivePlugins.splice(j, 1);
         j -= 1;
         pluginsByType[plugin.type].push(plugin);
-        if (plugin.type === 'INJECT' && !plugin.requires.includes(plugin.target)) {
-          ignoredFields.add(plugin.target);
+        if (plugin.type === 'INJECT') {
+          plugin.targets.forEach((target) => {
+            if (!plugin.requires.includes(target)) {
+              ignoredFields.add(target);
+            }
+          });
         }
       }
     }
@@ -91,7 +100,7 @@ module.exports = (pluginMap, dataStoreFields) => {
   }, []);
   const allowedFields = [...plugins.reduce((p, c) => {
     if (c.type === 'INJECT') {
-      p.add(c.target);
+      c.targets.forEach((t) => p.add(t));
     }
     return p;
   }, new Set(dataStoreFields))];
