@@ -19,6 +19,16 @@ describe('Testing plugin', () => {
     expect(result.requires).to.deep.equal(['prefix.req']);
   });
 
+  it('Testing nested prefix with root reference', () => {
+    const result = filterPlugin({
+      target: 'key',
+      requires: ['/req'],
+      fn
+    })('prefix');
+    expect(result.target).to.equal('prefix.key');
+    expect(result.requires).to.deep.equal(['req']);
+  });
+
   it('Testing top level prefix', () => {
     const result = filterPlugin({
       target: 'key',
