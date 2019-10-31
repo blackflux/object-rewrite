@@ -38,7 +38,7 @@ const plugin = (type, options) => {
       target: targetAbs,
       targets: [targetAbs],
       targetRel: target,
-      requires: requires.map((f) => join([prefix, f])),
+      requires: requires.map((f) => (f.startsWith('/') ? f.slice(1) : join([prefix, f]))),
       type,
       fn,
       limit
