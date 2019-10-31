@@ -22,23 +22,36 @@ const plugin = (type, options) => {
         target: Joi.string(), // target can not be "", use "*" instead
         requires: Joi.array().items(Joi.string()),
         fn: Joi.function(),
+        schema: type === 'INJECT' ? Joi.object() : Joi.forbidden(),
         limit: type === 'SORT' ? Joi.function().optional() : Joi.forbidden()
       })
     })
   );
 
   const {
-    target, requires, fn, limit
+    target, requires, fn, schema, limit
   } = options;
-  return (prefix) => ({
-    prefix,
-    target: join([prefix, target]),
-    targetRel: target,
-    requires: requires.map((f) => join([prefix, f])),
-    type,
-    fn,
-    limit
-  });
+  return (prefix) => {
+    const targetAbs = join([prefix, target]);
+    const result = {
+      prefix,
+      target: targetAbs,
+      targets: [targetAbs],
+      targetRel: target,
+      requires: requires.map((f) => join([prefix, f])),
+      type,
+      fn,
+      limit
+    };
+    if (type === 'INJECT') {
+      const isSchema = Joi.isSchema(schema);
+      result.schema = isSchema ? schema : Joi.object().keys(schema);
+      if (!isSchema) {
+        result.targets = Object.keys(schema).map((key) => `${targetAbs}.${key}`);
+      }
+    }
+    return result;
+  };
 };
 
 module.exports = pluginTypes.reduce((prev, t) => Object.assign(prev, {

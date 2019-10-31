@@ -1,4 +1,5 @@
 const { expect } = require('chai');
+const Joi = require('joi-strict');
 const { injectPlugin, filterPlugin, sortPlugin } = require('../../src/util/plugin');
 
 describe('Testing plugin', () => {
@@ -49,7 +50,9 @@ describe('Testing plugin', () => {
   });
 
   it('Testing plugin types', () => {
-    const resultInject = injectPlugin({ target: '*', requires: [], fn })('');
+    const resultInject = injectPlugin({
+      target: '*', requires: [], fn, schema: Joi.any()
+    })('');
     const resultFilter = filterPlugin({ target: '*', requires: [], fn })('');
     const resultSort = sortPlugin({ target: '*', requires: [], fn })('');
     expect(resultInject.type).to.equal('INJECT');
