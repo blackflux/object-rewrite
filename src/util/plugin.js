@@ -1,3 +1,4 @@
+const assert = require('assert');
 const Joi = require('joi-strict');
 
 const pluginTypes = ['FILTER', 'INJECT', 'SORT'];
@@ -13,6 +14,35 @@ const join = (input) => {
   return result;
 };
 
+const asSchema = (input) => {
+  if (Joi.isSchema(input)) {
+    return input;
+  }
+  if (Array.isArray(input)) {
+    return Joi.array().items(...input.map((e) => asSchema(e)));
+  }
+  assert(input instanceof Object);
+  return Joi.object().keys(Object.entries(input).reduce((p, [k, v]) => Object.assign(p, {
+    [k]: asSchema(v)
+  }), {}));
+};
+
+const extractKeys = (prefix, input) => {
+  if (Joi.isSchema(input)) {
+    return [prefix];
+  }
+  if (Array.isArray(input)) {
+    assert(input.length === 1);
+    return extractKeys(prefix, input[0]);
+  }
+  assert(input instanceof Object);
+  return Object.entries(input).reduce((p, [k, v]) => {
+    extractKeys(`${prefix}.${k}`, v)
+      .forEach((e) => p.push(e));
+    return p;
+  }, []);
+};
+
 const plugin = (type, options) => {
   Joi.assert(
     { type, options },
@@ -22,7 +52,7 @@ const plugin = (type, options) => {
         target: Joi.string(), // target can not be "", use "*" instead
         requires: Joi.array().items(Joi.string()),
         fn: Joi.function(),
-        schema: type === 'INJECT' ? Joi.object() : Joi.forbidden(),
+        schema: type === 'INJECT' ? Joi.alternatives(Joi.object(), Joi.array()) : Joi.forbidden(),
         limit: type === 'SORT' ? Joi.function().optional() : Joi.forbidden()
       })
     })
@@ -44,11 +74,8 @@ const plugin = (type, options) => {
       limit
     };
     if (type === 'INJECT') {
-      const isSchema = Joi.isSchema(schema);
-      result.schema = isSchema ? schema : Joi.object().keys(schema);
-      if (!isSchema) {
-        result.targets = Object.keys(schema).map((key) => `${targetAbs}.${key}`);
-      }
+      result.schema = asSchema(schema);
+      result.targets = extractKeys(targetAbs, schema);
     }
     return result;
   };

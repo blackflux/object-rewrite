@@ -29,18 +29,18 @@ describe('Testing rewriter', () => {
     const fields = ['id', 'meta.id'];
     const plugin = injectPlugin({
       target: 'meta',
-      schema: {
+      schema: [{
         id: Joi.number().integer()
-      },
+      }],
       requires: ['id'],
-      fn: ({ value }) => ({ id: value.id + 1 })
+      fn: ({ value }) => [{ id: value.id + 1 }]
     });
     const rew = rewriter({
       '': [plugin]
     }, dataStoreFields).init(fields);
     expect(rew.fieldsToRequest).to.deep.equal(['id']);
     rew.rewrite(data);
-    expect(data).to.deep.equal([{ id: 2, meta: { id: 3 } }, { id: 1, meta: { id: 2 } }]);
+    expect(data).to.deep.equal([{ id: 2, meta: [{ id: 3 }] }, { id: 1, meta: [{ id: 2 }] }]);
   });
 
   it('Testing inject with **', () => {
