@@ -1,6 +1,5 @@
 const get = require('lodash.get');
 const { expect } = require('chai');
-const Joi = require('joi-strict');
 const rewriter = require('../../src/util/rewriter');
 const { injectPlugin, filterPlugin, sortPlugin } = require('../../src/util/plugin');
 
@@ -12,7 +11,7 @@ describe('Testing rewriter', () => {
     const plugin = injectPlugin({
       target: 'idPlus',
       requires: ['id'],
-      schema: Joi.number().integer(),
+      schema: (r) => Number.isInteger(r),
       fn: ({ value }) => value.id + 1
     });
     const rew = rewriter({
@@ -30,7 +29,7 @@ describe('Testing rewriter', () => {
     const plugin = injectPlugin({
       target: 'meta',
       schema: [{
-        id: Joi.number().integer()
+        id: (r) => Number.isInteger(r)
       }],
       requires: ['id'],
       fn: ({ value }) => [{ id: value.id + 1 }]
@@ -55,7 +54,7 @@ describe('Testing rewriter', () => {
     const plugin = injectPlugin({
       target: 'id',
       requires: ['id'],
-      schema: Joi.number().integer(),
+      schema: (r) => Number.isInteger(r),
       fn: ({ value }) => (value.id ? value.id + 1 : 0)
     });
     const rew = rewriter({
@@ -78,7 +77,7 @@ describe('Testing rewriter', () => {
     const plugin = injectPlugin({
       target: 'idPlus',
       requires: ['id'],
-      schema: Joi.number().integer(),
+      schema: (r) => Number.isInteger(r),
       fn: ({ value, context }) => value.id + context.inc
     });
     const rew = rewriter({
@@ -230,7 +229,7 @@ describe('Testing rewriter', () => {
     const plugin1 = injectPlugin({
       target: 'idNeg',
       requires: ['id'],
-      schema: Joi.number().integer(),
+      schema: (r) => Number.isInteger(r),
       fn: ({ value }) => -value.id
     });
     const plugin2 = filterPlugin({
@@ -260,7 +259,7 @@ describe('Testing rewriter', () => {
     const fields = ['idSum', 'c.idSum'];
     const plugin = injectPlugin({
       target: 'idSum',
-      schema: Joi.number().integer(),
+      schema: (r) => Number.isInteger(r),
       requires: ['id'],
       fn: ({ value }) => value.id + (value.c || []).reduce((p, c) => p + c.id, 0)
     });
@@ -376,7 +375,7 @@ describe('Testing rewriter', () => {
     const fields = ['id'];
     const plugin = injectPlugin({
       target: 'id',
-      schema: Joi.number().integer(),
+      schema: (r) => Number.isInteger(r),
       requires: ['id'],
       fn: ({ value }) => value.id + 1
     });
@@ -394,13 +393,13 @@ describe('Testing rewriter', () => {
     const fields = ['idPlus'];
     const plugin1 = injectPlugin({
       target: 'idPlus',
-      schema: Joi.number().integer(),
+      schema: (r) => Number.isInteger(r),
       requires: ['id'],
       fn: ({ value }) => value.id + 1
     });
     const plugin2 = injectPlugin({
       target: 'idPlus',
-      schema: Joi.number().integer(),
+      schema: (r) => Number.isInteger(r),
       requires: ['idPlus'],
       fn: ({ value }) => value.idPlus + 1
     });

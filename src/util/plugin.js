@@ -15,20 +15,28 @@ const join = (input) => {
 };
 
 const asSchema = (input) => {
-  if (Joi.isSchema(input)) {
+  if (typeof input === 'function') {
     return input;
   }
   if (Array.isArray(input)) {
-    return Joi.array().items(...input.map((e) => asSchema(e)));
+    const compiled = input.map((v) => asSchema(v));
+    return (r) => (
+      Array.isArray(r)
+      && r.every((e) => compiled.some((v) => v(e) === true))
+    );
   }
   assert(input instanceof Object);
-  return Joi.object().keys(Object.entries(input).reduce((p, [k, v]) => Object.assign(p, {
-    [k]: asSchema(v)
-  }), {}));
+  const compiled = Object.entries(input).map(([k, v]) => [k, asSchema(v)]);
+  return (r) => (
+    r instanceof Object
+    && !Array.isArray(r)
+    && Object.keys(r).length === compiled.length
+    && compiled.every(([k, v]) => v(r[k]) === true)
+  );
 };
 
 const extractKeys = (prefix, input) => {
-  if (Joi.isSchema(input)) {
+  if (typeof input === 'function') {
     return [prefix];
   }
   if (Array.isArray(input)) {
@@ -52,7 +60,7 @@ const plugin = (type, options) => {
         target: Joi.string(), // target can not be "", use "*" instead
         requires: Joi.array().items(Joi.string()),
         fn: Joi.function(),
-        schema: type === 'INJECT' ? Joi.alternatives(Joi.object(), Joi.array()) : Joi.forbidden(),
+        schema: type === 'INJECT' ? Joi.alternatives(Joi.object(), Joi.array(), Joi.function()) : Joi.forbidden(),
         limit: type === 'SORT' ? Joi.function().optional() : Joi.forbidden()
       })
     })
