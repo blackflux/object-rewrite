@@ -1,12 +1,13 @@
 const { expect } = require('chai');
-const Joi = require('joi-strict');
 const { injectPlugin, filterPlugin, sortPlugin } = require('../../src/util/plugin');
 
 describe('Testing plugin', () => {
   const fn = () => null;
+  const schema = () => true;
 
   it('Testing fn', () => {
     expect(fn()).to.equal(null);
+    expect(schema()).to.equal(true);
   });
 
   it('Testing nested prefix', () => {
@@ -61,7 +62,7 @@ describe('Testing plugin', () => {
 
   it('Testing plugin types', () => {
     const resultInject = injectPlugin({
-      target: '*', requires: [], fn, schema: Joi.any()
+      target: '*', requires: [], fn, schema
     })('');
     const resultFilter = filterPlugin({ target: '*', requires: [], fn })('');
     const resultSort = sortPlugin({ target: '*', requires: [], fn })('');
