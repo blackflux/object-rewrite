@@ -1,6 +1,5 @@
 const assert = require('assert');
 const set = require('lodash.set');
-const Joi = require('joi-strict');
 const objectScan = require('object-scan');
 const objectFields = require('object-fields');
 const sortFn = require('./sort-fn');
@@ -34,7 +33,7 @@ const compileTargetToCallback = (type, plugins) => {
             case 'INJECT':
               ps.forEach((p) => {
                 const result = p.fn(args);
-                Joi.assert(result, p.schema);
+                assert(p.schema(result) === true);
                 set(value, p.targetRel, result);
               });
               return value;
