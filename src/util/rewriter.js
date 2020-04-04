@@ -177,6 +177,7 @@ module.exports = (pluginMap, dataStoreFields) => {
           return true;
         }
       });
+      const retainResult = objectFields.Retainer(fields);
 
       return {
         fieldsToRequest,
@@ -185,7 +186,7 @@ module.exports = (pluginMap, dataStoreFields) => {
           injectRewriter(input, { context });
           filterRewriter(input, { input, context });
           sortRewriter(input, { lookups: [], context });
-          objectFields.retain(input, fields);
+          retainResult(input);
         }
       };
     }
