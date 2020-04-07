@@ -128,7 +128,12 @@ module.exports = (pluginMap, dataStoreFields) => {
       const injectRewriter = objectScan(Object.keys(injectCbs), {
         useArraySelector: false,
         joined: false,
-        filterFn: (key, value, { matchedBy, parents, context }) => {
+        filterFn: (ctx) => {
+          const key = ctx.key();
+          const value = ctx.value();
+          const matchedBy = ctx.matchedBy();
+          const parents = ctx.parents();
+          const context = ctx.context;
           matchedBy.forEach((m) => {
             Object.assign(value, injectCbs[m].fn(key, value, parents, context.context));
           });
@@ -138,7 +143,12 @@ module.exports = (pluginMap, dataStoreFields) => {
       const filterRewriter = objectScan(Object.keys(filterCbs), {
         useArraySelector: false,
         joined: false,
-        filterFn: (key, value, { matchedBy, parents, context }) => {
+        filterFn: (ctx) => {
+          const key = ctx.key();
+          const value = ctx.value();
+          const matchedBy = ctx.matchedBy();
+          const parents = ctx.parents();
+          const context = ctx.context;
           const result = matchedBy.some((m) => filterCbs[m].fn(key, value, parents, context.context) === true);
           if (result === false) {
             const parent = key.length === 1 ? context.input : parents[0];
@@ -154,10 +164,14 @@ module.exports = (pluginMap, dataStoreFields) => {
       const sortRewriter = objectScan(Object.keys(sortCbs), {
         useArraySelector: false,
         joined: false,
-        filterFn: (key, value, { matchedBy, parents, context }) => {
+        filterFn: (ctx) => {
+          const key = ctx.key();
+          const value = ctx.value();
+          const matchedBy = ctx.matchedBy();
+          const parents = ctx.parents();
+          const context = ctx.context;
           assert(Array.isArray(parents[0]), 'Sort must be on "Array" type.');
           if (context.lookups[key.length - 1] === undefined) {
-            // eslint-disable-next-line no-param-reassign
             context.lookups[key.length - 1] = new Map();
           }
           const lookup = context.lookups[key.length - 1];
