@@ -414,7 +414,7 @@ describe('Testing rewriter', () => {
   it('Testing dependent injects', () => {
     const dataStoreFields = ['a'];
     const data = [{ a: 2 }, { a: 1 }];
-    const fields = ['a', 'b', 'c'];
+    const fields = ['c'];
     const p1 = injectPlugin({
       target: 'b',
       schema: (r) => Number.isInteger(r),
@@ -432,14 +432,7 @@ describe('Testing rewriter', () => {
     }, dataStoreFields).init(fields);
     expect(rew.fieldsToRequest).to.deep.equal(['a']);
     rew.rewrite(data);
-    expect(data).to.deep.equal([
-      {
-        a: 2, b: 3, c: 4
-      },
-      {
-        a: 1, b: 2, c: 3
-      }
-    ]);
+    expect(data).to.deep.equal([{ c: 4 }, { c: 3 }]);
   });
 
   it('Testing bad field requested', () => {

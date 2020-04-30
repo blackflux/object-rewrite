@@ -83,7 +83,15 @@ const compileMeta = (plugins, fields) => {
   }
 
   return Object.entries(pluginsByType).reduce((p, [type, ps]) => Object.assign(p, {
-    [`${type.toLowerCase()}Cbs`]: compileTargetToCallback(type, ps)
+    [`${type.toLowerCase()}Cbs`]: compileTargetToCallback(type, ps.sort((pA, pB) => {
+      if (pA.requires.includes(pB.target)) {
+        return 1;
+      }
+      if (pB.requires.includes(pA.target)) {
+        return -1;
+      }
+      return 0;
+    }))
   }), {
     fieldsToRequest: [...new Set(requiredFields)].filter((e) => !ignoredFields.has(e))
   });
