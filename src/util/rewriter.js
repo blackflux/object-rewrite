@@ -17,7 +17,14 @@ const compileTargetToCallback = (type, plugins) => {
       if (prev[key] === undefined) {
         Object.assign(prev, { [key]: [] });
       }
-      prev[key].push(plugin);
+      let insertIdx = prev[key].length;
+      for (let idx = 0; idx < prev[key].length; idx += 1) {
+        if (prev[key][idx].requires.includes(plugin.target)) {
+          insertIdx = idx;
+          break;
+        }
+      }
+      prev[key].splice(insertIdx, 0, plugin);
       return prev;
     }, {});
 
@@ -83,15 +90,7 @@ const compileMeta = (plugins, fields) => {
   }
 
   return Object.entries(pluginsByType).reduce((p, [type, ps]) => Object.assign(p, {
-    [`${type.toLowerCase()}Cbs`]: compileTargetToCallback(type, ps.sort((pA, pB) => {
-      if (pA.requires.includes(pB.target)) {
-        return 1;
-      }
-      if (pB.requires.includes(pA.target)) {
-        return -1;
-      }
-      return 0;
-    }))
+    [`${type.toLowerCase()}Cbs`]: compileTargetToCallback(type, ps)
   }), {
     fieldsToRequest: [...new Set(requiredFields)].filter((e) => !ignoredFields.has(e))
   });
