@@ -17,7 +17,14 @@ const compileTargetToCallback = (type, plugins) => {
       if (prev[key] === undefined) {
         Object.assign(prev, { [key]: [] });
       }
-      prev[key].push(plugin);
+      let insertIdx = prev[key].length;
+      for (let idx = 0; idx < prev[key].length; idx += 1) {
+        if (prev[key][idx].requires.includes(plugin.target)) {
+          insertIdx = idx;
+          break;
+        }
+      }
+      prev[key].splice(insertIdx, 0, plugin);
       return prev;
     }, {});
 
