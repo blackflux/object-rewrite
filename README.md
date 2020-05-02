@@ -158,6 +158,10 @@ Plugins of the same type that operate on the same target are executed in order.
 
 ### Async
 
+To apply an async rewrite, please use
+
+> rewInstance.rewriteAsync(data);
+
 Only plugin that can use an async `fn` in an Inject plugin.
 An async result is evaluated after all inject plugins have run,
 and hence can only be used in filter and sort plugins, but not in other inject plugins.
