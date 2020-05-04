@@ -83,11 +83,11 @@ Used to inject data
 
 ### Filter Plugin
 
-Used to filter arrays 
+Used to filter arrays
 
 - `target`: array that should be filtered
 - `required`: See above
-- `fn`: target is removed iff function returns `false`. Similar to 
+- `fn`: target is removed iff function returns `false`. Similar to
 [Array.filter()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter). Relative to target
 
 ### Sort Plugin
@@ -155,3 +155,13 @@ Plugins within the same type are evaluated bottom-up. While this is less perform
 it allows plugins to rely on previous executed plugins of the same type.
 
 Plugins of the same type that operate on the same target are executed in order.
+
+### Async
+
+To apply an async rewrite, please use
+
+> rewInstance.rewriteAsync(data);
+
+Only plugin that can use an async `fn` in an Inject plugin.
+An async result is evaluated after all inject plugins have run,
+and hence can only be used in filter and sort plugins, but not in other inject plugins.
