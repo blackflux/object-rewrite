@@ -453,6 +453,30 @@ describe('Testing rewriter', () => {
     expect(data).to.deep.equal([{ b: 3 }, { b: 2 }]);
   });
 
+  it('Testing nested inject', async () => {
+    const dataStoreFields = ['a'];
+    const data = [{ a: 2 }, { a: 1 }];
+    const fields = ['settings.a', 'settings.b'];
+    const p1 = injectPlugin({
+      target: 'settings.a',
+      schema: (r) => Number.isInteger(r),
+      requires: ['a'],
+      fn: ({ value }) => value.a
+    });
+    const p2 = injectPlugin({
+      target: 'settings.b',
+      schema: (r) => Number.isInteger(r),
+      requires: ['a'],
+      fn: ({ value }) => value.a + 1
+    });
+    const rew = rewriter({
+      '': [p1, p2]
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(['a']);
+    rew.rewrite(data);
+    expect(data).to.deep.equal([{ settings: { a: 2, b: 3 } }, { settings: { a: 1, b: 2 } }]);
+  });
+
   it('Testing bad field requested', () => {
     expect(() => rewriter({}, []).init(['id'])).to.throw('Bad field requested: id');
   });
