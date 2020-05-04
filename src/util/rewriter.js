@@ -38,12 +38,19 @@ const compileTargetToCallback = (type, plugins) => {
           };
           switch (type) {
             case 'INJECT':
-              ps.forEach((p) => {
+              return ps.reduce((promises, p) => {
+                const exec = (r) => {
+                  assert(p.schema(r) === true);
+                  set(value, p.targetRel, r);
+                };
                 const result = p.fn(args);
-                assert(p.schema(result) === true);
-                set(value, p.targetRel, result);
-              });
-              return value;
+                if (result instanceof Promise) {
+                  promises.push(async () => exec(await result));
+                } else {
+                  exec(result);
+                }
+                return promises;
+              }, []);
             case 'FILTER':
               return ps.every((p) => p.fn(args));
             case 'SORT':
@@ -139,7 +146,8 @@ module.exports = (pluginMap, dataStoreFields) => {
           key, value, parents, matchedBy, context
         }) => {
           matchedBy.forEach((m) => {
-            Object.assign(value, injectCbs[m].fn(key, value, parents, context.context));
+            const promises = injectCbs[m].fn(key, value, parents, context.context);
+            context.promises.push(...promises);
           });
           return true;
         }
@@ -192,14 +200,27 @@ module.exports = (pluginMap, dataStoreFields) => {
       });
       const retainResult = objectFields.Retainer(fields);
 
+      const rewriteStart = (input, context) => {
+        assert(context instanceof Object && !Array.isArray(context));
+        const { promises } = injectRewriter(input, { context, promises: [] });
+        return promises;
+      };
+      const rewriteEnd = (input, context) => {
+        filterRewriter(input, { input, context });
+        sortRewriter(input, { lookups: [], context });
+        retainResult(input);
+      };
       return {
         fieldsToRequest,
         rewrite: (input, context = {}) => {
-          assert(context instanceof Object && !Array.isArray(context));
-          injectRewriter(input, { context });
-          filterRewriter(input, { input, context });
-          sortRewriter(input, { lookups: [], context });
-          retainResult(input);
+          const promises = rewriteStart(input, context);
+          assert(promises.length === 0, 'Please use rewriteAsync() for async logic');
+          rewriteEnd(input, context);
+        },
+        rewriteAsync: async (input, context = {}) => {
+          const promises = rewriteStart(input, context);
+          await Promise.all(promises.map((p) => p()));
+          rewriteEnd(input, context);
         }
       };
     }

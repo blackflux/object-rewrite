@@ -435,6 +435,24 @@ describe('Testing rewriter', () => {
     expect(data).to.deep.equal([{ c: 4 }, { c: 3 }]);
   });
 
+  it('Testing async inject', async () => {
+    const dataStoreFields = ['a'];
+    const data = [{ a: 2 }, { a: 1 }];
+    const fields = ['b'];
+    const p1 = injectPlugin({
+      target: 'b',
+      schema: (r) => Number.isInteger(r),
+      requires: ['a'],
+      fn: async ({ value }) => value.a + 1
+    });
+    const rew = rewriter({
+      '': [p1]
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(['a']);
+    await rew.rewriteAsync(data);
+    expect(data).to.deep.equal([{ b: 3 }, { b: 2 }]);
+  });
+
   it('Testing bad field requested', () => {
     expect(() => rewriter({}, []).init(['id'])).to.throw('Bad field requested: id');
   });
