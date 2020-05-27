@@ -9,7 +9,7 @@
   "dependencies": {
     "joi-strict": "1.2.2",
     "lodash.set": "4.3.2",
-    "object-fields": "2.0.4",
+    "object-fields": "2.0.5",
     "object-scan": "13.0.3"
   },
   "devDependencies": {
