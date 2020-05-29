@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@babel/cli@7.10.0":
-  version "7.10.0"
-  resolved "https://registry.yarnpkg.com/@babel/cli/-/cli-7.10.0.tgz#44bfd08feb6f9e4791bf69c62e3b35196269b0e3"
-  integrity sha512-AziyYI4DpD4NmAcBD2xnH8CcIgdRrCGlW7wVL9Ysk736PCSNn2ZZedAUMu5rx/SfMT7Yv+3UReHcWKeQ3wNd/Q==
+"@babel/cli@7.10.1":
+  version "7.10.1"
+  resolved "https://registry.yarnpkg.com/@babel/cli/-/cli-7.10.1.tgz#b6e5cd43a17b8f639442ab027976408ebe6d79a0"
+  integrity sha512-cVB+dXeGhMOqViIaZs3A9OUAe4pKw4SBNdMw6yHJMYR7s4TB+Cei7ThquV/84O19PdIFWuwe03vxxES0BHUm5g==
   dependencies:
     commander "^4.0.1"
     convert-source-map "^1.1.0"
@@ -247,10 +247,10 @@
   dependencies:
     smart-fs "1.11.12"
 
-"@blackflux/robo-config-plugin@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@blackflux/robo-config-plugin/-/robo-config-plugin-3.4.0.tgz#4d318a06644ff78952230da8f8bb861df6e43e06"
-  integrity sha512-Ft872phAkqrTqPCi7kfipmkSben+fC0LckymgGqgaIqMvd521A+gzQxudCN6e3BUGUe82KwncFrvU6CX25I2qw==
+"@blackflux/robo-config-plugin@3.4.1":
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/@blackflux/robo-config-plugin/-/robo-config-plugin-3.4.1.tgz#cde3aac42ab8d136399d3012ca84e8cace568828"
+  integrity sha512-sFtgr132PzdwFUJyd1zuPMeOu7gyvedXmJiqEJRkU2cXJ3MmJb8w2evJwn24u+305qeia9xANTkz1f0COluAKA==
 
 "@hapi/address@^4.0.1":
   version "4.0.1"
