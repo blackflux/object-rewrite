@@ -9,7 +9,7 @@
   "dependencies": {
     "joi-strict": "1.2.2",
     "lodash.set": "4.3.2",
-    "object-fields": "2.0.7",
+    "object-fields": "2.0.8",
     "object-scan": "13.1.1"
   },
   "devDependencies": {
@@ -28,7 +28,7 @@
     "eslint-plugin-json": "2.1.1",
     "eslint-plugin-markdown": "1.0.2",
     "eslint-plugin-mocha": "7.0.1",
-    "js-gardener": "2.0.161",
+    "js-gardener": "2.0.162",
     "lodash.get": "4.4.2",
     "nyc": "15.1.0",
     "semantic-release": "17.0.8"
