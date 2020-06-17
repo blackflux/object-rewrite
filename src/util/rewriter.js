@@ -178,7 +178,6 @@ module.exports = (pluginMap, dataStoreFields) => {
         }) => {
           assert(Array.isArray(parents[0]), 'Sort must be on "Array" type.');
           if (context.lookups[key.length - 1] === undefined) {
-            // eslint-disable-next-line no-param-reassign
             context.lookups[key.length - 1] = new Map();
           }
           const lookup = context.lookups[key.length - 1];
