@@ -8,6 +8,7 @@
       "packageName": "object-rewrite",
       "projectName": "object-rewrite",
       "owner": "simlu",
+      "nodeVersion": "10",
       "ownerName": "Lukas Siemon",
       "mergeBot": "MrsFlux"
     }
