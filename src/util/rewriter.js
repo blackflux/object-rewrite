@@ -41,7 +41,11 @@ const compileTargetToCallback = (type, plugins) => {
               return ps.reduce((promises, p) => {
                 const exec = (r) => {
                   assert(p.schema(r) === true);
-                  set(value, p.targetRel, r);
+                  if (p.targetRel === '*') {
+                    Object.assign(value, r);
+                  } else {
+                    set(value, p.targetRel, r);
+                  }
                 };
                 const result = p.fn(args);
                 if (result instanceof Promise) {
