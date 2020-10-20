@@ -42,6 +42,27 @@ describe('Testing rewriter', () => {
     expect(data).to.deep.equal([{ id: 2, meta: [{ id: 3 }] }, { id: 1, meta: [{ id: 2 }] }]);
   });
 
+  it('Testing inject deep merge', () => {
+    const dataStoreFields = ['name', 'desc'];
+    const data = [{ name: 'name-en', desc: 'desc-en' }];
+    const fields = ['name', 'desc'];
+    const plugin = injectPlugin({
+      target: '*',
+      schema: {
+        name: (r) => typeof r === 'string',
+        desc: (r) => typeof r === 'string'
+      },
+      requires: ['name', 'desc'],
+      fn: () => ({ name: 'name-fr', desc: 'desc-fr' })
+    });
+    const rew = rewriter({
+      '': [plugin]
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(['name', 'desc']);
+    rew.rewrite(data);
+    expect(data).to.deep.equal([{ name: 'name-fr', desc: 'desc-fr' }]);
+  });
+
   it('Testing inject with **', () => {
     const dataStoreFields = ['**.id'];
     const data = {
