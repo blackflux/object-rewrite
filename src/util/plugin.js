@@ -45,7 +45,7 @@ const extractKeys = (prefix, input) => {
   }
   assert(input instanceof Object);
   return Object.entries(input).reduce((p, [k, v]) => {
-    extractKeys(join([prefix, k]), v)
+    extractKeys(`${prefix}.${k}`, v)
       .forEach((e) => p.push(e));
     return p;
   }, []);

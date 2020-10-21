@@ -43,24 +43,31 @@ describe('Testing rewriter', () => {
   });
 
   it('Testing inject deep merge', () => {
-    const dataStoreFields = ['name', 'desc'];
-    const data = [{ name: 'name-en', desc: 'desc-en' }];
-    const fields = ['name', 'desc'];
-    const plugin = injectPlugin({
-      target: '*',
-      schema: {
-        name: (r) => typeof r === 'string',
-        desc: (r) => typeof r === 'string'
-      },
-      requires: ['name', 'desc'],
-      fn: () => ({ name: 'name-fr', desc: 'desc-fr' })
+    [
+      { name: (r) => typeof r === 'string', desc: (r) => typeof r === 'string' },
+      (r) => r instanceof Object && !Array.isArray(r)
+    ].forEach((schema) => {
+      const dataStoreFields = ['name', 'desc', 'property.name', 'property.desc'];
+      const data = [{ name: 'name-en', desc: 'desc-en', property: { name: 'name-en', desc: 'desc-en' } }];
+      const fields = ['name', 'desc', 'property.name', 'property.desc'];
+      const plugin = injectPlugin({
+        target: '*',
+        schema,
+        requires: ['name', 'desc'],
+        fn: () => ({ name: 'name-fr', desc: 'desc-fr' })
+      });
+      const rew = rewriter({
+        '': [plugin],
+        property: [plugin]
+      }, dataStoreFields).init(fields);
+      expect(rew.fieldsToRequest).to.deep.equal(['name', 'desc', 'property.name', 'property.desc']);
+      rew.rewrite(data);
+      expect(data).to.deep.equal([{
+        name: 'name-fr',
+        desc: 'desc-fr',
+        property: { name: 'name-fr', desc: 'desc-fr' }
+      }]);
     });
-    const rew = rewriter({
-      '': [plugin]
-    }, dataStoreFields).init(fields);
-    expect(rew.fieldsToRequest).to.deep.equal(['name', 'desc']);
-    rew.rewrite(data);
-    expect(data).to.deep.equal([{ name: 'name-fr', desc: 'desc-fr' }]);
   });
 
   it('Testing inject with **', () => {
