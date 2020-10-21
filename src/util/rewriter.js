@@ -80,9 +80,10 @@ const compileMeta = (plugins, fields) => {
       const plugin = inactivePlugins[j];
       if (
         plugin.targets.includes(field)
-        || `${field}.` === plugin.target
-        || field.startsWith(plugin.target)
-      ) {
+        || (
+          (plugin.type !== 'INJECT' || plugin.targetRel === '*')
+          && (`${field}.` === plugin.target || field.startsWith(plugin.target))
+        )) {
         requiredFields.push(...plugin.requires);
         inactivePlugins.splice(j, 1);
         j -= 1;
