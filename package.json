@@ -31,7 +31,7 @@
     "js-gardener": "2.0.179",
     "lodash.get": "4.4.2",
     "nyc": "15.1.0",
-    "semantic-release": "17.2.2"
+    "semantic-release": "17.2.3"
   },
   "scripts": {
     "clean": "rm -rf lib",
