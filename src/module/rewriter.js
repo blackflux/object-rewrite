@@ -5,6 +5,37 @@ const objectFields = require('object-fields');
 const cmpFn = require('../util/cmp-fn');
 const getPluginTargetMap = require('../logic/rewriter/get-plugin-target-map');
 
+const getFn = (type, ps) => (key, value, parents, context) => {
+  const args = {
+    key, value, parents, context
+  };
+  switch (type) {
+    case 'INJECT':
+      return ps.reduce((promises, p) => {
+        const exec = (r) => {
+          assert(p.schema(r) === true);
+          if (p.targetRel === '*') {
+            Object.assign(value, r);
+          } else {
+            set(value, p.targetRel, r);
+          }
+        };
+        const result = p.fn(args);
+        if (result instanceof Promise) {
+          promises.push(async () => exec(await result));
+        } else {
+          exec(result);
+        }
+        return promises;
+      }, []);
+    case 'FILTER':
+      return ps.every((p) => p.fn(args));
+    case 'SORT':
+    default:
+      return ps.map((p) => p.fn(args));
+  }
+};
+
 const compileTargetToCallback = (type, plugins) => {
   assert(plugins.every((p) => p.type === type));
 
@@ -14,36 +45,7 @@ const compileTargetToCallback = (type, plugins) => {
     .entries(pluginTargetMap)
     .reduce((prev, [target, ps]) => Object.assign(prev, {
       [target]: {
-        fn: (key, value, parents, context) => {
-          const args = {
-            key, value, parents, context
-          };
-          switch (type) {
-            case 'INJECT':
-              return ps.reduce((promises, p) => {
-                const exec = (r) => {
-                  assert(p.schema(r) === true);
-                  if (p.targetRel === '*') {
-                    Object.assign(value, r);
-                  } else {
-                    set(value, p.targetRel, r);
-                  }
-                };
-                const result = p.fn(args);
-                if (result instanceof Promise) {
-                  promises.push(async () => exec(await result));
-                } else {
-                  exec(result);
-                }
-                return promises;
-              }, []);
-            case 'FILTER':
-              return ps.every((p) => p.fn(args));
-            case 'SORT':
-            default:
-              return ps.map((p) => p.fn(args));
-          }
-        },
+        fn: getFn(type, ps),
         plugins: ps
       }
     }), {});
