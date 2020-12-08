@@ -4,25 +4,28 @@ const objectScan = require('object-scan');
 const objectFields = require('object-fields');
 const cmpFn = require('../util/cmp-fn');
 
-const getTargetsToPlugins = (plugins, type) => plugins
-  .reduce((prev, plugin) => {
+const getTargetsToPlugins = (plugins, type) => {
+  const result = {};
+  for (let i = 0; i < plugins.length; i += 1) {
+    const plugin = plugins[i];
     // eslint-disable-next-line no-nested-ternary
     const key = type === 'INJECT'
       ? plugin.prefix
       : (plugin.target.endsWith('.') ? plugin.target.slice(0, -1) : plugin.target);
-    if (prev[key] === undefined) {
-      Object.assign(prev, { [key]: [] });
+    if (result[key] === undefined) {
+      Object.assign(result, { [key]: [] });
     }
-    let insertIdx = prev[key].length;
-    for (let idx = 0; idx < prev[key].length; idx += 1) {
-      if (prev[key][idx].requires.includes(plugin.target)) {
+    let insertIdx = result[key].length;
+    for (let idx = 0; idx < result[key].length; idx += 1) {
+      if (result[key][idx].requires.includes(plugin.target)) {
         insertIdx = idx;
         break;
       }
     }
-    prev[key].splice(insertIdx, 0, plugin);
-    return prev;
-  }, {});
+    result[key].splice(insertIdx, 0, plugin);
+  }
+  return result;
+};
 
 const compileTargetToCallback = (type, plugins) => {
   assert(plugins.every((p) => p.type === type));
