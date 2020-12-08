@@ -1,6 +1,6 @@
 const assert = require('assert');
 const Joi = require('joi-strict');
-const compileValidation = require('../util/compile-validation');
+const validationCompile = require('../util/validation-compile');
 
 const join = (input) => {
   const result = input.filter((e) => !!e).join('.');
@@ -60,7 +60,7 @@ const plugin = (type, options) => {
       limit
     };
     if (type === 'INJECT') {
-      result.schema = compileValidation(schema);
+      result.schema = validationCompile(schema);
       result.targets = extractKeys(targetAbs, schema);
     }
     return result;
