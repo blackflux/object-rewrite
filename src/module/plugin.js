@@ -1,5 +1,6 @@
 const assert = require('assert');
 const Joi = require('joi-strict');
+const compileValidation = require('../util/compile-validation');
 
 const pluginTypes = ['FILTER', 'INJECT', 'SORT'];
 
@@ -12,27 +13,6 @@ const join = (input) => {
     return result.slice(0, -1);
   }
   return result;
-};
-
-const asSchema = (input) => {
-  if (typeof input === 'function') {
-    return input;
-  }
-  if (Array.isArray(input)) {
-    const compiled = input.map((v) => asSchema(v));
-    return (r) => (
-      Array.isArray(r)
-      && r.every((e) => compiled.some((v) => v(e) === true))
-    );
-  }
-  assert(input instanceof Object);
-  const compiled = Object.entries(input).map(([k, v]) => [k, asSchema(v)]);
-  return (r) => (
-    r instanceof Object
-    && !Array.isArray(r)
-    && Object.keys(r).length === compiled.length
-    && compiled.every(([k, v]) => v(r[k]) === true)
-  );
 };
 
 const extractKeys = (prefix, input) => {
@@ -82,7 +62,7 @@ const plugin = (type, options) => {
       limit
     };
     if (type === 'INJECT') {
-      result.schema = asSchema(schema);
+      result.schema = compileValidation(schema);
       result.targets = extractKeys(targetAbs, schema);
     }
     return result;
