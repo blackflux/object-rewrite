@@ -1,8 +1,8 @@
 const assert = require('assert');
 const Joi = require('joi-strict');
-const validationCompile = require('../util/validation-compile');
-const validationExtractKeys = require('../util/validation-extract-keys');
-const joinPath = require('../util/join-path');
+const validationCompile = require('../logic/plugin/validation-compile');
+const validationExtractKeys = require('../logic/plugin/validation-extract-keys');
+const joinPath = require('../logic/plugin/join-path');
 
 const plugin = (type, options) => {
   assert(['FILTER', 'INJECT', 'SORT'].includes(type));

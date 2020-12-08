@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const joinPath = require('../../src/util/join-path');
+const joinPath = require('../../../src/logic/plugin/join-path');
 
 describe('Testing join-path.js', () => {
   it('Testing basic join', () => {
