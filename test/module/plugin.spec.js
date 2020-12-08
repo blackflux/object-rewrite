@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { injectPlugin, filterPlugin, sortPlugin } = require('../../src/util/plugin');
+const { injectPlugin, filterPlugin, sortPlugin } = require('../../src/module/plugin');
 
 describe('Testing plugin', () => {
   const fn = () => null;

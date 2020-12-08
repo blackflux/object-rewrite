@@ -1,5 +1,5 @@
-const { injectPlugin, filterPlugin, sortPlugin } = require('./util/plugin');
-const rewriter = require('./util/rewriter');
+const { injectPlugin, filterPlugin, sortPlugin } = require('./module/plugin');
+const rewriter = require('./module/rewriter');
 
 module.exports = {
   injectPlugin,

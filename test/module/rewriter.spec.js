@@ -1,7 +1,7 @@
 const get = require('lodash.get');
 const { expect } = require('chai');
-const rewriter = require('../../src/util/rewriter');
-const { injectPlugin, filterPlugin, sortPlugin } = require('../../src/util/plugin');
+const rewriter = require('../../src/module/rewriter');
+const { injectPlugin, filterPlugin, sortPlugin } = require('../../src/module/plugin');
 
 describe('Testing rewriter', () => {
   it('Testing inject', () => {
