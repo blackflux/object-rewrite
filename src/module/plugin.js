@@ -1,6 +1,6 @@
-const assert = require('assert');
 const Joi = require('joi-strict');
 const validationCompile = require('../util/validation-compile');
+const validationExtractKeys = require('../util/validation-extract-keys');
 
 const join = (input) => {
   const result = input.filter((e) => !!e).join('.');
@@ -11,22 +11,6 @@ const join = (input) => {
     return result.slice(0, -1);
   }
   return result;
-};
-
-const extractKeys = (prefix, input) => {
-  if (typeof input === 'function') {
-    return [prefix];
-  }
-  if (Array.isArray(input)) {
-    assert(input.length === 1);
-    return extractKeys(prefix, input[0]);
-  }
-  assert(input instanceof Object);
-  return Object.entries(input).reduce((p, [k, v]) => {
-    extractKeys(`${prefix}.${k}`, v)
-      .forEach((e) => p.push(e));
-    return p;
-  }, []);
 };
 
 const plugin = (type, options) => {
@@ -61,7 +45,7 @@ const plugin = (type, options) => {
     };
     if (type === 'INJECT') {
       result.schema = validationCompile(schema);
-      result.targets = extractKeys(targetAbs, schema);
+      result.targets = validationExtractKeys(targetAbs, schema);
     }
     return result;
   };
