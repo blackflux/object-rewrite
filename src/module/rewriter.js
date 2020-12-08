@@ -3,34 +3,15 @@ const set = require('lodash.set');
 const objectScan = require('object-scan');
 const objectFields = require('object-fields');
 const cmpFn = require('../util/cmp-fn');
-
-const getTargetsToPlugins = (plugins) => {
-  const result = {};
-  for (let i = 0; i < plugins.length; i += 1) {
-    const plugin = plugins[i];
-    const key = plugin.targetNormalized;
-    if (!(key in result)) {
-      result[key] = [];
-    }
-    let insertIdx = result[key].length;
-    for (let idx = 0; idx < result[key].length; idx += 1) {
-      if (result[key][idx].requires.includes(plugin.target)) {
-        insertIdx = idx;
-        break;
-      }
-    }
-    result[key].splice(insertIdx, 0, plugin);
-  }
-  return result;
-};
+const getPluginTargetMap = require('../logic/rewriter/get-plugin-target-map');
 
 const compileTargetToCallback = (type, plugins) => {
   assert(plugins.every((p) => p.type === type));
 
-  const targetToPlugins = getTargetsToPlugins(plugins);
+  const pluginTargetMap = getPluginTargetMap(plugins);
 
   return Object
-    .entries(targetToPlugins)
+    .entries(pluginTargetMap)
     .reduce((prev, [target, ps]) => Object.assign(prev, {
       [target]: {
         fn: (key, value, parents, context) => {
