@@ -1,17 +1,7 @@
 const Joi = require('joi-strict');
 const validationCompile = require('../util/validation-compile');
 const validationExtractKeys = require('../util/validation-extract-keys');
-
-const join = (input) => {
-  const result = input.filter((e) => !!e).join('.');
-  if (result === '*') {
-    return '';
-  }
-  if (result.endsWith('.*')) {
-    return result.slice(0, -1);
-  }
-  return result;
-};
+const joinPath = require('../util/join-path');
 
 const plugin = (type, options) => {
   Joi.assert(
@@ -32,13 +22,13 @@ const plugin = (type, options) => {
     target, requires, fn, schema, limit
   } = options;
   return (prefix) => {
-    const targetAbs = join([prefix, target]);
+    const targetAbs = joinPath([prefix, target]);
     const result = {
       prefix,
       target: targetAbs,
       targets: [targetAbs],
       targetRel: target,
-      requires: requires.map((f) => (f.startsWith('/') ? f.slice(1) : join([prefix, f]))),
+      requires: requires.map((f) => (f.startsWith('/') ? f.slice(1) : joinPath([prefix, f]))),
       type,
       fn,
       limit
