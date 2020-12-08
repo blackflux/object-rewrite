@@ -2,8 +2,6 @@ const assert = require('assert');
 const Joi = require('joi-strict');
 const compileValidation = require('../util/compile-validation');
 
-const pluginTypes = ['FILTER', 'INJECT', 'SORT'];
-
 const join = (input) => {
   const result = input.filter((e) => !!e).join('.');
   if (result === '*') {
@@ -35,7 +33,7 @@ const plugin = (type, options) => {
   Joi.assert(
     { type, options },
     Joi.object({
-      type: Joi.string().valid(...pluginTypes),
+      type: Joi.string().valid('FILTER', 'INJECT', 'SORT'),
       options: Joi.object({
         target: Joi.string(), // target can not be "", use "*" instead
         requires: Joi.array().items(Joi.string()),
@@ -69,6 +67,8 @@ const plugin = (type, options) => {
   };
 };
 
-module.exports = pluginTypes.reduce((prev, t) => Object.assign(prev, {
-  [`${t.toLowerCase()}Plugin`]: (options) => plugin(t, options)
-}), { pluginTypes });
+module.exports = {
+  filterPlugin: (opts) => plugin('FILTER', opts),
+  injectPlugin: (opts) => plugin('INJECT', opts),
+  sortPlugin: (opts) => plugin('SORT', opts)
+};

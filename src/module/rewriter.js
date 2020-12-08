@@ -3,7 +3,6 @@ const set = require('lodash.set');
 const objectScan = require('object-scan');
 const objectFields = require('object-fields');
 const cmpFn = require('../util/cmp-fn');
-const { pluginTypes } = require('./plugin');
 
 const compileTargetToCallback = (type, plugins) => {
   assert(plugins.every((p) => p.type === type));
@@ -68,7 +67,11 @@ const compileTargetToCallback = (type, plugins) => {
 };
 
 const compileMeta = (plugins, fields) => {
-  const pluginsByType = pluginTypes.reduce((p, c) => Object.assign(p, { [c]: [] }), {});
+  const pluginsByType = {
+    FILTER: [],
+    INJECT: [],
+    SORT: []
+  };
 
   const inactivePlugins = [...plugins];
   const requiredFields = [...fields];
