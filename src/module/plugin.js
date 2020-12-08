@@ -21,6 +21,7 @@ const plugin = (type, options) => {
     const targetAbs = joinPath([prefix, target]);
     const result = {
       prefix,
+      targetNormalized: targetAbs.endsWith('.') ? targetAbs.slice(0, -1) : targetAbs,
       target: targetAbs,
       targets: [targetAbs],
       targetRel: target,
@@ -30,6 +31,7 @@ const plugin = (type, options) => {
       limit
     };
     if (type === 'INJECT') {
+      result.targetNormalized = prefix;
       result.schema = validationCompile(schema);
       result.targets = validationExtractKeys(targetAbs, schema);
     }

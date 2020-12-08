@@ -8,10 +8,7 @@ const getTargetsToPlugins = (type, plugins) => {
   const result = {};
   for (let i = 0; i < plugins.length; i += 1) {
     const plugin = plugins[i];
-    // eslint-disable-next-line no-nested-ternary
-    const key = type === 'INJECT'
-      ? plugin.prefix
-      : (plugin.target.endsWith('.') ? plugin.target.slice(0, -1) : plugin.target);
+    const key = plugin.targetNormalized;
     if (!(key in result)) {
       result[key] = [];
     }
