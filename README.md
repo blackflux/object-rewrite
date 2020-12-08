@@ -101,7 +101,7 @@ Used to sort arrays
 
 Only one sort plugin can be specified per target.
 
-Allows for complex sort comparisons and uses `sort-fn.js` under the hood (see source code).
+Allows for complex sort comparisons and uses `cmp-fn.js` under the hood (see source code).
 
 ## `rewriter(pluginMap: Object, dataStoreFields: Array)`
 

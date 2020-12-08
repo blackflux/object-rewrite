@@ -2,8 +2,7 @@ const assert = require('assert');
 const set = require('lodash.set');
 const objectScan = require('object-scan');
 const objectFields = require('object-fields');
-const sortFn = require('./sort-fn');
-const { pluginTypes } = require('./plugin');
+const cmpFn = require('../util/cmp-fn');
 
 const compileTargetToCallback = (type, plugins) => {
   assert(plugins.every((p) => p.type === type));
@@ -68,7 +67,11 @@ const compileTargetToCallback = (type, plugins) => {
 };
 
 const compileMeta = (plugins, fields) => {
-  const pluginsByType = pluginTypes.reduce((p, c) => Object.assign(p, { [c]: [] }), {});
+  const pluginsByType = {
+    FILTER: [],
+    INJECT: [],
+    SORT: []
+  };
 
   const inactivePlugins = [...plugins];
   const requiredFields = [...fields];
@@ -186,7 +189,7 @@ module.exports = (pluginMap, dataStoreFields) => {
           const lookup = context.lookups[key.length - 1];
           lookup.set(value, sortCbs[matchedBy[0]].fn(key, value, parents, context.context));
           if (key[key.length - 1] === 0) {
-            parents[0].sort((a, b) => sortFn(lookup.get(a), lookup.get(b)));
+            parents[0].sort((a, b) => cmpFn(lookup.get(a), lookup.get(b)));
             const limits = sortCbs[matchedBy[0]].plugins
               .filter((p) => p.limit !== undefined)
               .map((p) => p.limit({ context: context.context }))
