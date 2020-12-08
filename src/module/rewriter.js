@@ -4,7 +4,7 @@ const objectScan = require('object-scan');
 const objectFields = require('object-fields');
 const cmpFn = require('../util/cmp-fn');
 
-const getTargetsToPlugins = (type, plugins) => {
+const getTargetsToPlugins = (plugins) => {
   const result = {};
   for (let i = 0; i < plugins.length; i += 1) {
     const plugin = plugins[i];
@@ -27,7 +27,7 @@ const getTargetsToPlugins = (type, plugins) => {
 const compileTargetToCallback = (type, plugins) => {
   assert(plugins.every((p) => p.type === type));
 
-  const targetToPlugins = getTargetsToPlugins(type, plugins);
+  const targetToPlugins = getTargetsToPlugins(plugins);
 
   return Object
     .entries(targetToPlugins)
