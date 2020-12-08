@@ -12,8 +12,8 @@ const getTargetsToPlugins = (type, plugins) => {
     const key = type === 'INJECT'
       ? plugin.prefix
       : (plugin.target.endsWith('.') ? plugin.target.slice(0, -1) : plugin.target);
-    if (result[key] === undefined) {
-      Object.assign(result, { [key]: [] });
+    if (!(key in result)) {
+      result[key] = [];
     }
     let insertIdx = result[key].length;
     for (let idx = 0; idx < result[key].length; idx += 1) {
