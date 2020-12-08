@@ -1,22 +1,18 @@
+const assert = require('assert');
 const Joi = require('joi-strict');
 const validationCompile = require('../util/validation-compile');
 const validationExtractKeys = require('../util/validation-extract-keys');
 const joinPath = require('../util/join-path');
 
 const plugin = (type, options) => {
-  Joi.assert(
-    { type, options },
-    Joi.object({
-      type: Joi.string().valid('FILTER', 'INJECT', 'SORT'),
-      options: Joi.object({
-        target: Joi.string(), // target can not be "", use "*" instead
-        requires: Joi.array().items(Joi.string()),
-        fn: Joi.function(),
-        schema: type === 'INJECT' ? Joi.alternatives(Joi.object(), Joi.array(), Joi.function()) : Joi.forbidden(),
-        limit: type === 'SORT' ? Joi.function().optional() : Joi.forbidden()
-      })
-    })
-  );
+  assert(['FILTER', 'INJECT', 'SORT'].includes(type));
+  Joi.assert(options, Joi.object({
+    target: Joi.string(), // target can not be "", use "*" instead
+    requires: Joi.array().items(Joi.string()),
+    fn: Joi.function(),
+    schema: type === 'INJECT' ? Joi.alternatives(Joi.object(), Joi.array(), Joi.function()) : Joi.forbidden(),
+    limit: type === 'SORT' ? Joi.function().optional() : Joi.forbidden()
+  }));
 
   const {
     target, requires, fn, schema, limit
