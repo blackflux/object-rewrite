@@ -1,43 +1,36 @@
 const { expect } = require('chai');
-const validationExtractKeys = require('../../../src/logic/plugin/validation-extract-keys');
+const { injectPlugin } = require('../../../src/module/plugin');
+const getPluginTargetMap = require('../../../src/logic/rewriter/get-plugin-target-map');
 
-describe('Testing validation-extract-keys.js', () => {
+describe('Testing get-plugin-target-map.js', () => {
   let fn;
+  let schema;
   before(() => {
-    fn = (e) => typeof e === 'string';
+    fn = () => 'value';
+    schema = (e) => typeof e === 'string';
   });
 
   it('Testing fn', () => {
-    expect(fn('str')).to.equal(true);
+    expect(fn()).to.equal('value');
+    expect(schema('str')).to.equal(true);
   });
 
-  it('Testing function', () => {
-    const keys = validationExtractKeys('prefix', fn);
-    expect(keys).to.deep.equal(['prefix']);
-  });
-
-  it('Testing array', () => {
-    const keys = validationExtractKeys('prefix', [fn]);
-    expect(keys).to.deep.equal(['prefix']);
-  });
-
-  it('Testing object', () => {
-    const keys = validationExtractKeys('prefix', { key: fn });
-    expect(keys).to.deep.equal(['prefix.key']);
-  });
-
-  it('Testing object with empty string key', () => {
-    const keys = validationExtractKeys('prefix', { '': fn });
-    expect(keys).to.deep.equal(['prefix.']);
-  });
-
-  it('Testing object with empty prefix', () => {
-    const keys = validationExtractKeys('', { key: fn });
-    expect(keys).to.deep.equal(['.key']);
-  });
-
-  it('Testing object with empty string key with empty prefix', () => {
-    const keys = validationExtractKeys('', { '': fn });
-    expect(keys).to.deep.equal(['.']);
+  it('Testing sorting', () => {
+    const p1 = injectPlugin({
+      target: 'a', requires: ['b'], fn, schema
+    })('x');
+    const p2 = injectPlugin({
+      target: 'b', requires: [], fn, schema
+    })('x');
+    const p3 = injectPlugin({
+      target: 'c', requires: ['b'], fn, schema
+    })('x');
+    expect(getPluginTargetMap([p1, p2, p3])).to.deep.equal({
+      x: [
+        { ...p2, requires: [] },
+        { ...p1, requires: ['x.b'] },
+        { ...p3, requires: ['x.b'] }
+      ]
+    });
   });
 });
