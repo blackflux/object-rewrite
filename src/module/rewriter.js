@@ -3,7 +3,7 @@ const set = require('lodash.set');
 const objectScan = require('object-scan');
 const objectFields = require('object-fields');
 const cmpFn = require('../util/cmp-fn');
-const getPluginTargetMap = require('../logic/rewriter/get-plugin-target-map');
+const getPluginTargetMap = require('./rewriter/get-plugin-target-map');
 
 const getFn = (type, ps) => (key, value, parents, context) => {
   const args = {

@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const validationExtractKeys = require('../../../src/logic/plugin/validation-extract-keys');
+const validationExtractKeys = require('../../../src/module/plugin/validation-extract-keys');
 
 describe('Testing validation-extract-keys.js', () => {
   let fn;

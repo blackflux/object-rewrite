@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const validationCompile = require('../../../src/logic/plugin/validation-compile');
+const validationCompile = require('../../../src/module/plugin/validation-compile');
 
 describe('Testing validation-compile.js', () => {
   it('Testing function', () => {
