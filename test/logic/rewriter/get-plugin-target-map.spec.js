@@ -5,9 +5,13 @@ const getPluginTargetMap = require('../../../src/logic/rewriter/get-plugin-targe
 describe('Testing get-plugin-target-map.js', () => {
   let fn;
   let schema;
+  let mkPlugin;
   before(() => {
     fn = () => 'value';
     schema = (e) => typeof e === 'string';
+    mkPlugin = (target, requires) => injectPlugin({
+      target, requires, fn, schema
+    })('x');
   });
 
   it('Testing fn', () => {
@@ -16,15 +20,9 @@ describe('Testing get-plugin-target-map.js', () => {
   });
 
   it('Testing sorting', () => {
-    const p1 = injectPlugin({
-      target: 'a', requires: ['b'], fn, schema
-    })('x');
-    const p2 = injectPlugin({
-      target: 'b', requires: [], fn, schema
-    })('x');
-    const p3 = injectPlugin({
-      target: 'c', requires: ['b'], fn, schema
-    })('x');
+    const p1 = mkPlugin('a', ['b']);
+    const p2 = mkPlugin('b', []);
+    const p3 = mkPlugin('c', ['b']);
     expect(getPluginTargetMap([p1, p2, p3])).to.deep.equal({
       x: [
         { ...p2, requires: [] },
