@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const { injectPlugin } = require('../../../src/module/plugin');
-const getPluginTargetMap = require('../../../src/logic/rewriter/get-plugin-target-map');
+const getPluginTargetMap = require('../../../src/module/rewriter/get-plugin-target-map');
 
 describe('Testing get-plugin-target-map.js', () => {
   let fn;
