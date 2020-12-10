@@ -1,55 +1,8 @@
 const assert = require('assert');
-const set = require('lodash.set');
 const objectScan = require('object-scan');
 const objectFields = require('object-fields');
 const cmpFn = require('../util/cmp-fn');
-const getPluginTargetMap = require('./rewriter/get-plugin-target-map');
-
-const getFn = (type, ps) => (key, value, parents, context) => {
-  const args = {
-    key, value, parents, context
-  };
-  switch (type) {
-    case 'INJECT':
-      return ps.reduce((promises, p) => {
-        const exec = (r) => {
-          assert(p.schema(r) === true);
-          if (p.targetRel === '*') {
-            Object.assign(value, r);
-          } else {
-            set(value, p.targetRel, r);
-          }
-        };
-        const result = p.fn(args);
-        if (result instanceof Promise) {
-          promises.push(async () => exec(await result));
-        } else {
-          exec(result);
-        }
-        return promises;
-      }, []);
-    case 'FILTER':
-      return ps.every((p) => p.fn(args));
-    case 'SORT':
-    default:
-      return ps.map((p) => p.fn(args));
-  }
-};
-
-const compileTargetToCallback = (type, plugins) => {
-  assert(plugins.every((p) => p.type === type));
-
-  const pluginTargetMap = getPluginTargetMap(plugins);
-
-  return Object
-    .entries(pluginTargetMap)
-    .reduce((prev, [target, ps]) => Object.assign(prev, {
-      [target]: {
-        fn: getFn(type, ps),
-        plugins: ps
-      }
-    }), {});
-};
+const compileTargetMap = require('./rewriter/compile-target-map');
 
 const compileMeta = (plugins, fields) => {
   const pluginsByType = {
@@ -88,7 +41,7 @@ const compileMeta = (plugins, fields) => {
   }
 
   return Object.entries(pluginsByType).reduce((p, [type, ps]) => Object.assign(p, {
-    [`${type.toLowerCase()}Cbs`]: compileTargetToCallback(type, ps)
+    [`${type.toLowerCase()}Cbs`]: compileTargetMap(type, ps)
   }), {
     fieldsToRequest: [...new Set(requiredFields)].filter((e) => !ignoredFields.has(e))
   });
@@ -137,7 +90,9 @@ module.exports = (pluginMap, dataStoreFields) => {
           key, value, parents, matchedBy, context
         }) => {
           matchedBy.forEach((m) => {
-            const promises = injectCbs[m].fn(key, value, parents, context.context);
+            const promises = injectCbs[m].fn({
+              key, value, parents, context: context.context
+            });
             context.promises.push(...promises);
           });
           return true;
@@ -149,7 +104,9 @@ module.exports = (pluginMap, dataStoreFields) => {
         filterFn: ({
           key, value, parents, matchedBy, context
         }) => {
-          const result = matchedBy.some((m) => filterCbs[m].fn(key, value, parents, context.context) === true);
+          const result = matchedBy.some((m) => filterCbs[m].fn({
+            key, value, parents, context: context.context
+          }) === true);
           if (result === false) {
             const parent = key.length === 1 ? context.input : parents[0];
             if (Array.isArray(parent)) {
@@ -172,7 +129,9 @@ module.exports = (pluginMap, dataStoreFields) => {
             context.lookups[key.length - 1] = new Map();
           }
           const lookup = context.lookups[key.length - 1];
-          lookup.set(value, sortCbs[matchedBy[0]].fn(key, value, parents, context.context));
+          lookup.set(value, sortCbs[matchedBy[0]].fn({
+            key, value, parents, context: context.context
+          }));
           if (key[key.length - 1] === 0) {
             parents[0].sort((a, b) => cmpFn(lookup.get(a), lookup.get(b)));
             const limits = sortCbs[matchedBy[0]].plugins
