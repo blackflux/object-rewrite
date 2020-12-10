@@ -40,11 +40,12 @@ const compileMeta = (plugins, fields) => {
     }
   }
 
-  return Object.entries(pluginsByType).reduce((p, [type, ps]) => Object.assign(p, {
-    [`${type.toLowerCase()}Cbs`]: compileTargetMap(type, ps)
-  }), {
+  return {
+    filterCbs: compileTargetMap('FILTER', pluginsByType.FILTER),
+    injectCbs: compileTargetMap('INJECT', pluginsByType.INJECT),
+    sortCbs: compileTargetMap('SORT', pluginsByType.SORT),
     fieldsToRequest: [...new Set(requiredFields)].filter((e) => !ignoredFields.has(e))
-  });
+  };
 };
 
 module.exports = (pluginMap, dataStoreFields) => {
