@@ -2,23 +2,7 @@ const assert = require('assert');
 const objectScan = require('object-scan');
 const objectFields = require('object-fields');
 const cmpFn = require('../util/cmp-fn');
-const getPluginTargetMap = require('./rewriter/get-plugin-target-map');
-const compilePlugins = require('./rewriter/compile-plugins');
-
-const compileTargetToCallback = (type, plugins) => {
-  assert(plugins.every((p) => p.type === type));
-
-  const pluginTargetMap = getPluginTargetMap(plugins);
-
-  return Object
-    .entries(pluginTargetMap)
-    .reduce((prev, [target, ps]) => Object.assign(prev, {
-      [target]: {
-        fn: compilePlugins(type, ps),
-        plugins: ps
-      }
-    }), {});
-};
+const compileTargetMap = require('./rewriter/compile-target-map');
 
 const compileMeta = (plugins, fields) => {
   const pluginsByType = {
@@ -57,7 +41,7 @@ const compileMeta = (plugins, fields) => {
   }
 
   return Object.entries(pluginsByType).reduce((p, [type, ps]) => Object.assign(p, {
-    [`${type.toLowerCase()}Cbs`]: compileTargetToCallback(type, ps)
+    [`${type.toLowerCase()}Cbs`]: compileTargetMap(type, ps)
   }), {
     fieldsToRequest: [...new Set(requiredFields)].filter((e) => !ignoredFields.has(e))
   });

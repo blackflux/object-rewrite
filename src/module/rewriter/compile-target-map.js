@@ -1,4 +1,6 @@
-module.exports = (plugins) => {
+const compilePlugins = require('./compile-plugins');
+
+module.exports = (type, plugins) => {
   const result = {};
   for (let i = 0; i < plugins.length; i += 1) {
     const plugin = plugins[i];
@@ -15,5 +17,11 @@ module.exports = (plugins) => {
     }
     result[key].splice(insertIdx, 0, plugin);
   }
+  Object.entries(result).forEach(([target, ps]) => {
+    result[target] = {
+      fn: compilePlugins(type, ps),
+      plugins: ps
+    };
+  });
   return result;
 };
