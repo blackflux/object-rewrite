@@ -10,7 +10,7 @@
     "joi-strict": "1.2.9",
     "lodash.set": "4.3.2",
     "object-fields": "2.0.19",
-    "object-scan": "13.6.11"
+    "object-scan": "13.7.0"
   },
   "devDependencies": {
     "@babel/cli": "7.12.10",
