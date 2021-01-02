@@ -115,7 +115,7 @@ module.exports = (pluginMap, dataStoreFields_) => {
         return promises;
       };
       const rewriteEnd = (input, context) => {
-        filterRewriter(input, { input, context });
+        filterRewriter(input, { context });
         sortRewriter(input, { lookups: [], context });
         retainResult(input);
       };
