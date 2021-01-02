@@ -4,28 +4,29 @@ const objectFields = require('object-fields');
 const cmpFn = require('../util/cmp-fn');
 const compileMeta = require('./rewriter/compile-meta');
 
-module.exports = (pluginMap, dataStoreFields) => {
+module.exports = (pluginMap, dataStoreFields_) => {
   assert(pluginMap instanceof Object && !Array.isArray(pluginMap));
-  assert(Array.isArray(dataStoreFields) && dataStoreFields.every((e) => typeof e === 'string'));
+  assert(Array.isArray(dataStoreFields_) && dataStoreFields_.every((e) => typeof e === 'string'));
 
   const plugins = Object.entries(pluginMap).reduce((prev, [prefix, ps]) => {
     ps.forEach((p) => prev.push(p(prefix)));
     return prev;
   }, []);
-  const allowedFields = [...plugins.reduce((p, c) => {
-    if (c.type === 'INJECT') {
+  const dataStoreFields = new Set(dataStoreFields_);
+  const allowedFields = plugins
+    .filter((p) => p.type === 'INJECT')
+    .reduce((p, c) => {
       c.targets.forEach((t) => p.add(t));
-    }
-    return p;
-  }, new Set(dataStoreFields))];
+      return p;
+    }, new Set(dataStoreFields));
 
   return {
-    allowedFields,
+    allowedFields: [...allowedFields],
     init: (fields) => {
       assert(Array.isArray(fields));
 
-      if (!fields.every((f) => allowedFields.includes(f))) {
-        throw new Error(`Bad field requested: ${fields.filter((f) => !allowedFields.includes(f)).join(', ')}`);
+      if (!fields.every((f) => allowedFields.has(f))) {
+        throw new Error(`Bad field requested: ${fields.filter((f) => !allowedFields.has(f)).join(', ')}`);
       }
 
       const {
@@ -35,10 +36,9 @@ module.exports = (pluginMap, dataStoreFields) => {
         fieldsToRequest
       } = compileMeta(plugins, fields);
 
-      assert(
-        fieldsToRequest.every((f) => dataStoreFields.includes(f)),
-        `Bad Field Requested: ${fieldsToRequest.filter((f) => !dataStoreFields.includes(f))}`
-      );
+      if (!fieldsToRequest.every((f) => dataStoreFields.has(f))) {
+        throw new Error(`Bad Field Requested: ${fieldsToRequest.filter((f) => !dataStoreFields.has(f))}`);
+      }
 
       const injectRewriter = objectScan(Object.keys(injectCbs), {
         useArraySelector: false,
