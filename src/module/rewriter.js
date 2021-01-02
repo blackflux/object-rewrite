@@ -2,51 +2,7 @@ const assert = require('assert');
 const objectScan = require('object-scan');
 const objectFields = require('object-fields');
 const cmpFn = require('../util/cmp-fn');
-const compileTargetMap = require('./rewriter/compile-target-map');
-
-const compileMeta = (plugins, fields) => {
-  const pluginsByType = {
-    FILTER: [],
-    INJECT: [],
-    SORT: []
-  };
-
-  const inactivePlugins = [...plugins];
-  const requiredFields = [...fields];
-  const ignoredFields = new Set();
-
-  for (let i = 0; i < requiredFields.length; i += 1) {
-    const field = requiredFields[i];
-    for (let j = 0; j < inactivePlugins.length; j += 1) {
-      const plugin = inactivePlugins[j];
-      if (
-        plugin.targets.includes(field)
-        || (
-          (plugin.type !== 'INJECT' || plugin.targetRel === '*')
-          && (`${field}.` === plugin.target || field.startsWith(plugin.target))
-        )) {
-        requiredFields.push(...plugin.requires);
-        inactivePlugins.splice(j, 1);
-        j -= 1;
-        pluginsByType[plugin.type].push(plugin);
-        if (plugin.type === 'INJECT') {
-          plugin.targets.forEach((target) => {
-            if (!plugin.requires.includes(target)) {
-              ignoredFields.add(target);
-            }
-          });
-        }
-      }
-    }
-  }
-
-  return {
-    filterCbs: compileTargetMap('FILTER', pluginsByType.FILTER),
-    injectCbs: compileTargetMap('INJECT', pluginsByType.INJECT),
-    sortCbs: compileTargetMap('SORT', pluginsByType.SORT),
-    fieldsToRequest: [...new Set(requiredFields)].filter((e) => !ignoredFields.has(e))
-  };
-};
+const compileMeta = require('./rewriter/compile-meta');
 
 module.exports = (pluginMap, dataStoreFields) => {
   assert(pluginMap instanceof Object && !Array.isArray(pluginMap));
