@@ -4,6 +4,70 @@ const objectFields = require('object-fields');
 const cmpFn = require('../util/cmp-fn');
 const compileMeta = require('./rewriter/compile-meta');
 
+const mkInjectRewriter = (injectCbs) => objectScan(Object.keys(injectCbs), {
+  useArraySelector: false,
+  filterFn: ({
+    key, value, parents, matchedBy, context
+  }) => {
+    matchedBy.forEach((m) => {
+      const promises = injectCbs[m].fn({
+        key, value, parents, context: context.context
+      });
+      context.promises.push(...promises);
+    });
+    return true;
+  }
+});
+
+const mkFilterRewriter = (filterCbs) => objectScan(Object.keys(filterCbs), {
+  useArraySelector: false,
+  filterFn: ({
+    key, value, parents, matchedBy, context
+  }) => {
+    const result = matchedBy.some((m) => filterCbs[m].fn({
+      key, value, parents, context: context.context
+    }) === true);
+    if (result === false) {
+      const parent = key.length === 1 ? context.input : parents[0];
+      if (Array.isArray(parent)) {
+        parent.splice(key[key.length - 1], 1);
+      } else {
+        delete parent[key[key.length - 1]];
+      }
+    }
+    return result;
+  }
+});
+
+const mkSortRewriter = (sortCbs) => objectScan(Object.keys(sortCbs), {
+  useArraySelector: false,
+  filterFn: ({
+    key, value, parents, matchedBy, context
+  }) => {
+    assert(Array.isArray(parents[0]), 'Sort must be on "Array" type.');
+    if (context.lookups[key.length - 1] === undefined) {
+      context.lookups[key.length - 1] = new Map();
+    }
+    const lookup = context.lookups[key.length - 1];
+    lookup.set(value, sortCbs[matchedBy[0]].fn({
+      key, value, parents, context: context.context
+    }));
+    if (key[key.length - 1] === 0) {
+      parents[0].sort((a, b) => cmpFn(lookup.get(a), lookup.get(b)));
+      const limits = sortCbs[matchedBy[0]].plugins
+        .filter((p) => p.limit !== undefined)
+        .map((p) => p.limit({ context: context.context }))
+        .filter((l) => l !== undefined);
+      if (limits.length !== 0) {
+        assert(limits.every((l) => Number.isInteger(l) && l >= 0));
+        parents[0].splice(Math.min(...limits));
+      }
+      context.lookups.splice(key.length - 1);
+    }
+    return true;
+  }
+});
+
 module.exports = (pluginMap, dataStoreFields_) => {
   assert(pluginMap instanceof Object && !Array.isArray(pluginMap));
   assert(Array.isArray(dataStoreFields_) && dataStoreFields_.every((e) => typeof e === 'string'));
@@ -40,67 +104,9 @@ module.exports = (pluginMap, dataStoreFields_) => {
         throw new Error(`Bad Field Requested: ${fieldsToRequest.filter((f) => !dataStoreFields.has(f))}`);
       }
 
-      const injectRewriter = objectScan(Object.keys(injectCbs), {
-        useArraySelector: false,
-        filterFn: ({
-          key, value, parents, matchedBy, context
-        }) => {
-          matchedBy.forEach((m) => {
-            const promises = injectCbs[m].fn({
-              key, value, parents, context: context.context
-            });
-            context.promises.push(...promises);
-          });
-          return true;
-        }
-      });
-      const filterRewriter = objectScan(Object.keys(filterCbs), {
-        useArraySelector: false,
-        filterFn: ({
-          key, value, parents, matchedBy, context
-        }) => {
-          const result = matchedBy.some((m) => filterCbs[m].fn({
-            key, value, parents, context: context.context
-          }) === true);
-          if (result === false) {
-            const parent = key.length === 1 ? context.input : parents[0];
-            if (Array.isArray(parent)) {
-              parent.splice(key[key.length - 1], 1);
-            } else {
-              delete parent[key[key.length - 1]];
-            }
-          }
-          return result;
-        }
-      });
-      const sortRewriter = objectScan(Object.keys(sortCbs), {
-        useArraySelector: false,
-        filterFn: ({
-          key, value, parents, matchedBy, context
-        }) => {
-          assert(Array.isArray(parents[0]), 'Sort must be on "Array" type.');
-          if (context.lookups[key.length - 1] === undefined) {
-            context.lookups[key.length - 1] = new Map();
-          }
-          const lookup = context.lookups[key.length - 1];
-          lookup.set(value, sortCbs[matchedBy[0]].fn({
-            key, value, parents, context: context.context
-          }));
-          if (key[key.length - 1] === 0) {
-            parents[0].sort((a, b) => cmpFn(lookup.get(a), lookup.get(b)));
-            const limits = sortCbs[matchedBy[0]].plugins
-              .filter((p) => p.limit !== undefined)
-              .map((p) => p.limit({ context: context.context }))
-              .filter((l) => l !== undefined);
-            if (limits.length !== 0) {
-              assert(limits.every((l) => Number.isInteger(l) && l >= 0));
-              parents[0].splice(Math.min(...limits));
-            }
-            context.lookups.splice(key.length - 1);
-          }
-          return true;
-        }
-      });
+      const injectRewriter = mkInjectRewriter(injectCbs);
+      const filterRewriter = mkFilterRewriter(filterCbs);
+      const sortRewriter = mkSortRewriter(sortCbs);
       const retainResult = objectFields.Retainer(fields);
 
       const rewriteStart = (input, context) => {
