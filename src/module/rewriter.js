@@ -42,7 +42,6 @@ module.exports = (pluginMap, dataStoreFields) => {
 
       const injectRewriter = objectScan(Object.keys(injectCbs), {
         useArraySelector: false,
-        joined: false,
         filterFn: ({
           key, value, parents, matchedBy, context
         }) => {
@@ -57,7 +56,6 @@ module.exports = (pluginMap, dataStoreFields) => {
       });
       const filterRewriter = objectScan(Object.keys(filterCbs), {
         useArraySelector: false,
-        joined: false,
         filterFn: ({
           key, value, parents, matchedBy, context
         }) => {
@@ -77,7 +75,6 @@ module.exports = (pluginMap, dataStoreFields) => {
       });
       const sortRewriter = objectScan(Object.keys(sortCbs), {
         useArraySelector: false,
-        joined: false,
         filterFn: ({
           key, value, parents, matchedBy, context
         }) => {
