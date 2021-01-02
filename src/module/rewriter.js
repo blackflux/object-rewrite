@@ -22,17 +22,17 @@ const mkInjectRewriter = (injectCbs) => objectScan(Object.keys(injectCbs), {
 const mkFilterRewriter = (filterCbs) => objectScan(Object.keys(filterCbs), {
   useArraySelector: false,
   filterFn: ({
-    key, value, parents, matchedBy, context
+    key, value, parents, property, parent, matchedBy, context
   }) => {
     const result = matchedBy.some((m) => filterCbs[m].fn({
       key, value, parents, context: context.context
     }) === true);
     if (result === false) {
-      const parent = key.length === 1 ? context.input : parents[0];
       if (Array.isArray(parent)) {
-        parent.splice(key[key.length - 1], 1);
+        parent.splice(property, 1);
       } else {
-        delete parent[key[key.length - 1]];
+        // eslint-disable-next-line no-param-reassign
+        delete parent[property];
       }
     }
     return result;
