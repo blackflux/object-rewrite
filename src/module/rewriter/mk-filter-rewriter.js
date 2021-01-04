@@ -1,12 +1,12 @@
 const objectScan = require('object-scan');
-const runPlugins = require('./run-plugins');
+const execPlugins = require('./exec-plugins');
 
 module.exports = (keys) => objectScan(keys, {
   useArraySelector: false,
   filterFn: ({
     key, value, parents, property, parent, matchedBy, context
   }) => {
-    const result = matchedBy.some((m) => runPlugins('FILTER', context.filterMap[m], {
+    const result = matchedBy.some((m) => execPlugins('FILTER', context.filterMap[m], {
       key, value, parents, context: context.context
     }) === true);
     if (result === false) {

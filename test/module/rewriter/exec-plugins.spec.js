@@ -1,8 +1,8 @@
 const { expect } = require('chai');
 const plugin = require('../../../src/module/plugin');
-const runPlugins = require('../../../src/module/rewriter/run-plugins');
+const execPlugins = require('../../../src/module/rewriter/exec-plugins');
 
-describe('Testing run-plugins.js', () => {
+describe('Testing exec-plugins.js', () => {
   let mkFilterPlugin;
   let mkInjectPlugin;
   let mkSortPlugin;
@@ -17,8 +17,8 @@ describe('Testing run-plugins.js', () => {
 
   it('Testing filter plugins', () => {
     const p1 = mkFilterPlugin('*', ({ value }) => value.a === 1);
-    expect(runPlugins('FILTER', [p1], { value: { a: 1 } })).to.equal(true);
-    expect(runPlugins('FILTER', [p1], { value: { a: 2 } })).to.equal(false);
+    expect(execPlugins('FILTER', [p1], { value: { a: 1 } })).to.equal(true);
+    expect(execPlugins('FILTER', [p1], { value: { a: 2 } })).to.equal(false);
   });
 
   it('Testing inject plugins (as string)', () => {
@@ -27,7 +27,7 @@ describe('Testing run-plugins.js', () => {
     const p2 = mkInjectPlugin('b', () => 'v2', isString);
     const p3 = mkInjectPlugin('c', () => 'v3', isString);
     const value = {};
-    const r = runPlugins('INJECT', [p1, p2, p3], { value });
+    const r = execPlugins('INJECT', [p1, p2, p3], { value });
     expect(r).to.deep.equal([]);
     expect(value).to.deep.equal({
       a: 'v1',
@@ -42,7 +42,7 @@ describe('Testing run-plugins.js', () => {
     const p2 = mkInjectPlugin('*', () => ({ y: 1 }), { y: isNumber });
     const p3 = mkInjectPlugin('*', () => ({ z: 2 }), { z: isNumber });
     const value = {};
-    const r = runPlugins('INJECT', [p1, p2, p3], { value });
+    const r = execPlugins('INJECT', [p1, p2, p3], { value });
     expect(r).to.deep.equal([]);
     expect(value).to.deep.equal({ x: 0, y: 1, z: 2 });
   });
@@ -50,7 +50,7 @@ describe('Testing run-plugins.js', () => {
   it('Testing inject plugins (as promise)', async () => {
     const p1 = mkInjectPlugin('a', () => Promise.resolve('v1'), (e) => typeof e === 'string');
     const value = {};
-    const r = runPlugins('INJECT', [p1], { value });
+    const r = execPlugins('INJECT', [p1], { value });
     expect(r.length).to.equal(1);
     expect(value).to.deep.equal({});
     await Promise.all(r.map((f) => f()));
@@ -59,7 +59,7 @@ describe('Testing run-plugins.js', () => {
 
   it('Testing sort plugins', () => {
     const p1 = mkSortPlugin('*', ({ value }) => value.a);
-    expect(runPlugins('SORT', [p1], { value: { a: 1 } })).to.deep.equal([1]);
-    expect(runPlugins('SORT', [p1], { value: { a: 2 } })).to.deep.equal([2]);
+    expect(execPlugins('SORT', [p1], { value: { a: 1 } })).to.deep.equal([1]);
+    expect(execPlugins('SORT', [p1], { value: { a: 2 } })).to.deep.equal([2]);
   });
 });
