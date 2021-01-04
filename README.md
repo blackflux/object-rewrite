@@ -66,11 +66,19 @@ Please see the tests for more in-depth examples on how to use this library.
 
 There are three types of plugins `INJECT`, `FILTER` and `SORT`.
 
-All plugins require:
+All plugins define:
 
 - `target` _String_: target field relative to the plugin path.
 - `required` _Array_: required fields relative to the plugin path. Can specify relative to root by prefixing with `/`.Will influence `fieldsToRequest`.
-- `fn` _Function_: result of this function is used by the plugin. Signature is `fn({ key, value, parents, context })`.
+- `fn` _Function_: result of this function is used by the plugin. Signature is `fn({ key, value, parents, context, cache })`.
+- `init({ context, cache })` _Function_ (optional): if present called once per run, if returns other than `true`, the plugin is disabled for the run
+
+where:
+- `key`: is the key for the processed entity
+- `value` is the value of the processed entity
+- `parents` are the parents of the processed entity
+- `context` is global as passed into the execution
+- `cache = {}` is locally defined per plugin
 
 ### Inject Plugin
 

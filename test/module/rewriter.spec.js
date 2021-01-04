@@ -505,7 +505,66 @@ describe('Testing rewriter', () => {
     expect(data).to.deep.equal([{ settings: { a: 2, b: 3 } }, { settings: { a: 1, b: 2 } }]);
   });
 
-  it('Testing bad field requested', () => {
-    expect(() => rewriter({}, []).init(['id'])).to.throw('Bad field requested: id');
+  it('Testing init', async () => {
+    const dataStoreFields = ['a'];
+    const data = [{ a: 2 }, { a: 1 }];
+    const fields = ['a'];
+    const logs = [];
+    const p1 = injectPlugin({
+      target: 'a',
+      schema: (r) => Number.isInteger(r),
+      requires: ['a'],
+      init: ({ context, cache }) => {
+        logs.push('init');
+        logs.push(`context = ${context.a}`);
+        context.a = (context.a || 0) + 3;
+        logs.push(`cache = ${cache.a}`);
+        // eslint-disable-next-line no-param-reassign
+        cache.a = (cache.a || 0) + 5;
+        return context.enabled;
+      },
+      fn: ({ value, context, cache }) => {
+        logs.push(`value = ${value.a}`);
+        logs.push(`context = ${context.a}`);
+        logs.push(`cache = ${cache.a}`);
+        return value.a + context.a + cache.a;
+      }
+    });
+    const rew = rewriter({
+      '': [p1, p1]
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(['a']);
+
+    rew.rewrite(data, { enabled: false });
+    expect(logs).to.deep.equal([
+      'init', 'context = undefined', 'cache = undefined',
+      'init', 'context = 3', 'cache = undefined'
+    ]);
+    expect(data).to.deep.equal([{ a: 2 }, { a: 1 }]);
+
+    logs.length = 0;
+    rew.rewrite(data, { enabled: true });
+    expect(logs).to.deep.equal([
+      'init', 'context = undefined', 'cache = undefined',
+      'init', 'context = 3', 'cache = undefined',
+      'value = 1', 'context = 6', 'cache = 5',
+      'value = 12', 'context = 6', 'cache = 5',
+      'value = 2', 'context = 6', 'cache = 5',
+      'value = 13', 'context = 6', 'cache = 5'
+    ]);
+    expect(data).to.deep.equal([{ a: 24 }, { a: 23 }]);
+  });
+
+  it('Testing Bad Field Requested', () => {
+    expect(() => rewriter({}, []).init(['id'])).to.throw('Bad Field Requested: id');
+    const p1 = filterPlugin({
+      target: '*',
+      requires: ['id'],
+      fn: () => true
+    });
+    expect(p1('').fn()).to.equal(true);
+    expect(() => rewriter({
+      '': [p1]
+    }, ['a']).init(['a'])).to.throw('Bad Field Requested: id');
   });
 });
