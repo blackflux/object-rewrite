@@ -539,7 +539,16 @@ describe('Testing rewriter', () => {
     expect(data).to.deep.equal([{ a: 0 }, { a: 0 }]);
   });
 
-  it('Testing bad field requested', () => {
-    expect(() => rewriter({}, []).init(['id'])).to.throw('Bad field requested: id');
+  it('Testing Bad Field Requested', () => {
+    expect(() => rewriter({}, []).init(['id'])).to.throw('Bad Field Requested: id');
+    const p1 = filterPlugin({
+      target: '*',
+      requires: ['id'],
+      fn: () => true
+    });
+    expect(p1('').fn()).to.equal(true);
+    expect(() => rewriter({
+      '': [p1]
+    }, ['a']).init(['a'])).to.throw('Bad Field Requested: id');
   });
 });

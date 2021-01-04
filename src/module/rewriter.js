@@ -35,7 +35,7 @@ module.exports = (pluginMap, dataStoreFields_) => {
       assert(Array.isArray(fields));
 
       if (!fields.every((f) => allowedFields.has(f))) {
-        throw new Error(`Bad field requested: ${fields.filter((f) => !allowedFields.has(f)).join(', ')}`);
+        throw new Error(`Bad Field Requested: ${fields.filter((f) => !allowedFields.has(f)).join(', ')}`);
       }
 
       const {
