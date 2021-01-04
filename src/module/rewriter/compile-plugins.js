@@ -1,7 +1,9 @@
 const assert = require('assert');
 const set = require('lodash.set');
 
-module.exports = (type, plugins) => (kwargs) => {
+module.exports = (type, plugins_) => (kwargs) => {
+  const plugins = plugins_
+    .filter((p) => p.init === undefined || p.init(kwargs) === true);
   switch (type) {
     case 'INJECT':
       return plugins.reduce((promises, plugin) => {
