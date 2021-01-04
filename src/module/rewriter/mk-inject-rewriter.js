@@ -1,4 +1,5 @@
 const objectScan = require('object-scan');
+const runPlugins = require('./run-plugins');
 
 module.exports = (injectCbs) => objectScan(Object.keys(injectCbs), {
   useArraySelector: false,
@@ -6,7 +7,7 @@ module.exports = (injectCbs) => objectScan(Object.keys(injectCbs), {
     key, value, parents, matchedBy, context
   }) => {
     matchedBy.forEach((m) => {
-      const promises = injectCbs[m].fn({
+      const promises = runPlugins('INJECT', injectCbs[m], {
         key, value, parents, context: context.context
       });
       context.promises.push(...promises);
