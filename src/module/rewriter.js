@@ -31,26 +31,26 @@ module.exports = (pluginMap, dataStoreFields_) => {
       }
 
       const {
-        injectCbs, filterCbs, sortCbs, fieldsToRequest
+        injectMap, filterMap, sortMap, fieldsToRequest
       } = compileMeta(plugins, fields);
 
       if (!fieldsToRequest.every((f) => dataStoreFields.has(f))) {
         throw new Error(`Bad Field Requested: ${fieldsToRequest.filter((f) => !dataStoreFields.has(f))}`);
       }
 
-      const injectRewriter = mkInjectRewriter(injectCbs);
-      const filterRewriter = mkFilterRewriter(filterCbs);
-      const sortRewriter = mkSortRewriter(sortCbs);
+      const injectRewriter = mkInjectRewriter(Object.keys(injectMap));
+      const filterRewriter = mkFilterRewriter(Object.keys(filterMap));
+      const sortRewriter = mkSortRewriter(Object.keys(sortMap));
       const retainResult = objectFields.Retainer(fields);
 
       const rewriteStart = (input, context) => {
         assert(context instanceof Object && !Array.isArray(context));
-        const { promises } = injectRewriter(input, { context, promises: [] });
+        const { promises } = injectRewriter(input, { context, injectMap, promises: [] });
         return promises;
       };
       const rewriteEnd = (input, context) => {
-        filterRewriter(input, { context });
-        sortRewriter(input, { lookups: [], context });
+        filterRewriter(input, { context, filterMap });
+        sortRewriter(input, { context, sortMap, lookups: [] });
         retainResult(input);
       };
       return {

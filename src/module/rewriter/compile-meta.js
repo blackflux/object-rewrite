@@ -33,9 +33,9 @@ module.exports = (plugins, fields) => {
     });
 
   return {
-    filterCbs: compileTargetMap('FILTER', pluginsByType.FILTER),
-    injectCbs: compileTargetMap('INJECT', pluginsByType.INJECT),
-    sortCbs: compileTargetMap('SORT', pluginsByType.SORT),
+    filterMap: compileTargetMap('FILTER', pluginsByType.FILTER),
+    injectMap: compileTargetMap('INJECT', pluginsByType.INJECT),
+    sortMap: compileTargetMap('SORT', pluginsByType.SORT),
     fieldsToRequest: [...requiredFields].filter((e) => !injectedFields.has(e))
   };
 };
