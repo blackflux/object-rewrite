@@ -509,34 +509,50 @@ describe('Testing rewriter', () => {
     const dataStoreFields = ['a'];
     const data = [{ a: 2 }, { a: 1 }];
     const fields = ['a'];
-    const calls = [];
+    const logs = [];
     const p1 = injectPlugin({
       target: 'a',
       schema: (r) => Number.isInteger(r),
       requires: ['a'],
-      init: ({ context }) => {
-        calls.push('init');
-        context.a = 0;
+      init: ({ context, cache }) => {
+        logs.push('init');
+        logs.push(`context = ${context.a}`);
+        context.a = (context.a || 0) + 3;
+        logs.push(`cache = ${cache.a}`);
+        // eslint-disable-next-line no-param-reassign
+        cache.a = (cache.a || 0) + 5;
         return context.enabled;
       },
-      fn: ({ value, context }) => {
-        calls.push(value);
-        return context.a;
+      fn: ({ value, context, cache }) => {
+        logs.push(`value = ${value.a}`);
+        logs.push(`context = ${context.a}`);
+        logs.push(`cache = ${cache.a}`);
+        return value.a + context.a + cache.a;
       }
     });
     const rew = rewriter({
-      '': [p1]
+      '': [p1, p1]
     }, dataStoreFields).init(fields);
     expect(rew.fieldsToRequest).to.deep.equal(['a']);
 
     rew.rewrite(data, { enabled: false });
-    expect(calls).to.deep.equal(['init']);
+    expect(logs).to.deep.equal([
+      'init', 'context = undefined', 'cache = undefined',
+      'init', 'context = 3', 'cache = undefined'
+    ]);
     expect(data).to.deep.equal([{ a: 2 }, { a: 1 }]);
 
-    calls.length = 0;
+    logs.length = 0;
     rew.rewrite(data, { enabled: true });
-    expect(calls).to.deep.equal(['init', { a: 0 }, { a: 0 }]);
-    expect(data).to.deep.equal([{ a: 0 }, { a: 0 }]);
+    expect(logs).to.deep.equal([
+      'init', 'context = undefined', 'cache = undefined',
+      'init', 'context = 3', 'cache = undefined',
+      'value = 1', 'context = 6', 'cache = 5',
+      'value = 12', 'context = 6', 'cache = 5',
+      'value = 2', 'context = 6', 'cache = 5',
+      'value = 13', 'context = 6', 'cache = 5'
+    ]);
+    expect(data).to.deep.equal([{ a: 24 }, { a: 23 }]);
   });
 
   it('Testing Bad Field Requested', () => {

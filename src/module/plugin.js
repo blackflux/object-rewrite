@@ -20,6 +20,7 @@ const plugin = (type, options) => {
   } = options;
   return (prefix) => {
     const targetAbs = joinPath([prefix, target]);
+    let cache;
     const result = {
       prefix,
       targetNormalized: targetAbs.endsWith('.') ? targetAbs.slice(0, -1) : targetAbs,
@@ -28,8 +29,11 @@ const plugin = (type, options) => {
       targetRel: target,
       requires: requires.map((f) => (f.startsWith('/') ? f.slice(1) : joinPath([prefix, f]))),
       type,
-      init,
-      fn,
+      init: (context) => {
+        cache = {};
+        return init === undefined ? true : init({ context, cache });
+      },
+      fn: (kwargs) => fn({ ...kwargs, cache }),
       limit
     };
     if (type === 'INJECT') {

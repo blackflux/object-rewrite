@@ -8,7 +8,7 @@ const mkSortRewriter = require('./rewriter/mk-sort-rewriter');
 const init = (map, context) => {
   const result = {};
   Object.entries(map).forEach(([k, v]) => {
-    result[k] = v.filter((p) => p.init === undefined || p.init({ context }) === true);
+    result[k] = v.filter((p) => p.init(context) === true);
   });
   return result;
 };
