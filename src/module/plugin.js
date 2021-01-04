@@ -9,13 +9,14 @@ const plugin = (type, options) => {
   Joi.assert(options, Joi.object({
     target: Joi.string(), // target can not be "", use "*" instead
     requires: Joi.array().items(Joi.string()),
+    init: Joi.function().optional(),
     fn: Joi.function(),
     schema: type === 'INJECT' ? Joi.alternatives(Joi.object(), Joi.array(), Joi.function()) : Joi.forbidden(),
     limit: type === 'SORT' ? Joi.function().optional() : Joi.forbidden()
   }));
 
   const {
-    target, requires, fn, schema, limit
+    target, requires, init, fn, schema, limit
   } = options;
   return (prefix) => {
     const targetAbs = joinPath([prefix, target]);
@@ -27,6 +28,7 @@ const plugin = (type, options) => {
       targetRel: target,
       requires: requires.map((f) => (f.startsWith('/') ? f.slice(1) : joinPath([prefix, f]))),
       type,
+      init,
       fn,
       limit
     };
