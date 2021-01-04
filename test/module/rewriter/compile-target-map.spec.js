@@ -25,14 +25,11 @@ describe('Testing get-plugin-target-map.js', () => {
     const p3 = mkPlugin('c', ['b'], 'x');
     const r = compileTargetMap('inject', [p1, p2, p3]);
     expect(r).to.deep.equal({
-      x: {
-        fn: r.x.fn,
-        plugins: [
-          { ...p2, requires: [] },
-          { ...p1, requires: ['x.b'] },
-          { ...p3, requires: ['x.b'] }
-        ]
-      }
+      x: [
+        { ...p2, requires: [] },
+        { ...p1, requires: ['x.b'] },
+        { ...p3, requires: ['x.b'] }
+      ]
     });
   });
 });
