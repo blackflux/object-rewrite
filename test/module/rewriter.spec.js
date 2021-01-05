@@ -510,7 +510,7 @@ describe('Testing rewriter', () => {
     const data = [{ a: 2 }, { a: 1 }];
     const fields = ['a'];
     const logs = [];
-    const p1 = injectPlugin({
+    const mkPlugin = () => injectPlugin({
       target: 'a',
       schema: (r) => Number.isInteger(r),
       requires: ['a'],
@@ -530,8 +530,10 @@ describe('Testing rewriter', () => {
         return value.a + context.a + cache.a;
       }
     });
+    const p1 = mkPlugin();
+    const p2 = mkPlugin();
     const rew = rewriter({
-      '': [p1, p1]
+      '': [p1, p2]
     }, dataStoreFields).init(fields);
     expect(rew.fieldsToRequest).to.deep.equal(['a']);
 
@@ -553,6 +555,32 @@ describe('Testing rewriter', () => {
       'value = 13', 'context = 6', 'cache = 5'
     ]);
     expect(data).to.deep.equal([{ a: 24 }, { a: 23 }]);
+  });
+
+  it('Testing init executes once per plugin', async () => {
+    const dataStoreFields = ['a', 'b.a'];
+    const data = [{ a: 2, b: { a: 3 } }, { a: 1, b: { a: 4 } }];
+    const fields = ['a', 'b.a'];
+    const logs = [];
+    const p1 = injectPlugin({
+      target: 'a',
+      schema: (r) => Number.isInteger(r),
+      requires: ['a'],
+      init: () => {
+        logs.push('init');
+        return true;
+      },
+      fn: ({ value }) => value.a + 1
+    });
+    const rew = rewriter({
+      '': [p1, p1],
+      b: [p1]
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(['a', 'b.a']);
+
+    rew.rewrite(data);
+    expect(logs).to.deep.equal(['init']);
+    expect(data).to.deep.equal([{ a: 4, b: { a: 4 } }, { a: 3, b: { a: 5 } }]);
   });
 
   it('Testing disabled', async () => {
