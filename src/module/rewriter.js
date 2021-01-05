@@ -6,7 +6,7 @@ const mkFilterRewriter = require('./rewriter/mk-filter-rewriter');
 const mkSortRewriter = require('./rewriter/mk-sort-rewriter');
 const initPluginMap = require('./rewriter/init-plugin-map');
 
-module.exports = (pluginMap, dataStoreFields_) => {
+module.exports = (pluginMap, dataStoreFields_, logger = console) => {
   assert(pluginMap instanceof Object && !Array.isArray(pluginMap));
   assert(Array.isArray(dataStoreFields_) && dataStoreFields_.every((e) => typeof e === 'string'));
 
@@ -48,7 +48,7 @@ module.exports = (pluginMap, dataStoreFields_) => {
         assert(context instanceof Object && !Array.isArray(context));
         const { promises } = injectRewriter(input, {
           context,
-          injectMap: initPluginMap(injectMap, context),
+          injectMap: initPluginMap(injectMap, context, logger),
           promises: []
         });
         return promises;
@@ -56,11 +56,11 @@ module.exports = (pluginMap, dataStoreFields_) => {
       const rewriteEnd = (input, context) => {
         filterRewriter(input, {
           context,
-          filterMap: initPluginMap(filterMap, context)
+          filterMap: initPluginMap(filterMap, context, logger)
         });
         sortRewriter(input, {
           context,
-          sortMap: initPluginMap(sortMap, context),
+          sortMap: initPluginMap(sortMap, context, logger),
           lookups: []
         });
         retainResult(input);

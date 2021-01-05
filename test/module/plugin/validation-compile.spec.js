@@ -23,4 +23,13 @@ describe('Testing validation-compile.js', () => {
     expect(fn({ key: 1 })).to.equal(false);
     expect(fn('str')).to.equal(false);
   });
+
+  it('Testing obj non strict', () => {
+    const fn = validationCompile({ key: (e) => typeof e === 'string' }, false);
+    expect(fn({ key: 'str' })).to.equal(true);
+    expect(fn({ key: 'str', other: 'str' })).to.equal(true);
+    expect(fn({})).to.equal(false);
+    expect(fn({ key: 1 })).to.equal(false);
+    expect(fn('str')).to.equal(false);
+  });
 });
