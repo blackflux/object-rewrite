@@ -6,7 +6,10 @@ module.exports = (map, context, logger) => {
       if (!plugins.has(pl.self)) {
         const validContext = pl.self.contextSchema(context);
         if (!validContext) {
-          logger.warn(`object-rewrite: Context validation failure\n${JSON.stringify(pl.self.options)}`);
+          logger.warn(`Context validation failure\n${JSON.stringify({
+            origin: 'object-rewrite',
+            options: pl.self.options
+          })}`);
           plugins.set(pl.self, false);
         } else {
           plugins.set(pl.self, pl.self.init(context));
