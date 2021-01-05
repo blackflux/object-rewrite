@@ -514,6 +514,9 @@ describe('Testing rewriter', () => {
       target: 'a',
       schema: (r) => Number.isInteger(r),
       requires: ['a'],
+      contextSchema: {
+        enabled: (e) => typeof e === 'boolean'
+      },
       init: ({ context, cache }) => {
         logs.push('init');
         logs.push(`context = ${context.a}`);
@@ -630,5 +633,26 @@ describe('Testing rewriter', () => {
     expect(() => rewriter({
       '': [p1]
     }, ['a']).init(['a'])).to.throw('Bad Field Requested: id');
+  });
+
+  it('Testing Bad Context', () => {
+    const log = [];
+    const logger = { warn: (arg) => log.push(arg) };
+    const p1 = filterPlugin({
+      target: '*',
+      requires: [],
+      contextSchema: {
+        enabled: (e) => typeof e === 'boolean'
+      },
+      fn: () => true
+    });
+    expect(p1('').fn()).to.equal(true);
+    rewriter({ '': [p1] }, ['a'], logger)
+      .init(['a'])
+      .rewrite({}, {});
+    expect(log.length).to.equal(1);
+    expect(log).to.deep.equal([
+      'Context not matched by contextSchema\n{"target":"*","requires":[],"contextSchema":{}}'
+    ]);
   });
 });

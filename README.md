@@ -72,6 +72,7 @@ All plugins define:
 - `required` _Array_: required fields relative to the plugin path. Can specify relative to root by prefixing with `/`.Will influence `fieldsToRequest`.
 - `fn` _Function_: result of this function is used by the plugin. Signature is `fn({ key, value, parents, context, cache })`.
 - `init({ context, cache })` _Function_ (optional): if present called once per run, if returns other than `true`, the plugin is disabled for the run
+- `contextSchema`: Object schema structure of what is expected to be present in `context`
 
 where:
 - `key`: is the key for the processed entity
@@ -87,7 +88,7 @@ Used to inject data
 - `target`: field that is created or overwritten, can be `'*'`
 - `requires`: See above
 - `fn`: return value is used for target. Relative to prefix
-- `schema`: Joi schema or object containing schema values of what is being injected
+- `schema`: Object schema structure of what is being injected (result of `fn`)
 
 ### Filter Plugin
 
