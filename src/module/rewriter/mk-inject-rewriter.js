@@ -1,17 +1,25 @@
+const assert = require('assert');
 const objectScan = require('object-scan');
 const execPlugins = require('./exec-plugins');
 
 module.exports = (keys) => objectScan(keys, {
   useArraySelector: false,
   filterFn: ({
-    key, value, parents, matchedBy, context
+    matchedBy, getKey, getValue, getParents, context
   }) => {
-    matchedBy.forEach((m) => {
-      const promises = execPlugins('INJECT', context.injectMap[m], {
-        key, value, parents, context: context.context
-      });
-      context.promises.push(...promises);
+    assert(matchedBy.length === 1);
+    const plugins = context.injectMap[matchedBy[0]];
+    if (plugins.length === 0) {
+      return true;
+    }
+
+    const key = getKey();
+    const value = getValue();
+    const parents = getParents();
+    const promises = execPlugins('INJECT', plugins, {
+      key, value, parents, context: context.context
     });
+    context.promises.push(...promises);
     return true;
   }
 });
