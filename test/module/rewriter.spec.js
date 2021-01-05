@@ -652,7 +652,7 @@ describe('Testing rewriter', () => {
       .rewrite({}, {});
     expect(log.length).to.equal(1);
     expect(log).to.deep.equal([
-      'Context not matched by contextSchema\n{"target":"*","requires":[],"contextSchema":{}}'
+      'object-rewrite: Context validation failure\n{"target":"*","requires":[],"contextSchema":{}}'
     ]);
   });
 });
