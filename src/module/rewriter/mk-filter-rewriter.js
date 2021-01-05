@@ -1,6 +1,5 @@
 const assert = require('assert');
 const objectScan = require('object-scan');
-const execPlugins = require('./exec-plugins');
 
 module.exports = (keys) => objectScan(keys, {
   useArraySelector: false,
@@ -16,12 +15,13 @@ module.exports = (keys) => objectScan(keys, {
     const key = getKey();
     const value = getValue();
     const parents = getParents();
-    const result = execPlugins('FILTER', plugins, {
+    const kwargs = {
       key,
       value,
       parents,
       context: context.context
-    }) === true;
+    };
+    const result = plugins.every((plugin) => plugin.fn(kwargs)) === true;
     if (result === false) {
       if (Array.isArray(parents[0])) {
         parents[0].splice(key[key.length - 1], 1);

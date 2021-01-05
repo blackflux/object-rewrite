@@ -1,6 +1,5 @@
 const assert = require('assert');
 const objectScan = require('object-scan');
-const execPlugins = require('./exec-plugins');
 const cmpFn = require('../../util/cmp-fn');
 
 module.exports = (keys) => objectScan(keys, {
@@ -22,9 +21,13 @@ module.exports = (keys) => objectScan(keys, {
       context.lookups[key.length - 1] = new Map();
     }
     const lookup = context.lookups[key.length - 1];
-    lookup.set(value, execPlugins('SORT', plugins, {
-      key, value, parents, context: context.context
-    }));
+    const kwargs = {
+      key,
+      value,
+      parents,
+      context: context.context
+    };
+    lookup.set(value, plugins.map((plugin) => plugin.fn(kwargs)));
     if (key[key.length - 1] === 0) {
       parents[0].sort((a, b) => cmpFn(lookup.get(a), lookup.get(b)));
       const limits = plugins
