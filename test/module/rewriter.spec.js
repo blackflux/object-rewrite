@@ -514,6 +514,9 @@ describe('Testing rewriter', () => {
       target: 'a',
       schema: (r) => Number.isInteger(r),
       requires: ['a'],
+      contextSchema: {
+        enabled: (e) => typeof e === 'boolean'
+      },
       init: ({ context, cache }) => {
         logs.push('init');
         logs.push(`context = ${context.a}`);
@@ -630,5 +633,28 @@ describe('Testing rewriter', () => {
     expect(() => rewriter({
       '': [p1]
     }, ['a']).init(['a'])).to.throw('Bad Field Requested: id');
+  });
+
+  it('Testing Bad Context', () => {
+    const log = [];
+    const logger = { warn: (arg) => log.push(arg) };
+    const p1 = filterPlugin({
+      target: '*',
+      requires: [],
+      contextSchema: {
+        enabled: (e) => typeof e === 'boolean'
+      },
+      fn: () => false
+    });
+    expect(p1('').fn()).to.equal(false);
+    const data = [{ a: 1 }];
+    rewriter({ '': [p1] }, ['a'], logger)
+      .init(['a'])
+      .rewrite(data, {});
+    expect(log).to.deep.equal([
+      'Context validation failure\n'
+      + '{"origin":"object-rewrite","options":{"target":"*","requires":[],"contextSchema":{}}}'
+    ]);
+    expect(data).to.deep.equal([{ a: 1 }]);
   });
 });

@@ -1,10 +1,19 @@
-module.exports = (map, context) => {
+module.exports = (map, context, logger) => {
   const result = {};
   const plugins = new Map();
   Object.entries(map).forEach(([prefix, pls]) => {
     result[prefix] = pls.filter((pl) => {
       if (!plugins.has(pl.self)) {
-        plugins.set(pl.self, pl.self.init(context));
+        const validContext = pl.self.contextSchema(context);
+        if (!validContext) {
+          logger.warn(`Context validation failure\n${JSON.stringify({
+            origin: 'object-rewrite',
+            options: pl.self.options
+          })}`);
+          plugins.set(pl.self, false);
+        } else {
+          plugins.set(pl.self, pl.self.init(context));
+        }
       }
       return plugins.get(pl.self) === true;
     });

@@ -9,6 +9,7 @@ const plugin = (type, options) => {
   Joi.assert(options, Joi.object({
     target: Joi.string(), // target can not be "", use "*" instead
     requires: Joi.array().items(Joi.string()),
+    contextSchema: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
     init: Joi.function().optional(),
     fn: Joi.function(),
     schema: type === 'INJECT' ? Joi.alternatives(Joi.object(), Joi.array(), Joi.function()) : Joi.forbidden(),
@@ -16,7 +17,7 @@ const plugin = (type, options) => {
   }));
 
   const {
-    target, requires, init, fn, schema, limit
+    target, requires, contextSchema, init, fn, schema, limit
   } = options;
   const self = (prefix) => {
     const targetAbs = joinPath([prefix, target]);
@@ -47,6 +48,10 @@ const plugin = (type, options) => {
     self.cache = {};
     return init === undefined ? true : init({ context, cache: self.cache });
   };
+  self.contextSchema = contextSchema === undefined
+    ? () => true
+    : validationCompile(contextSchema, false);
+  self.options = options;
   return self;
 };
 
