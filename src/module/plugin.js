@@ -18,10 +18,10 @@ const plugin = (type, options) => {
   const {
     target, requires, init, fn, schema, limit
   } = options;
-  return (prefix) => {
+  const self = (prefix) => {
     const targetAbs = joinPath([prefix, target]);
-    let cache;
     const result = {
+      self,
       prefix,
       targetNormalized: targetAbs.endsWith('.') ? targetAbs.slice(0, -1) : targetAbs,
       target: targetAbs,
@@ -29,13 +29,9 @@ const plugin = (type, options) => {
       targetRel: target,
       requires: requires.map((f) => (f.startsWith('/') ? f.slice(1) : joinPath([prefix, f]))),
       type,
-      init: (context) => {
-        cache = {};
-        return init === undefined ? true : init({ context, cache });
-      },
       fn: (kwargs = {}) => {
         // eslint-disable-next-line no-param-reassign
-        kwargs.cache = cache;
+        kwargs.cache = self.cache;
         return fn(kwargs);
       },
       limit
@@ -47,6 +43,11 @@ const plugin = (type, options) => {
     }
     return result;
   };
+  self.init = (context) => {
+    self.cache = {};
+    return init === undefined ? true : init({ context, cache: self.cache });
+  };
+  return self;
 };
 
 module.exports = {
