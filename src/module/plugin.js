@@ -33,7 +33,11 @@ const plugin = (type, options) => {
         cache = {};
         return init === undefined ? true : init({ context, cache });
       },
-      fn: (kwargs) => fn({ ...kwargs, cache }),
+      fn: (kwargs = {}) => {
+        // eslint-disable-next-line no-param-reassign
+        kwargs.cache = cache;
+        return fn(kwargs);
+      },
       limit
     };
     if (type === 'INJECT') {

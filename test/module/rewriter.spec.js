@@ -555,6 +555,42 @@ describe('Testing rewriter', () => {
     expect(data).to.deep.equal([{ a: 24 }, { a: 23 }]);
   });
 
+  it('Testing disabled', async () => {
+    const dataStoreFields = ['a'];
+    const data = [{ a: 2 }, { a: 1 }];
+    const fields = ['a'];
+    const p1 = injectPlugin({
+      target: 'a',
+      schema: (r) => Number.isInteger(r),
+      requires: ['a'],
+      init: () => false,
+      fn: () => {}
+    });
+    const p2 = filterPlugin({
+      target: 'a',
+      requires: ['a'],
+      init: () => false,
+      fn: () => false
+    });
+    const p3 = sortPlugin({
+      target: 'a',
+      requires: ['a'],
+      init: () => false,
+      fn: () => []
+    });
+    expect(p1('').fn()).to.deep.equal(undefined);
+    expect(p1('').schema(1)).to.deep.equal(true);
+    expect(p2('').fn()).to.deep.equal(false);
+    expect(p3('').fn()).to.deep.equal([]);
+    const rew = rewriter({
+      '': [p1, p2, p3]
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(['a']);
+
+    rew.rewrite(data);
+    expect(data).to.deep.equal([{ a: 2 }, { a: 1 }]);
+  });
+
   it('Testing Bad Field Requested', () => {
     expect(() => rewriter({}, []).init(['id'])).to.throw('Bad Field Requested: id');
     const p1 = filterPlugin({

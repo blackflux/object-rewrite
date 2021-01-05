@@ -6,19 +6,28 @@ const cmpFn = require('../../util/cmp-fn');
 module.exports = (keys) => objectScan(keys, {
   useArraySelector: false,
   filterFn: ({
-    key, value, parents, matchedBy, context
+    matchedBy, getKey, getValue, getParents, context
   }) => {
+    assert(matchedBy.length === 1);
+    const plugins = context.sortMap[matchedBy[0]];
+    if (plugins.length === 0) {
+      return true;
+    }
+
+    const key = getKey();
+    const value = getValue();
+    const parents = getParents();
     assert(Array.isArray(parents[0]), 'Sort must be on "Array" type.');
     if (context.lookups[key.length - 1] === undefined) {
       context.lookups[key.length - 1] = new Map();
     }
     const lookup = context.lookups[key.length - 1];
-    lookup.set(value, execPlugins('SORT', context.sortMap[matchedBy[0]], {
+    lookup.set(value, execPlugins('SORT', plugins, {
       key, value, parents, context: context.context
     }));
     if (key[key.length - 1] === 0) {
       parents[0].sort((a, b) => cmpFn(lookup.get(a), lookup.get(b)));
-      const limits = context.sortMap[matchedBy[0]]
+      const limits = plugins
         .filter((p) => p.limit !== undefined)
         .map((p) => p.limit({ context: context.context }))
         .filter((l) => l !== undefined);
