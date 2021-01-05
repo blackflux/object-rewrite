@@ -8,9 +8,12 @@ module.exports = (plugins, fields) => {
     SORT: []
   };
 
+  const inactivePlugins = [...plugins];
   const requiredFields = new Set(fields);
+
   requiredFields.forEach((field) => {
-    plugins.forEach((plugin) => {
+    for (let j = 0; j < inactivePlugins.length; j += 1) {
+      const plugin = inactivePlugins[j];
       if (
         plugin.targets.includes(field)
         || (
@@ -20,8 +23,10 @@ module.exports = (plugins, fields) => {
       ) {
         plugin.requires.forEach((f) => requiredFields.add(f));
         pluginsByType[plugin.type].push(plugin);
+        inactivePlugins.splice(j, 1);
+        j -= 1;
       }
-    });
+    }
   });
 
   const injectedFields = new Set();
