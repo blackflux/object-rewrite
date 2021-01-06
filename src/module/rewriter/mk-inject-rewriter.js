@@ -19,8 +19,7 @@ module.exports = (keys) => objectScan(keys, {
     const kwargs = {
       key,
       value,
-      parents,
-      context: context.context
+      parents
     };
     const promises = [];
     plugins.forEach((plugin) => {
