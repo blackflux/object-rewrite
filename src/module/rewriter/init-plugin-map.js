@@ -4,16 +4,7 @@ module.exports = (map, context, logger) => {
   Object.entries(map).forEach(([prefix, pls]) => {
     result[prefix] = pls.filter((pl) => {
       if (!plugins.has(pl.self)) {
-        const validContext = pl.self.contextSchema(context);
-        if (!validContext) {
-          logger.warn(`Context validation failure\n${JSON.stringify({
-            origin: 'object-rewrite',
-            options: pl.self.options
-          })}`);
-          plugins.set(pl.self, false);
-        } else {
-          plugins.set(pl.self, pl.self.init(context));
-        }
+        plugins.set(pl.self, pl.self.init(context, logger));
       }
       return plugins.get(pl.self) === true;
     });

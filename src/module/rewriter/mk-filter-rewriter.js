@@ -18,8 +18,7 @@ module.exports = (keys) => objectScan(keys, {
     const kwargs = {
       key,
       value,
-      parents,
-      context: context.context
+      parents
     };
     const result = plugins.every((plugin) => plugin.fn(kwargs)) === true;
     if (result === false) {
