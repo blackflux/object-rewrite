@@ -44,14 +44,20 @@ const plugin = (type, options) => {
     }
     return result;
   };
-  self.init = (context) => {
+  self.init = (context, logger) => {
+    const validContext = contextSchema === undefined
+      ? true
+      : validationCompile(contextSchema, false)(context);
+    if (!validContext) {
+      logger.warn(`Context validation failure\n${JSON.stringify({
+        origin: 'object-rewrite',
+        options
+      })}`);
+      return false;
+    }
     self.cache = {};
     return init === undefined ? true : init({ context, cache: self.cache });
   };
-  self.contextSchema = contextSchema === undefined
-    ? () => true
-    : validationCompile(contextSchema, false);
-  self.options = options;
   return self;
 };
 
