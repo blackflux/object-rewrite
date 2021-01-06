@@ -543,7 +543,7 @@ describe('Testing rewriter', () => {
     rew.rewrite(data, { enabled: false });
     expect(logs).to.deep.equal([
       'init', 'context = undefined', 'cache = undefined',
-      'init', 'context = 3', 'cache = undefined'
+      'init', 'context = undefined', 'cache = undefined'
     ]);
     expect(data).to.deep.equal([{ a: 2 }, { a: 1 }]);
 
@@ -551,13 +551,13 @@ describe('Testing rewriter', () => {
     rew.rewrite(data, { enabled: true });
     expect(logs).to.deep.equal([
       'init', 'context = undefined', 'cache = undefined',
-      'init', 'context = 3', 'cache = undefined',
-      'value = 1', 'context = 6', 'cache = 5',
-      'value = 12', 'context = 6', 'cache = 5',
-      'value = 2', 'context = 6', 'cache = 5',
-      'value = 13', 'context = 6', 'cache = 5'
+      'init', 'context = undefined', 'cache = undefined',
+      'value = 1', 'context = 3', 'cache = 5',
+      'value = 9', 'context = 3', 'cache = 5',
+      'value = 2', 'context = 3', 'cache = 5',
+      'value = 10', 'context = 3', 'cache = 5'
     ]);
-    expect(data).to.deep.equal([{ a: 24 }, { a: 23 }]);
+    expect(data).to.deep.equal([{ a: 18 }, { a: 17 }]);
   });
 
   it('Testing init executes once per plugin', async () => {

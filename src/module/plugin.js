@@ -19,6 +19,22 @@ const plugin = (type, options) => {
   const {
     target, requires, contextSchema, init, fn, schema, limit
   } = options;
+
+  let localCache;
+  let localContext;
+  const wrap = (f) => {
+    if (f === undefined) {
+      return undefined;
+    }
+    return (kwargs = {}) => {
+      // eslint-disable-next-line no-param-reassign
+      kwargs.cache = localCache;
+      // eslint-disable-next-line no-param-reassign
+      kwargs.context = localContext;
+      return f(kwargs);
+    };
+  };
+
   const self = (prefix) => {
     const targetAbs = joinPath([prefix, target]);
     const result = {
@@ -30,12 +46,8 @@ const plugin = (type, options) => {
       targetRel: target,
       requires: requires.map((f) => (f.startsWith('/') ? f.slice(1) : joinPath([prefix, f]))),
       type,
-      fn: (kwargs = {}) => {
-        // eslint-disable-next-line no-param-reassign
-        kwargs.cache = self.cache;
-        return fn(kwargs);
-      },
-      limit
+      fn: wrap(fn),
+      limit: wrap(limit)
     };
     if (type === 'INJECT') {
       result.targetNormalized = prefix;
@@ -45,18 +57,25 @@ const plugin = (type, options) => {
     return result;
   };
   self.init = (context, logger) => {
-    const validContext = contextSchema === undefined
-      ? true
-      : validationCompile(contextSchema, false)(context);
-    if (!validContext) {
+    if (
+      contextSchema !== undefined
+      && validationCompile(contextSchema, false)(context) === false
+    ) {
       logger.warn(`Context validation failure\n${JSON.stringify({
         origin: 'object-rewrite',
         options
       })}`);
       return false;
     }
-    self.cache = {};
-    return init === undefined ? true : init({ context, cache: self.cache });
+    localCache = {};
+    localContext = contextSchema instanceof Object && !Array.isArray(contextSchema)
+      ? Object.keys(contextSchema).reduce((p, k) => {
+        // eslint-disable-next-line no-param-reassign
+        p[k] = context[k];
+        return p;
+      }, {})
+      : context;
+    return init === undefined ? true : wrap(init)();
   };
   return self;
 };

@@ -47,7 +47,6 @@ module.exports = (pluginMap, dataStoreFields_, logger = console) => {
       const rewriteStart = (input, context) => {
         assert(context instanceof Object && !Array.isArray(context));
         const { promises } = injectRewriter(input, {
-          context,
           injectMap: initPluginMap(injectMap, context, logger),
           promises: []
         });
@@ -55,11 +54,9 @@ module.exports = (pluginMap, dataStoreFields_, logger = console) => {
       };
       const rewriteEnd = (input, context) => {
         filterRewriter(input, {
-          context,
           filterMap: initPluginMap(filterMap, context, logger)
         });
         sortRewriter(input, {
-          context,
           sortMap: initPluginMap(sortMap, context, logger),
           lookups: []
         });
