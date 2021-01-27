@@ -8,6 +8,7 @@ module.exports = (plugins, fields) => {
     SORT: []
   };
 
+  const activePlugins = new Set();
   const inactivePlugins = [...plugins];
   const requiredFields = new Set(fields);
 
@@ -23,6 +24,7 @@ module.exports = (plugins, fields) => {
       ) {
         plugin.requires.forEach((f) => requiredFields.add(f));
         pluginsByType[plugin.type].push(plugin);
+        activePlugins.add(plugin.name);
         inactivePlugins.splice(j, 1);
         j -= 1;
       }
@@ -41,6 +43,7 @@ module.exports = (plugins, fields) => {
     filterMap: compileTargetMap('FILTER', pluginsByType.FILTER),
     injectMap: compileTargetMap('INJECT', pluginsByType.INJECT),
     sortMap: compileTargetMap('SORT', pluginsByType.SORT),
-    fieldsToRequest: [...requiredFields].filter((e) => !injectedFields.has(e))
+    fieldsToRequest: [...requiredFields].filter((e) => !injectedFields.has(e)),
+    activePlugins: [...activePlugins]
   };
 };

@@ -10,8 +10,15 @@ module.exports = (pluginMap, dataStoreFields_, logger = console) => {
   assert(pluginMap instanceof Object && !Array.isArray(pluginMap));
   assert(Array.isArray(dataStoreFields_) && dataStoreFields_.every((e) => typeof e === 'string'));
 
+  const pluginNames = {};
   const plugins = Object.entries(pluginMap).reduce((prev, [prefix, ps]) => {
-    ps.forEach((p) => prev.push(p(prefix)));
+    ps.forEach((p) => {
+      if (p.meta.name in pluginNames && p !== pluginNames[p.meta.name]) {
+        throw new Error(`Plugin name "${p.meta.name}" not unique`);
+      }
+      pluginNames[p.meta.name] = p;
+      prev.push(p(prefix));
+    });
     return prev;
   }, []);
   const dataStoreFields = new Set(dataStoreFields_);
@@ -32,7 +39,7 @@ module.exports = (pluginMap, dataStoreFields_, logger = console) => {
       }
 
       const {
-        injectMap, filterMap, sortMap, fieldsToRequest
+        injectMap, filterMap, sortMap, fieldsToRequest, activePlugins
       } = compileMeta(plugins, fields);
 
       if (!fieldsToRequest.every((f) => dataStoreFields.has(f))) {
@@ -64,6 +71,7 @@ module.exports = (pluginMap, dataStoreFields_, logger = console) => {
       };
       return {
         fieldsToRequest,
+        activePlugins,
         rewrite: (input, context = {}) => {
           const promises = rewriteStart(input, context);
           assert(promises.length === 0, 'Please use rewriteAsync() for async logic');
