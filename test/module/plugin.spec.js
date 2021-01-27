@@ -70,7 +70,7 @@ describe('Testing plugin', () => {
       name: 'inject-plugin-name', target: '*', requires: [], fn, schema
     })('');
     const resultFilter = filterPlugin({
-      name: 'filter=plugin-name', target: '*', requires: [], fn
+      name: 'filter-plugin-name', target: '*', requires: [], fn
     })('');
     const resultSort = sortPlugin({
       name: 'sort-plugin-name', target: '*', requires: [], fn
