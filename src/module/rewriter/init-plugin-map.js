@@ -4,7 +4,7 @@ module.exports = (map, context, logger) => {
   Object.entries(map).forEach(([prefix, pls]) => {
     result[prefix] = pls.filter((pl) => {
       if (!plugins.has(pl.self)) {
-        plugins.set(pl.self, pl.self.init(context, logger));
+        plugins.set(pl.self, pl.self.meta.init(context, logger));
       }
       return plugins.get(pl.self) === true;
     });

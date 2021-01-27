@@ -7,6 +7,7 @@ const joinPath = require('./plugin/join-path');
 const plugin = (type, options) => {
   assert(['FILTER', 'INJECT', 'SORT'].includes(type));
   Joi.assert(options, Joi.object({
+    name: Joi.string(),
     target: Joi.string(), // target can not be "", use "*" instead
     requires: Joi.array().items(Joi.string()),
     contextSchema: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
@@ -17,7 +18,7 @@ const plugin = (type, options) => {
   }));
 
   const {
-    target, requires, contextSchema, init, fn, schema, limit
+    name, target, requires, contextSchema, init, fn, schema, limit
   } = options;
 
   let localCache;
@@ -39,6 +40,7 @@ const plugin = (type, options) => {
     const targetAbs = joinPath([prefix, target]);
     const result = {
       self,
+      name,
       prefix,
       targetNormalized: targetAbs.endsWith('.') ? targetAbs.slice(0, -1) : targetAbs,
       target: targetAbs,
@@ -56,26 +58,29 @@ const plugin = (type, options) => {
     }
     return result;
   };
-  self.init = (context, logger) => {
-    if (
-      contextSchema !== undefined
-      && validationCompile(contextSchema, false)(context) === false
-    ) {
-      logger.warn(`Context validation failure\n${JSON.stringify({
-        origin: 'object-rewrite',
-        options
-      })}`);
-      return false;
+  self.meta = {
+    name,
+    init: (context, logger) => {
+      if (
+        contextSchema !== undefined
+        && validationCompile(contextSchema, false)(context) === false
+      ) {
+        logger.warn(`Context validation failure\n${JSON.stringify({
+          origin: 'object-rewrite',
+          options
+        })}`);
+        return false;
+      }
+      localCache = {};
+      localContext = contextSchema instanceof Object && !Array.isArray(contextSchema)
+        ? Object.keys(contextSchema).reduce((p, k) => {
+          // eslint-disable-next-line no-param-reassign
+          p[k] = context[k];
+          return p;
+        }, {})
+        : context;
+      return init === undefined ? true : wrap(init)();
     }
-    localCache = {};
-    localContext = contextSchema instanceof Object && !Array.isArray(contextSchema)
-      ? Object.keys(contextSchema).reduce((p, k) => {
-        // eslint-disable-next-line no-param-reassign
-        p[k] = context[k];
-        return p;
-      }, {})
-      : context;
-    return init === undefined ? true : wrap(init)();
   };
   return self;
 };

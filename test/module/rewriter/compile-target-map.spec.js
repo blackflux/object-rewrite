@@ -9,8 +9,8 @@ describe('Testing get-plugin-target-map.js', () => {
   before(() => {
     fn = () => 'value';
     schema = (e) => typeof e === 'string';
-    mkPlugin = (target, requires, prefix) => injectPlugin({
-      target, requires, fn, schema
+    mkPlugin = (name, target, requires, prefix) => injectPlugin({
+      name, target, requires, fn, schema
     })(prefix);
   });
 
@@ -20,9 +20,9 @@ describe('Testing get-plugin-target-map.js', () => {
   });
 
   it('Testing sorting', () => {
-    const p1 = mkPlugin('a', ['b'], 'x');
-    const p2 = mkPlugin('b', [], 'x');
-    const p3 = mkPlugin('c', ['b'], 'x');
+    const p1 = mkPlugin('A', 'a', ['b'], 'x');
+    const p2 = mkPlugin('B', 'b', [], 'x');
+    const p3 = mkPlugin('C', 'c', ['b'], 'x');
     const r = compileTargetMap('inject', [p1, p2, p3]);
     expect(r).to.deep.equal({
       x: [

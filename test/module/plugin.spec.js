@@ -12,6 +12,7 @@ describe('Testing plugin', () => {
 
   it('Testing nested prefix', () => {
     const result = filterPlugin({
+      name: 'filter-plugin-name',
       target: 'key',
       requires: ['req'],
       fn
@@ -22,6 +23,7 @@ describe('Testing plugin', () => {
 
   it('Testing nested prefix with root reference', () => {
     const result = filterPlugin({
+      name: 'filter-plugin-name',
       target: 'key',
       requires: ['/req'],
       fn
@@ -32,6 +34,7 @@ describe('Testing plugin', () => {
 
   it('Testing top level prefix', () => {
     const result = filterPlugin({
+      name: 'filter-plugin-name',
       target: 'key',
       requires: ['req'],
       fn
@@ -42,6 +45,7 @@ describe('Testing plugin', () => {
 
   it('Testing nested prefix with star target', () => {
     const result = filterPlugin({
+      name: 'filter-plugin-name',
       target: '*',
       requires: ['*'],
       fn
@@ -52,6 +56,7 @@ describe('Testing plugin', () => {
 
   it('Testing top level prefix with star target', () => {
     const result = filterPlugin({
+      name: 'filter-plugin-name',
       target: '*',
       requires: ['*'],
       fn
@@ -62,10 +67,14 @@ describe('Testing plugin', () => {
 
   it('Testing plugin types', () => {
     const resultInject = injectPlugin({
-      target: '*', requires: [], fn, schema
+      name: 'inject-plugin-name', target: '*', requires: [], fn, schema
     })('');
-    const resultFilter = filterPlugin({ target: '*', requires: [], fn })('');
-    const resultSort = sortPlugin({ target: '*', requires: [], fn })('');
+    const resultFilter = filterPlugin({
+      name: 'filter-plugin-name', target: '*', requires: [], fn
+    })('');
+    const resultSort = sortPlugin({
+      name: 'sort-plugin-name', target: '*', requires: [], fn
+    })('');
     expect(resultInject.type).to.equal('INJECT');
     expect(resultFilter.type).to.equal('FILTER');
     expect(resultSort.type).to.equal('SORT');
