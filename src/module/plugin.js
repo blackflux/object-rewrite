@@ -7,6 +7,7 @@ const joinPath = require('./plugin/join-path');
 const plugin = (type, options) => {
   assert(['FILTER', 'INJECT', 'SORT'].includes(type));
   Joi.assert(options, Joi.object({
+    name: Joi.string(),
     target: Joi.string(), // target can not be "", use "*" instead
     requires: Joi.array().items(Joi.string()),
     contextSchema: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
@@ -17,7 +18,7 @@ const plugin = (type, options) => {
   }));
 
   const {
-    target, requires, contextSchema, init, fn, schema, limit
+    name, target, requires, contextSchema, init, fn, schema, limit
   } = options;
 
   let localCache;
@@ -77,6 +78,8 @@ const plugin = (type, options) => {
       : context;
     return init === undefined ? true : wrap(init)();
   };
+  // eslint-disable-next-line no-underscore-dangle
+  self._name = name;
   return self;
 };
 

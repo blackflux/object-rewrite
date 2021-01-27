@@ -41,6 +41,11 @@ module.exports = (plugins, fields) => {
     filterMap: compileTargetMap('FILTER', pluginsByType.FILTER),
     injectMap: compileTargetMap('INJECT', pluginsByType.INJECT),
     sortMap: compileTargetMap('SORT', pluginsByType.SORT),
-    fieldsToRequest: [...requiredFields].filter((e) => !injectedFields.has(e))
+    fieldsToRequest: [...requiredFields].filter((e) => !injectedFields.has(e)),
+    activePlugins: [
+      ...pluginsByType.FILTER,
+      ...pluginsByType.INJECT,
+      ...pluginsByType.SORT
+    ].map(({ _name }) => _name)
   };
 };

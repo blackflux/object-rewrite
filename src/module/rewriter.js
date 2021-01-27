@@ -10,8 +10,17 @@ module.exports = (pluginMap, dataStoreFields_, logger = console) => {
   assert(pluginMap instanceof Object && !Array.isArray(pluginMap));
   assert(Array.isArray(dataStoreFields_) && dataStoreFields_.every((e) => typeof e === 'string'));
 
+  const pluginNames = {};
   const plugins = Object.entries(pluginMap).reduce((prev, [prefix, ps]) => {
-    ps.forEach((p) => prev.push(p(prefix)));
+    ps.forEach((p) => {
+      // eslint-disable-next-line no-underscore-dangle
+      if (p._name in pluginNames && p !== pluginNames[p._name]) {
+        throw new Error('Plugin names must be unique');
+      }
+      // eslint-disable-next-line no-underscore-dangle
+      pluginNames[p._name] = p;
+      prev.push(p(prefix));
+    });
     return prev;
   }, []);
   const dataStoreFields = new Set(dataStoreFields_);
