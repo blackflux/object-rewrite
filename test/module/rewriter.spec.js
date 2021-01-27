@@ -4,15 +4,17 @@ const rewriter = require('../../src/module/rewriter');
 const { injectPlugin, filterPlugin, sortPlugin } = require('../../src/module/plugin');
 
 describe('Testing rewriter', () => {
-  it('Testing name collision', () => {
+  it('Testing name not unique', () => {
+    const fn = () => null;
+    expect(fn()).to.equal(null);
     const mkPlugin = () => sortPlugin({
       name: 'sort-plugin-name',
       target: '*',
       requires: [],
-      fn: () => null
+      fn
     });
     expect(() => rewriter({ '': [mkPlugin(), mkPlugin()] }, []))
-      .to.throw('Plugin names must be unique');
+      .to.throw('Plugin name "sort-plugin-name" not unique');
   });
 
   it('Testing inject', () => {
@@ -26,9 +28,12 @@ describe('Testing rewriter', () => {
       schema: (r) => Number.isInteger(r),
       fn: ({ value }) => value.id + 1
     });
-    const rew = rewriter({
+    const Rew = rewriter({
       '': [plugin]
-    }, dataStoreFields).init(fields);
+    }, dataStoreFields);
+    expect(Rew.init([]).activePlugins).to.deep.equal([]);
+    const rew = Rew.init(fields);
+    expect(rew.activePlugins).to.deep.equal(['inject-plugin-name']);
     expect(rew.fieldsToRequest).to.deep.equal(['id']);
     rew.rewrite(data);
     expect(data).to.deep.equal([{ idPlus: 3 }, { idPlus: 2 }]);

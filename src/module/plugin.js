@@ -40,6 +40,7 @@ const plugin = (type, options) => {
     const targetAbs = joinPath([prefix, target]);
     const result = {
       self,
+      name,
       prefix,
       targetNormalized: targetAbs.endsWith('.') ? targetAbs.slice(0, -1) : targetAbs,
       target: targetAbs,
@@ -57,29 +58,30 @@ const plugin = (type, options) => {
     }
     return result;
   };
-  self.init = (context, logger) => {
-    if (
-      contextSchema !== undefined
-      && validationCompile(contextSchema, false)(context) === false
-    ) {
-      logger.warn(`Context validation failure\n${JSON.stringify({
-        origin: 'object-rewrite',
-        options
-      })}`);
-      return false;
+  self.meta = {
+    name,
+    init: (context, logger) => {
+      if (
+        contextSchema !== undefined
+        && validationCompile(contextSchema, false)(context) === false
+      ) {
+        logger.warn(`Context validation failure\n${JSON.stringify({
+          origin: 'object-rewrite',
+          options
+        })}`);
+        return false;
+      }
+      localCache = {};
+      localContext = contextSchema instanceof Object && !Array.isArray(contextSchema)
+        ? Object.keys(contextSchema).reduce((p, k) => {
+          // eslint-disable-next-line no-param-reassign
+          p[k] = context[k];
+          return p;
+        }, {})
+        : context;
+      return init === undefined ? true : wrap(init)();
     }
-    localCache = {};
-    localContext = contextSchema instanceof Object && !Array.isArray(contextSchema)
-      ? Object.keys(contextSchema).reduce((p, k) => {
-        // eslint-disable-next-line no-param-reassign
-        p[k] = context[k];
-        return p;
-      }, {})
-      : context;
-    return init === undefined ? true : wrap(init)();
   };
-  // eslint-disable-next-line no-underscore-dangle
-  self._name = name;
   return self;
 };
 

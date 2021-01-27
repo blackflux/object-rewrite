@@ -13,12 +13,10 @@ module.exports = (pluginMap, dataStoreFields_, logger = console) => {
   const pluginNames = {};
   const plugins = Object.entries(pluginMap).reduce((prev, [prefix, ps]) => {
     ps.forEach((p) => {
-      // eslint-disable-next-line no-underscore-dangle
-      if (p._name in pluginNames && p !== pluginNames[p._name]) {
-        throw new Error('Plugin names must be unique');
+      if (p.meta.name in pluginNames && p !== pluginNames[p.meta.name]) {
+        throw new Error(`Plugin name "${p.meta.name}" not unique`);
       }
-      // eslint-disable-next-line no-underscore-dangle
-      pluginNames[p._name] = p;
+      pluginNames[p.meta.name] = p;
       prev.push(p(prefix));
     });
     return prev;
@@ -41,7 +39,7 @@ module.exports = (pluginMap, dataStoreFields_, logger = console) => {
       }
 
       const {
-        injectMap, filterMap, sortMap, fieldsToRequest
+        injectMap, filterMap, sortMap, fieldsToRequest, activePlugins
       } = compileMeta(plugins, fields);
 
       if (!fieldsToRequest.every((f) => dataStoreFields.has(f))) {
@@ -73,6 +71,7 @@ module.exports = (pluginMap, dataStoreFields_, logger = console) => {
       };
       return {
         fieldsToRequest,
+        activePlugins,
         rewrite: (input, context = {}) => {
           const promises = rewriteStart(input, context);
           assert(promises.length === 0, 'Please use rewriteAsync() for async logic');

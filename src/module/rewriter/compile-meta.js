@@ -37,15 +37,18 @@ module.exports = (plugins, fields) => {
         .forEach((t) => injectedFields.add(t));
     });
 
+  const activePlugins = new Set();
+  Object.values(pluginsByType).forEach((pls) => {
+    pls.forEach(({ name }) => {
+      activePlugins.add(name);
+    });
+  });
+
   return {
     filterMap: compileTargetMap('FILTER', pluginsByType.FILTER),
     injectMap: compileTargetMap('INJECT', pluginsByType.INJECT),
     sortMap: compileTargetMap('SORT', pluginsByType.SORT),
     fieldsToRequest: [...requiredFields].filter((e) => !injectedFields.has(e)),
-    activePlugins: [
-      ...pluginsByType.FILTER,
-      ...pluginsByType.INJECT,
-      ...pluginsByType.SORT
-    ].map(({ _name }) => _name)
+    activePlugins: [...activePlugins]
   };
 };
