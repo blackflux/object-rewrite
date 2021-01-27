@@ -8,6 +8,7 @@ module.exports = (plugins, fields) => {
     SORT: []
   };
 
+  const activePlugins = new Set();
   const inactivePlugins = [...plugins];
   const requiredFields = new Set(fields);
 
@@ -23,6 +24,7 @@ module.exports = (plugins, fields) => {
       ) {
         plugin.requires.forEach((f) => requiredFields.add(f));
         pluginsByType[plugin.type].push(plugin);
+        activePlugins.add(plugin.name);
         inactivePlugins.splice(j, 1);
         j -= 1;
       }
@@ -36,13 +38,6 @@ module.exports = (plugins, fields) => {
         .filter((target) => !p.requires.includes(target))
         .forEach((t) => injectedFields.add(t));
     });
-
-  const activePlugins = new Set();
-  Object.values(pluginsByType).forEach((pls) => {
-    pls.forEach(({ name }) => {
-      activePlugins.add(name);
-    });
-  });
 
   return {
     filterMap: compileTargetMap('FILTER', pluginsByType.FILTER),
