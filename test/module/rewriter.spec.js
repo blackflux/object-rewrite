@@ -25,7 +25,10 @@ describe('Testing rewriter', () => {
       name: 'inject-plugin-name',
       target: 'idPlus',
       requires: ['id'],
-      schema: (r) => Number.isInteger(r),
+      valueSchema: {
+        id: (r) => Number.isInteger(r)
+      },
+      fnSchema: (r) => Number.isInteger(r),
       fn: ({ value }) => value.id + 1
     });
     const Rew = rewriter({
@@ -46,7 +49,7 @@ describe('Testing rewriter', () => {
     const plugin = injectPlugin({
       name: 'inject-plugin-name',
       target: 'meta',
-      schema: [{
+      fnSchema: [{
         id: (r) => Number.isInteger(r)
       }],
       requires: ['id'],
@@ -64,14 +67,14 @@ describe('Testing rewriter', () => {
     [
       { name: (r) => typeof r === 'string', desc: (r) => typeof r === 'string' },
       (r) => r instanceof Object && !Array.isArray(r)
-    ].forEach((schema) => {
+    ].forEach((fnSchema) => {
       const dataStoreFields = ['name', 'desc', 'property.name', 'property.desc'];
       const data = [{ name: 'name-en', desc: 'desc-en', property: { name: 'name-en', desc: 'desc-en' } }];
       const fields = ['name', 'desc', 'property.name', 'property.desc'];
       const plugin = injectPlugin({
         name: 'inject-plugin-name',
         target: '*',
-        schema,
+        fnSchema,
         requires: ['name', 'desc'],
         fn: () => ({ name: 'name-fr', desc: 'desc-fr' })
       });
@@ -102,7 +105,7 @@ describe('Testing rewriter', () => {
       name: 'inject-plugin-name',
       target: 'id',
       requires: ['id'],
-      schema: (r) => Number.isInteger(r),
+      fnSchema: (r) => Number.isInteger(r),
       fn: ({ value }) => (value.id ? value.id + 1 : 0)
     });
     const rew = rewriter({
@@ -126,7 +129,7 @@ describe('Testing rewriter', () => {
       name: 'inject-plugin-name',
       target: 'idPlus',
       requires: ['id'],
-      schema: (r) => Number.isInteger(r),
+      fnSchema: (r) => Number.isInteger(r),
       fn: ({ value, context }) => value.id + context.inc
     });
     const rew = rewriter({
@@ -287,7 +290,7 @@ describe('Testing rewriter', () => {
       name: 'inject-plugin-name',
       target: 'idNeg',
       requires: ['id'],
-      schema: (r) => Number.isInteger(r),
+      fnSchema: (r) => Number.isInteger(r),
       fn: ({ value }) => -value.id
     });
     const plugin2 = filterPlugin({
@@ -320,7 +323,7 @@ describe('Testing rewriter', () => {
     const plugin = injectPlugin({
       name: 'inject-plugin-name',
       target: 'idSum',
-      schema: (r) => Number.isInteger(r),
+      fnSchema: (r) => Number.isInteger(r),
       requires: ['id'],
       fn: ({ value }) => value.id + (value.c || []).reduce((p, c) => p + c.id, 0)
     });
@@ -441,7 +444,7 @@ describe('Testing rewriter', () => {
     const plugin = injectPlugin({
       name: 'inject-plugin-name',
       target: 'id',
-      schema: (r) => Number.isInteger(r),
+      fnSchema: (r) => Number.isInteger(r),
       requires: ['id'],
       fn: ({ value }) => value.id + 1
     });
@@ -460,14 +463,14 @@ describe('Testing rewriter', () => {
     const plugin1 = injectPlugin({
       name: 'inject-plugin1-name',
       target: 'idPlus',
-      schema: (r) => Number.isInteger(r),
+      fnSchema: (r) => Number.isInteger(r),
       requires: ['id'],
       fn: ({ value }) => value.id + 1
     });
     const plugin2 = injectPlugin({
       name: 'inject-plugin2-name',
       target: 'idPlus',
-      schema: (r) => Number.isInteger(r),
+      fnSchema: (r) => Number.isInteger(r),
       requires: ['idPlus'],
       fn: ({ value }) => value.idPlus + 1
     });
@@ -486,14 +489,14 @@ describe('Testing rewriter', () => {
     const p1 = injectPlugin({
       name: 'inject-plugin1-name',
       target: 'b',
-      schema: (r) => Number.isInteger(r),
+      fnSchema: (r) => Number.isInteger(r),
       requires: ['a'],
       fn: ({ value }) => value.a + 1
     });
     const p2 = injectPlugin({
       name: 'inject-plugin2-name',
       target: 'c',
-      schema: (r) => Number.isInteger(r),
+      fnSchema: (r) => Number.isInteger(r),
       requires: ['b'],
       fn: ({ value }) => value.b + 1
     });
@@ -512,7 +515,7 @@ describe('Testing rewriter', () => {
     const p1 = injectPlugin({
       name: 'inject-plugin-name',
       target: 'b',
-      schema: (r) => Number.isInteger(r),
+      fnSchema: (r) => Number.isInteger(r),
       requires: ['a'],
       fn: async ({ value }) => value.a + 1
     });
@@ -531,14 +534,14 @@ describe('Testing rewriter', () => {
     const p1 = injectPlugin({
       name: 'inject-plugin1-name',
       target: 'settings.a',
-      schema: (r) => Number.isInteger(r),
+      fnSchema: (r) => Number.isInteger(r),
       requires: ['a'],
       fn: ({ value }) => value.a
     });
     const p2 = injectPlugin({
       name: 'inject-plugin2-name',
       target: 'settings.b',
-      schema: (r) => Number.isInteger(r),
+      fnSchema: (r) => Number.isInteger(r),
       requires: ['a'],
       fn: ({ value }) => value.a + 1
     });
@@ -558,7 +561,7 @@ describe('Testing rewriter', () => {
     const mkPlugin = (name) => injectPlugin({
       name,
       target: 'a',
-      schema: (r) => Number.isInteger(r),
+      fnSchema: (r) => Number.isInteger(r),
       requires: ['a'],
       contextSchema: {
         enabled: (e) => typeof e === 'boolean'
@@ -614,7 +617,7 @@ describe('Testing rewriter', () => {
     const p1 = injectPlugin({
       name: 'inject-plugin-name',
       target: 'a',
-      schema: (r) => Number.isInteger(r),
+      fnSchema: (r) => Number.isInteger(r),
       requires: ['a'],
       init: () => {
         logs.push('init');
@@ -640,7 +643,7 @@ describe('Testing rewriter', () => {
     const p1 = injectPlugin({
       name: 'inject-plugin-name',
       target: 'a',
-      schema: (r) => Number.isInteger(r),
+      fnSchema: (r) => Number.isInteger(r),
       requires: ['a'],
       init: () => false,
       fn: () => {}
@@ -660,7 +663,7 @@ describe('Testing rewriter', () => {
       fn: () => []
     });
     expect(p1('').fn()).to.deep.equal(undefined);
-    expect(p1('').schema(1)).to.deep.equal(true);
+    expect(p1('').fnSchema(1)).to.deep.equal(true);
     expect(p2('').fn()).to.deep.equal(false);
     expect(p3('').fn()).to.deep.equal([]);
     const rew = rewriter({
@@ -709,5 +712,42 @@ describe('Testing rewriter', () => {
       + '{"name":"filter-plugin-name","target":"*","requires":[],"contextSchema":{}}}'
     ]);
     expect(data).to.deep.equal([{ a: 1 }]);
+  });
+
+  it('Testing Bad Value', () => {
+    const dataStoreFields = ['id'];
+    const data = [{ id: 'x' }, { id: 1 }];
+    const fields = ['idPlus'];
+    const plugin = injectPlugin({
+      name: 'inject-plugin-name',
+      target: 'idPlus',
+      requires: ['id'],
+      valueSchema: {
+        id: (r) => Number.isInteger(r)
+      },
+      fnSchema: (r) => Number.isInteger(r),
+      fn: ({ value }) => value.id + 1
+    });
+    const Rew = rewriter({
+      '': [plugin]
+    }, dataStoreFields);
+    expect(Rew.init([]).activePlugins).to.deep.equal([]);
+    const rew = Rew.init(fields);
+    expect(rew.activePlugins).to.deep.equal(['inject-plugin-name']);
+    expect(rew.fieldsToRequest).to.deep.equal(['id']);
+    expect(() => rew.rewrite(data)).to.throw(
+      `Value Schema validation failure\n${
+        JSON.stringify({
+          origin: 'object-rewrite',
+          value: { id: 'x' },
+          options: {
+            name: 'inject-plugin-name',
+            target: 'idPlus',
+            requires: ['id'],
+            valueSchema: {}
+          }
+        })
+      }`
+    );
   });
 });

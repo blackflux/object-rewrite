@@ -73,6 +73,7 @@ All plugins define:
 - `fn` _Function_: result of this function is used by the plugin. Signature is `fn({ key, value, parents, context, cache })`.
 - `init({ context, cache })` _Function_ (optional): if present called once per run, if returns other than `true`, the plugin is disabled for the run
 - `contextSchema`: Object schema structure of what is expected to be present in `context` (subset)
+- `valueSchema` (optional): Used to validate value before passed into `fn`
 
 where:
 - `key`: is the key for the processed entity
@@ -88,7 +89,7 @@ Used to inject data
 - `target`: field that is created or overwritten, can be `'*'`
 - `requires`: See above
 - `fn`: return value is used for target. Relative to prefix
-- `schema`: Object schema structure of what is being injected (strict result of `fn`)
+- `fnSchema`: Object schema structure of what is being injected (strict result of `fn`)
 
 ### Filter Plugin
 

@@ -11,15 +11,20 @@ const plugin = (type, options) => {
     target: Joi.string(), // target can not be "", use "*" instead
     requires: Joi.array().items(Joi.string()),
     contextSchema: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
+    valueSchema: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
     init: Joi.function().optional(),
     fn: Joi.function(),
-    schema: type === 'INJECT' ? Joi.alternatives(Joi.object(), Joi.array(), Joi.function()) : Joi.forbidden(),
+    fnSchema: type === 'INJECT' ? Joi.alternatives(Joi.object(), Joi.array(), Joi.function()) : Joi.forbidden(),
     limit: type === 'SORT' ? Joi.function().optional() : Joi.forbidden()
   }));
 
   const {
-    name, target, requires, contextSchema, init, fn, schema, limit
+    name, target, requires, contextSchema, valueSchema, init, fn, fnSchema, limit
   } = options;
+
+  const contextSchemaCompiled = contextSchema === undefined
+    ? () => true
+    : validationCompile(contextSchema, false);
 
   let localCache;
   let localContext;
@@ -35,6 +40,23 @@ const plugin = (type, options) => {
       return f(kwargs);
     };
   };
+  const fnWrapped = (() => {
+    const wrapped = wrap(fn);
+    if (valueSchema === undefined) {
+      return wrapped;
+    }
+    const valueSchemaCompiled = validationCompile(valueSchema, false);
+    return (kwargs) => {
+      if (valueSchemaCompiled(kwargs.value) !== true) {
+        throw new Error(`Value Schema validation failure\n${JSON.stringify({
+          origin: 'object-rewrite',
+          value: kwargs.value,
+          options
+        })}`);
+      }
+      return wrapped(kwargs);
+    };
+  })();
 
   const self = (prefix) => {
     const targetAbs = joinPath([prefix, target]);
@@ -48,23 +70,20 @@ const plugin = (type, options) => {
       targetRel: target,
       requires: requires.map((f) => (f.startsWith('/') ? f.slice(1) : joinPath([prefix, f]))),
       type,
-      fn: wrap(fn),
+      fn: fnWrapped,
       limit: wrap(limit)
     };
     if (type === 'INJECT') {
       result.targetNormalized = prefix;
-      result.schema = validationCompile(schema);
-      result.targets = validationExtractKeys(targetAbs, schema);
+      result.fnSchema = validationCompile(fnSchema);
+      result.targets = validationExtractKeys(targetAbs, fnSchema);
     }
     return result;
   };
   self.meta = {
     name,
     init: (context, logger) => {
-      if (
-        contextSchema !== undefined
-        && validationCompile(contextSchema, false)(context) === false
-      ) {
+      if (contextSchemaCompiled(context) === false) {
         logger.warn(`Context validation failure\n${JSON.stringify({
           origin: 'object-rewrite',
           options
