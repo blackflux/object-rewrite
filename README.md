@@ -88,7 +88,7 @@ Used to inject data
 - `target`: field that is created or overwritten, can be `'*'`
 - `requires`: See above
 - `fn`: return value is used for target. Relative to prefix
-- `schema`: Object schema structure of what is being injected (strict result of `fn`)
+- `fnSchema`: Object schema structure of what is being injected (strict result of `fn`)
 
 ### Filter Plugin
 

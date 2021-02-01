@@ -13,12 +13,12 @@ const plugin = (type, options) => {
     contextSchema: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
     init: Joi.function().optional(),
     fn: Joi.function(),
-    schema: type === 'INJECT' ? Joi.alternatives(Joi.object(), Joi.array(), Joi.function()) : Joi.forbidden(),
+    fnSchema: type === 'INJECT' ? Joi.alternatives(Joi.object(), Joi.array(), Joi.function()) : Joi.forbidden(),
     limit: type === 'SORT' ? Joi.function().optional() : Joi.forbidden()
   }));
 
   const {
-    name, target, requires, contextSchema, init, fn, schema, limit
+    name, target, requires, contextSchema, init, fn, fnSchema, limit
   } = options;
 
   let localCache;
@@ -53,8 +53,8 @@ const plugin = (type, options) => {
     };
     if (type === 'INJECT') {
       result.targetNormalized = prefix;
-      result.schema = validationCompile(schema);
-      result.targets = validationExtractKeys(targetAbs, schema);
+      result.fnSchema = validationCompile(fnSchema);
+      result.targets = validationExtractKeys(targetAbs, fnSchema);
     }
     return result;
   };
