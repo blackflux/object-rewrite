@@ -25,6 +25,9 @@ describe('Testing rewriter', () => {
       name: 'inject-plugin-name',
       target: 'idPlus',
       requires: ['id'],
+      valueSchema: {
+        id: (r) => Number.isInteger(r)
+      },
       fnSchema: (r) => Number.isInteger(r),
       fn: ({ value }) => value.id + 1
     });
@@ -709,5 +712,42 @@ describe('Testing rewriter', () => {
       + '{"name":"filter-plugin-name","target":"*","requires":[],"contextSchema":{}}}'
     ]);
     expect(data).to.deep.equal([{ a: 1 }]);
+  });
+
+  it('Testing Bad Value', () => {
+    const dataStoreFields = ['id'];
+    const data = [{ id: 'x' }, { id: 1 }];
+    const fields = ['idPlus'];
+    const plugin = injectPlugin({
+      name: 'inject-plugin-name',
+      target: 'idPlus',
+      requires: ['id'],
+      valueSchema: {
+        id: (r) => Number.isInteger(r)
+      },
+      fnSchema: (r) => Number.isInteger(r),
+      fn: ({ value }) => value.id + 1
+    });
+    const Rew = rewriter({
+      '': [plugin]
+    }, dataStoreFields);
+    expect(Rew.init([]).activePlugins).to.deep.equal([]);
+    const rew = Rew.init(fields);
+    expect(rew.activePlugins).to.deep.equal(['inject-plugin-name']);
+    expect(rew.fieldsToRequest).to.deep.equal(['id']);
+    expect(() => rew.rewrite(data)).to.throw(
+      `Value Schema validation failure\n${
+        JSON.stringify({
+          origin: 'object-rewrite',
+          value: { id: 'x' },
+          options: {
+            name: 'inject-plugin-name',
+            target: 'idPlus',
+            requires: ['id'],
+            valueSchema: {}
+          }
+        })
+      }`
+    );
   });
 });
