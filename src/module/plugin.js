@@ -21,6 +21,10 @@ const plugin = (type, options) => {
     name, target, requires, contextSchema, init, fn, fnSchema, limit
   } = options;
 
+  const contextSchemaCompiled = contextSchema === undefined
+    ? () => true
+    : validationCompile(contextSchema, false);
+
   let localCache;
   let localContext;
   const wrap = (f) => {
@@ -61,10 +65,7 @@ const plugin = (type, options) => {
   self.meta = {
     name,
     init: (context, logger) => {
-      if (
-        contextSchema !== undefined
-        && validationCompile(contextSchema, false)(context) === false
-      ) {
+      if (contextSchemaCompiled(context) === false) {
         logger.warn(`Context validation failure\n${JSON.stringify({
           origin: 'object-rewrite',
           options
