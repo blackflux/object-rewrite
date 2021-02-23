@@ -36,7 +36,7 @@ describe('Testing rewriter', () => {
     }, dataStoreFields);
     expect(Rew.init([]).activePlugins).to.deep.equal([]);
     const rew = Rew.init(fields);
-    expect(rew.activePlugins).to.deep.equal(['inject-plugin-name']);
+    expect(rew.activePlugins.map(({ name }) => name)).to.deep.equal(['inject-plugin-name']);
     expect(rew.fieldsToRequest).to.deep.equal(['id']);
     rew.rewrite(data);
     expect(data).to.deep.equal([{ idPlus: 3 }, { idPlus: 2 }]);
@@ -733,7 +733,7 @@ describe('Testing rewriter', () => {
     }, dataStoreFields);
     expect(Rew.init([]).activePlugins).to.deep.equal([]);
     const rew = Rew.init(fields);
-    expect(rew.activePlugins).to.deep.equal(['inject-plugin-name']);
+    expect(rew.activePlugins.map(({ name }) => name)).to.deep.equal(['inject-plugin-name']);
     expect(rew.fieldsToRequest).to.deep.equal(['id']);
     expect(() => rew.rewrite(data)).to.throw(
       `Value Schema validation failure\n${
