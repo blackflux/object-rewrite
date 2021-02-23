@@ -82,6 +82,7 @@ const plugin = (type, options) => {
   };
   self.meta = {
     name,
+    contextSchema,
     init: (context, logger) => {
       if (contextSchemaCompiled(context) === false) {
         logger.warn(`Context validation failure\n${JSON.stringify({
