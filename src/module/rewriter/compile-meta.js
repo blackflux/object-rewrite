@@ -8,7 +8,7 @@ module.exports = (plugins, fields) => {
     SORT: []
   };
 
-  const activePlugins = [];
+  const activePlugins = new Set();
   const inactivePlugins = [...plugins];
   const requiredFields = new Set(fields);
 
@@ -24,7 +24,7 @@ module.exports = (plugins, fields) => {
       ) {
         plugin.requires.forEach((f) => requiredFields.add(f));
         pluginsByType[plugin.type].push(plugin);
-        activePlugins.push(plugin);
+        activePlugins.add(plugin);
         inactivePlugins.splice(j, 1);
         j -= 1;
       }
