@@ -24,7 +24,7 @@ module.exports = (plugins, fields) => {
       ) {
         plugin.requires.forEach((f) => requiredFields.add(f));
         pluginsByType[plugin.type].push(plugin);
-        activePlugins.add(plugin.name);
+        activePlugins.add(plugin);
         inactivePlugins.splice(j, 1);
         j -= 1;
       }
