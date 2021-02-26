@@ -40,8 +40,24 @@ const plugin = (type, options) => {
       return f(kwargs);
     };
   };
+  const wrapInject = (f) => {
+    const schema = validationCompile(fnSchema);
+    const validate = (r) => {
+      if (schema(r) !== true) {
+        throw new Error(`${name}: bad fn return value "${r}"`);
+      }
+      return r;
+    };
+    return (kwargs) => {
+      const result = f(kwargs);
+      if (result instanceof Promise) {
+        return result.then((r) => validate(r));
+      }
+      return validate(result);
+    };
+  };
   const fnWrapped = (() => {
-    const wrapped = wrap(fn);
+    const wrapped = type === 'INJECT' ? wrapInject(wrap(fn)) : wrap(fn);
     if (valueSchema === undefined) {
       return wrapped;
     }
@@ -75,7 +91,6 @@ const plugin = (type, options) => {
     };
     if (type === 'INJECT') {
       result.targetNormalized = prefix;
-      result.fnSchema = validationCompile(fnSchema);
       result.targets = validationExtractKeys(targetAbs, fnSchema);
     }
     return result;

@@ -646,7 +646,7 @@ describe('Testing rewriter', () => {
       fnSchema: (r) => Number.isInteger(r),
       requires: ['a'],
       init: () => false,
-      fn: () => {}
+      fn: () => 3
     });
     const p2 = filterPlugin({
       name: 'filter-plugin-name',
@@ -662,8 +662,7 @@ describe('Testing rewriter', () => {
       init: () => false,
       fn: () => []
     });
-    expect(p1('').fn()).to.deep.equal(undefined);
-    expect(p1('').fnSchema(1)).to.deep.equal(true);
+    expect(p1('').fn()).to.deep.equal(3);
     expect(p2('').fn()).to.deep.equal(false);
     expect(p3('').fn()).to.deep.equal([]);
     const rew = rewriter({
@@ -673,6 +672,17 @@ describe('Testing rewriter', () => {
 
     rew.rewrite(data);
     expect(data).to.deep.equal([{ a: 2 }, { a: 1 }]);
+  });
+
+  it('Testing bad fn return', async () => {
+    const p1 = injectPlugin({
+      name: 'inject-plugin-name',
+      target: 'a',
+      fnSchema: (r) => Number.isInteger(r),
+      requires: ['a'],
+      fn: () => undefined
+    });
+    expect(() => p1('').fn()).to.throw('inject-plugin-name: bad fn return value "undefined"');
   });
 
   it('Testing Bad Field Requested', () => {
