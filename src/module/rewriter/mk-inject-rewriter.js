@@ -24,7 +24,7 @@ module.exports = (keys) => objectScan(keys, {
     const promises = [];
     plugins.forEach((plugin) => {
       const exec = (r) => {
-        assert(plugin.fnSchema(r) === true);
+        assert(plugin.fnSchema(r) === true, r);
         if (plugin.targetRel === '*') {
           Object.assign(kwargs.value, r);
         } else {
