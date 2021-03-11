@@ -7,7 +7,7 @@
     "test": "test"
   },
   "dependencies": {
-    "joi-strict": "1.2.10",
+    "joi-strict": "1.2.11",
     "lodash.set": "4.3.2",
     "object-fields": "2.0.21",
     "object-scan": "14.0.0"
