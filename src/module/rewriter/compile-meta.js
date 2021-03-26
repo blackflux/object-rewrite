@@ -10,9 +10,10 @@ module.exports = (plugins, fields) => {
 
   const activePlugins = new Set();
   const inactivePlugins = [...plugins];
-  const requiredFields = new Set(fields);
+  const requiredFields = [...new Set(fields)];
 
-  requiredFields.forEach((field) => {
+  for (let i = 0; i < requiredFields.length; i += 1) {
+    const field = requiredFields[i];
     for (let j = 0; j < inactivePlugins.length; j += 1) {
       const plugin = inactivePlugins[j];
       if (
@@ -22,14 +23,25 @@ module.exports = (plugins, fields) => {
           && (`${field}.` === plugin.target || field.startsWith(plugin.target))
         )
       ) {
-        plugin.requires.forEach((f) => requiredFields.add(f));
+        const requires = [...plugin.requires];
+        for (let x = requiredFields.length - 1; x >= 0; x -= 1) {
+          const idx = requires.indexOf(requiredFields[x]);
+          if (idx !== -1) {
+            if (x > i) {
+              requiredFields.splice(x, 1);
+            } else {
+              requires.splice(idx, 1);
+            }
+          }
+        }
+        requiredFields.splice(i + 1, 0, ...requires);
         pluginsByType[plugin.type].push(plugin);
         activePlugins.add(plugin.self.meta);
         inactivePlugins.splice(j, 1);
         j -= 1;
       }
     }
-  });
+  }
 
   const injectedFields = new Set();
   pluginsByType.INJECT
@@ -43,7 +55,7 @@ module.exports = (plugins, fields) => {
     filterMap: compileTargetMap('FILTER', pluginsByType.FILTER),
     injectMap: compileTargetMap('INJECT', pluginsByType.INJECT),
     sortMap: compileTargetMap('SORT', pluginsByType.SORT),
-    fieldsToRequest: [...requiredFields].filter((e) => !injectedFields.has(e)),
+    fieldsToRequest: requiredFields.filter((e) => !injectedFields.has(e)),
     activePlugins: [...activePlugins]
   };
 };
