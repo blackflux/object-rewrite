@@ -762,7 +762,7 @@ describe('Testing rewriter', () => {
     );
   });
 
-  it('Testing Nested Require', () => {
+  it('Testing Recursive Inject', () => {
     const dataStoreFields = [
       'parent',
       'child'
@@ -771,7 +771,7 @@ describe('Testing rewriter', () => {
       parent: 'location/d0f15c90-a309-4d78-a3ef-deffc8df3c84',
       child: 'address/2cfc6103-5aac-4866-91d5-cdd8bd1cbed7'
     }];
-    const fields = ['id'];
+    const fields = ['id', 'parent', 'child', 'parentType', 'parentId'];
 
     // CHILD
     const childType = injectPlugin({
@@ -864,7 +864,11 @@ describe('Testing rewriter', () => {
     expect(rew.fieldsToRequest).to.deep.equal(['parent', 'child']);
     rew.rewrite(data);
     expect(data).to.deep.equal([{
-      id: 'location#d0f15c90-a309-4d78-a3ef-deffc8df3c84||address#2cfc6103-5aac-4866-91d5-cdd8bd1cbed7'
+      child: 'address/2cfc6103-5aac-4866-91d5-cdd8bd1cbed7',
+      id: 'location#d0f15c90-a309-4d78-a3ef-deffc8df3c84||address#2cfc6103-5aac-4866-91d5-cdd8bd1cbed7',
+      parent: 'location/d0f15c90-a309-4d78-a3ef-deffc8df3c84',
+      parentId: 'd0f15c90-a309-4d78-a3ef-deffc8df3c84',
+      parentType: 'location'
     }]);
   });
 });
