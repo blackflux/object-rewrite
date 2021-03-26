@@ -30,6 +30,7 @@
     "eslint-plugin-mocha": "8.1.0",
     "js-gardener": "3.0.3",
     "lodash.get": "4.4.2",
+    "lodash.shuffle": "4.2.0",
     "nyc": "15.1.0",
     "semantic-release": "17.4.2"
   },

@@ -1,5 +1,6 @@
 const get = require('lodash.get');
 const { expect } = require('chai');
+const shuffle = require('lodash.shuffle');
 const rewriter = require('../../src/module/rewriter');
 const { injectPlugin, filterPlugin, sortPlugin } = require('../../src/module/plugin');
 
@@ -759,5 +760,115 @@ describe('Testing rewriter', () => {
         })
       }`
     );
+  });
+
+  it('Testing Recursive Inject', () => {
+    const dataStoreFields = [
+      'parent',
+      'child'
+    ];
+    const data = [{
+      parent: 'location/d0f15c90-a309-4d78-a3ef-deffc8df3c84',
+      child: 'address/2cfc6103-5aac-4866-91d5-cdd8bd1cbed7'
+    }];
+    const fields = ['id', 'parent', 'child', 'parentType', 'parentId'];
+
+    // CHILD
+    const childType = injectPlugin({
+      name: 'inject/childType',
+      target: 'childType',
+      requires: ['child'],
+      valueSchema: {
+        child: (r) => /^[^/]+\/[^/]+$/.test(r)
+      },
+      fnSchema: (r) => typeof r === 'string',
+      fn: ({ value }) => value.child.split('/')[0]
+    });
+    const childId = injectPlugin({
+      name: 'inject/childId',
+      target: 'childId',
+      requires: ['child'],
+      valueSchema: {
+        child: (r) => /^[^/]+\/[^/]+$/.test(r)
+      },
+      fnSchema: (r) => typeof r === 'string',
+      fn: ({ value }) => value.child.split('/')[1]
+    });
+    const childHash = injectPlugin({
+      name: 'inject/childHash',
+      target: 'childHash',
+      requires: ['childType', 'childId'],
+      valueSchema: {
+        childType: (r) => typeof r === 'string',
+        childId: (r) => typeof r === 'string'
+      },
+      fnSchema: (r) => typeof r === 'string',
+      fn: ({ value }) => `${value.childType}#${value.childId}`
+    });
+
+    // PARENT
+    const parentType = injectPlugin({
+      name: 'inject/parentType',
+      target: 'parentType',
+      requires: ['parent'],
+      valueSchema: {
+        parent: (r) => /^[^/]+\/[^/]+$/.test(r)
+      },
+      fnSchema: (r) => typeof r === 'string',
+      fn: ({ value }) => value.parent.split('/')[0]
+    });
+    const parentId = injectPlugin({
+      name: 'inject/parentId',
+      target: 'parentId',
+      requires: ['parent'],
+      valueSchema: {
+        parent: (r) => /^[^/]+\/[^/]+$/.test(r)
+      },
+      fnSchema: (r) => typeof r === 'string',
+      fn: ({ value }) => value.parent.split('/')[1]
+    });
+    const parentHash = injectPlugin({
+      name: 'inject/parentHash',
+      target: 'parentHash',
+      requires: ['parentType', 'parentId'],
+      valueSchema: {
+        parentType: (r) => typeof r === 'string',
+        parentId: (r) => typeof r === 'string'
+      },
+      fnSchema: (r) => typeof r === 'string',
+      fn: ({ value }) => `${value.parentType}#${value.parentId}`
+    });
+
+    // ID
+    const id = injectPlugin({
+      name: 'inject/id',
+      target: 'id',
+      requires: ['parentHash', 'childHash'],
+      fnSchema: (r) => typeof r === 'string',
+      fn: ({ value }) => `${value.parentHash}||${value.childHash}`
+    });
+
+    const Rew = rewriter({
+      '': shuffle([id, childType, childId, parentType, parentId, childHash, parentHash])
+    }, dataStoreFields);
+    const rew = Rew.init(fields);
+    expect(new Set(rew.activePlugins.map(({ name }) => name))).to.deep.equal(new Set([
+      'inject/childType',
+      'inject/childId',
+      'inject/childHash',
+      'inject/parentType',
+      'inject/parentId',
+      'inject/parentHash',
+      'inject/id'
+    ]));
+    expect(rew.fieldsToRequest).to.deep.equal(['parent', 'child']);
+    rew.rewrite(data);
+    expect(data).to.deep.equal([{
+      child: 'address/2cfc6103-5aac-4866-91d5-cdd8bd1cbed7',
+      id: 'location#d0f15c90-a309-4d78-a3ef-deffc8df3c84||address#2cfc6103-5aac-4866-91d5-cdd8bd1cbed7',
+      parent: 'location/d0f15c90-a309-4d78-a3ef-deffc8df3c84',
+      parentId: 'd0f15c90-a309-4d78-a3ef-deffc8df3c84',
+      parentType: 'location'
+    }]);
   });
 });
