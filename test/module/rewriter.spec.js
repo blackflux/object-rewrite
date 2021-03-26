@@ -1,5 +1,6 @@
 const get = require('lodash.get');
 const { expect } = require('chai');
+const shuffle = require('lodash.shuffle');
 const rewriter = require('../../src/module/rewriter');
 const { injectPlugin, filterPlugin, sortPlugin } = require('../../src/module/plugin');
 
@@ -770,7 +771,7 @@ describe('Testing rewriter', () => {
       parent: 'location/d0f15c90-a309-4d78-a3ef-deffc8df3c84',
       child: 'address/2cfc6103-5aac-4866-91d5-cdd8bd1cbed7'
     }];
-    const fields = ['id', 'parent'];
+    const fields = ['id'];
 
     // CHILD
     const childType = injectPlugin({
@@ -848,7 +849,7 @@ describe('Testing rewriter', () => {
     });
 
     const Rew = rewriter({
-      '': [id, childType, childId, parentType, parentId, childHash, parentHash].sort(() => Math.random() > 0.5)
+      '': shuffle([id, childType, childId, parentType, parentId, childHash, parentHash])
     }, dataStoreFields);
     const rew = Rew.init(fields);
     expect(new Set(rew.activePlugins.map(({ name }) => name))).to.deep.equal(new Set([
