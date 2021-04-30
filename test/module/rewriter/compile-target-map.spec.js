@@ -1,4 +1,5 @@
 const { expect } = require('chai');
+const objectScan = require('object-scan');
 const { injectPlugin } = require('../../../src/module/plugin');
 const compileTargetMap = require('../../../src/module/rewriter/compile-target-map');
 
@@ -23,7 +24,13 @@ describe('Testing get-plugin-target-map.js', () => {
     const p1 = mkPlugin('A', 'a', ['b'], 'x');
     const p2 = mkPlugin('B', 'b', [], 'x');
     const p3 = mkPlugin('C', 'c', ['b'], 'x');
-    const r = compileTargetMap('inject', [p1, p2, p3]);
+    const r = compileTargetMap('inject', [p1, p2, p3], {});
+    objectScan(['**.requires'], {
+      filterFn: ({ parent, property, value }) => {
+        // eslint-disable-next-line no-param-reassign
+        parent[property] = value({});
+      }
+    })(r);
     expect(r).to.deep.equal({
       x: [
         { ...p2, requires: [] },

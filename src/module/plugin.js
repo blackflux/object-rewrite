@@ -9,7 +9,10 @@ const plugin = (type, options) => {
   Joi.assert(options, Joi.object({
     name: Joi.string(),
     target: Joi.string(), // target can not be "", use "*" instead
-    requires: Joi.array().items(Joi.string()),
+    requires: Joi.alternatives(
+      Joi.array().items(Joi.string()),
+      Joi.function().arity(1)
+    ),
     contextSchema: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
     valueSchema: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
     init: Joi.function().optional(),
@@ -84,7 +87,15 @@ const plugin = (type, options) => {
       target: targetAbs,
       targets: [targetAbs],
       targetRel: target,
-      requires: requires.map((f) => (f.startsWith('/') ? f.slice(1) : joinPath([prefix, f]))),
+      requires: (initContext) => {
+        assert(initContext.constructor === Object);
+        let r = requires;
+        if (typeof requires === 'function') {
+          r = requires(initContext);
+          assert(Array.isArray(r));
+        }
+        return r.map((f) => (f.startsWith('/') ? f.slice(1) : joinPath([prefix, f])));
+      },
       type,
       fn: fnWrapped,
       limit: wrap(limit)

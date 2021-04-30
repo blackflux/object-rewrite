@@ -51,7 +51,7 @@ const sort = sortPlugin({
 const rew = rewriter({ '': [inject, filter, sort] }, ['id']);
 
 const desiredFields = ['id'];
-const rewInstance = rew.init(desiredFields);
+const rewInstance = rew.init(desiredFields, {/* init context */});
 
 const data = queryDataStore(rewInstance.fieldsToRequest);
 // data => [{ id: 0 }, { id: 1 }, { id: 2 }]
@@ -69,7 +69,7 @@ There are three types of plugins `INJECT`, `FILTER` and `SORT`.
 All plugins define:
 
 - `target` _String_: target field relative to the plugin path.
-- `required` _Array_: required fields relative to the plugin path. Can specify relative to root by prefixing with `/`.Will influence `fieldsToRequest`.
+- `required` _Array_: required fields relative to the plugin path. Can specify relative to root by prefixing with `/`. Will influence `fieldsToRequest`. Can be specified as function that takes `initContext` and expected to return array.
 - `fn` _Function_: result of this function is used by the plugin. Signature is `fn({ key, value, parents, context, cache })`.
 - `init({ context, cache })` _Function_ (optional): if present called once per run, if returns other than `true`, the plugin is disabled for the run
 - `contextSchema`: Object schema structure of what is expected to be present in `context` (subset)

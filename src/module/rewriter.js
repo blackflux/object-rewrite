@@ -31,7 +31,7 @@ module.exports = (pluginMap, dataStoreFields_, logger = console) => {
 
   return {
     allowedFields: [...allowedFields],
-    init: (fields) => {
+    init: (fields, initContext = {}) => {
       assert(Array.isArray(fields));
 
       if (!fields.every((f) => allowedFields.has(f))) {
@@ -40,7 +40,7 @@ module.exports = (pluginMap, dataStoreFields_, logger = console) => {
 
       const {
         injectMap, filterMap, sortMap, fieldsToRequest, activePlugins
-      } = compileMeta(plugins, fields);
+      } = compileMeta(plugins, fields, initContext);
 
       if (!fieldsToRequest.every((f) => dataStoreFields.has(f))) {
         throw new Error(`Bad Field Requested: ${fieldsToRequest.filter((f) => !dataStoreFields.has(f))}`);

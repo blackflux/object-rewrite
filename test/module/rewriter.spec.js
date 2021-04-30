@@ -871,4 +871,29 @@ describe('Testing rewriter', () => {
       parentType: 'location'
     }]);
   });
+
+  it('Testing dynamic require', () => {
+    const dataStoreFields = ['id'];
+    const data = [{ id: 2 }, { id: 1 }];
+    const fields = ['idPlus'];
+    const plugin = injectPlugin({
+      name: 'inject-plugin-name',
+      target: 'idPlus',
+      requires: (ctx) => ctx.fields,
+      valueSchema: {
+        id: (r) => Number.isInteger(r)
+      },
+      fnSchema: (r) => Number.isInteger(r),
+      fn: ({ value }) => value.id + 1
+    });
+    const Rew = rewriter({
+      '': [plugin]
+    }, dataStoreFields);
+    expect(Rew.init([]).activePlugins).to.deep.equal([]);
+    const rew = Rew.init(fields, { fields: ['id'] });
+    expect(rew.activePlugins.map(({ name }) => name)).to.deep.equal(['inject-plugin-name']);
+    expect(rew.fieldsToRequest).to.deep.equal(['id']);
+    rew.rewrite(data);
+    expect(data).to.deep.equal([{ idPlus: 3 }, { idPlus: 2 }]);
+  });
 });
