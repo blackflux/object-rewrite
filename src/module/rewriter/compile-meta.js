@@ -1,7 +1,7 @@
 const compileTargetMap = require('./compile-target-map');
 
 // todo: write separate test
-module.exports = (plugins, fields) => {
+module.exports = (plugins, fields, initContext) => {
   const pluginsByType = {
     FILTER: [],
     INJECT: [],
@@ -23,7 +23,7 @@ module.exports = (plugins, fields) => {
           && (`${field}.` === plugin.target || field.startsWith(plugin.target))
         )
       ) {
-        const requires = [...plugin.requires];
+        const requires = [...plugin.requires(initContext)];
         for (let x = requiredFields.length - 1; x >= 0; x -= 1) {
           const idx = requires.indexOf(requiredFields[x]);
           if (idx !== -1) {
@@ -47,14 +47,14 @@ module.exports = (plugins, fields) => {
   pluginsByType.INJECT
     .forEach((p) => {
       p.targets
-        .filter((target) => !p.requires.includes(target))
+        .filter((target) => !p.requires(initContext).includes(target))
         .forEach((t) => injectedFields.add(t));
     });
 
   return {
-    filterMap: compileTargetMap('FILTER', pluginsByType.FILTER),
-    injectMap: compileTargetMap('INJECT', pluginsByType.INJECT),
-    sortMap: compileTargetMap('SORT', pluginsByType.SORT),
+    filterMap: compileTargetMap('FILTER', pluginsByType.FILTER, initContext),
+    injectMap: compileTargetMap('INJECT', pluginsByType.INJECT, initContext),
+    sortMap: compileTargetMap('SORT', pluginsByType.SORT, initContext),
     fieldsToRequest: requiredFields.filter((e) => !injectedFields.has(e)),
     activePlugins: [...activePlugins]
   };

@@ -1,4 +1,4 @@
-module.exports = (type, plugins) => {
+module.exports = (type, plugins, initContext) => {
   const result = {};
   for (let i = 0; i < plugins.length; i += 1) {
     const plugin = plugins[i];
@@ -8,7 +8,7 @@ module.exports = (type, plugins) => {
     }
     let insertIdx = result[key].length;
     for (let idx = 0; idx < result[key].length; idx += 1) {
-      if (result[key][idx].requires.includes(plugin.target)) {
+      if (result[key][idx].requires(initContext).includes(plugin.target)) {
         insertIdx = idx;
         break;
       }

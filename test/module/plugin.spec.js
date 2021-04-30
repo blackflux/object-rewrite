@@ -18,7 +18,7 @@ describe('Testing plugin', () => {
       fn
     })('prefix');
     expect(result.target).to.equal('prefix.key');
-    expect(result.requires).to.deep.equal(['prefix.req']);
+    expect(result.requires({})).to.deep.equal(['prefix.req']);
   });
 
   it('Testing nested prefix with root reference', () => {
@@ -29,7 +29,7 @@ describe('Testing plugin', () => {
       fn
     })('prefix');
     expect(result.target).to.equal('prefix.key');
-    expect(result.requires).to.deep.equal(['req']);
+    expect(result.requires({})).to.deep.equal(['req']);
   });
 
   it('Testing top level prefix', () => {
@@ -40,7 +40,7 @@ describe('Testing plugin', () => {
       fn
     })('');
     expect(result.target).to.equal('key');
-    expect(result.requires).to.deep.equal(['req']);
+    expect(result.requires({})).to.deep.equal(['req']);
   });
 
   it('Testing nested prefix with star target', () => {
@@ -51,7 +51,7 @@ describe('Testing plugin', () => {
       fn
     })('prefix');
     expect(result.target).to.equal('prefix.');
-    expect(result.requires).to.deep.equal(['prefix.']);
+    expect(result.requires({})).to.deep.equal(['prefix.']);
   });
 
   it('Testing top level prefix with star target', () => {
@@ -62,7 +62,7 @@ describe('Testing plugin', () => {
       fn
     })('');
     expect(result.target).to.equal('');
-    expect(result.requires).to.deep.equal(['']);
+    expect(result.requires({})).to.deep.equal(['']);
   });
 
   it('Testing plugin types', () => {
