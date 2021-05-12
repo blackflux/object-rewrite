@@ -32,7 +32,7 @@
     "lodash.get": "4.4.2",
     "lodash.shuffle": "4.2.0",
     "nyc": "15.1.0",
-    "semantic-release": "17.4.2"
+    "semantic-release": "17.4.3"
   },
   "scripts": {
     "clean": "rm -rf lib",
