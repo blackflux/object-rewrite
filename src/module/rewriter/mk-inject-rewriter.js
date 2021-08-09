@@ -4,6 +4,7 @@ const set = require('lodash.set');
 
 module.exports = (keys) => objectScan(keys, {
   useArraySelector: false,
+  orderByNeedles: true,
   filterFn: ({
     matchedBy, getKey, getValue, getParents, context
   }) => {

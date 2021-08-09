@@ -4,6 +4,7 @@ const cmpFn = require('../../util/cmp-fn');
 
 module.exports = (keys) => objectScan(keys, {
   useArraySelector: false,
+  orderByNeedles: true,
   filterFn: ({
     matchedBy, getKey, getValue, getParents, context
   }) => {

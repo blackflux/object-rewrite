@@ -77,10 +77,11 @@ const plugin = (type, options) => {
     };
   })();
 
-  const self = (prefix) => {
+  const self = (prefix, prefixIndex = 0) => {
     const targetAbs = joinPath([prefix, target]);
     const result = {
       self,
+      prefixIndex,
       name,
       prefix,
       targetNormalized: targetAbs.endsWith('.') ? targetAbs.slice(0, -1) : targetAbs,

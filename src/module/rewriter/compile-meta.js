@@ -51,6 +51,10 @@ module.exports = (plugins, fields, initContext) => {
         .forEach((t) => injectedFields.add(t));
     });
 
+  ['FILTER', 'INJECT', 'SORT'].forEach((f) => {
+    pluginsByType[f].sort((a, b) => a.prefixIndex - b.prefixIndex);
+  });
+
   return {
     filterMap: compileTargetMap('FILTER', pluginsByType.FILTER, initContext),
     injectMap: compileTargetMap('INJECT', pluginsByType.INJECT, initContext),
