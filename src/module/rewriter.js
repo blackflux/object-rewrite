@@ -11,13 +11,13 @@ module.exports = (pluginMap, dataStoreFields_, logger = console) => {
   assert(Array.isArray(dataStoreFields_) && dataStoreFields_.every((e) => typeof e === 'string'));
 
   const pluginNames = {};
-  const plugins = Object.entries(pluginMap).reduce((prev, [prefix, ps]) => {
+  const plugins = Object.entries(pluginMap).reduce((prev, [prefix, ps], prefixIndex) => {
     ps.forEach((p) => {
       if (p.meta.name in pluginNames && p !== pluginNames[p.meta.name]) {
         throw new Error(`Plugin name "${p.meta.name}" not unique`);
       }
       pluginNames[p.meta.name] = p;
-      prev.push(p(prefix));
+      prev.push(p(prefix, prefixIndex));
     });
     return prev;
   }, []);
