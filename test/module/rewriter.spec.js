@@ -896,4 +896,40 @@ describe('Testing rewriter', () => {
     rew.rewrite(data);
     expect(data).to.deep.equal([{ idPlus: 3 }, { idPlus: 2 }]);
   });
+
+  it('Testing prefix map order', () => {
+    const dataStoreFields = ['idA', 'idB'];
+    const data = [{ idA: [1], idB: [2] }];
+    const logs = [];
+    const fields = ['idA', 'idB'];
+    const plugin1 = filterPlugin({
+      name: 'filter-plugin1-name',
+      target: '*',
+      requires: [],
+      fn: () => {
+        logs.push(1);
+        return true;
+      }
+    });
+    const plugin2 = filterPlugin({
+      name: 'filter-plugin2-name',
+      target: '*',
+      requires: [],
+      fn: () => {
+        logs.push(2);
+        return true;
+      }
+    });
+    const rew1 = rewriter({ idA: [plugin1], idB: [plugin2] }, dataStoreFields).init(fields);
+    expect(rew1.fieldsToRequest).to.deep.equal(fields);
+    rew1.rewrite(data);
+    expect(data).to.deep.equal([{ idA: [1], idB: [2] }]);
+    expect(logs).to.deep.equal([1, 2]);
+
+    const rew2 = rewriter({ idB: [plugin2], idA: [plugin1] }, dataStoreFields).init(fields);
+    expect(rew2.fieldsToRequest).to.deep.equal(fields);
+    rew2.rewrite(data);
+    expect(data).to.deep.equal([{ idA: [1], idB: [2] }]);
+    expect(logs).to.deep.equal([1, 2, 2, 1]);
+  });
 });

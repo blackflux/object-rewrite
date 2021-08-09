@@ -3,6 +3,7 @@ const objectScan = require('object-scan');
 
 module.exports = (keys) => objectScan(keys, {
   useArraySelector: false,
+  orderByNeedles: true,
   filterFn: ({
     matchedBy, getKey, getValue, getParents, context
   }) => {
