@@ -1,10 +1,11 @@
 const assert = require('assert');
 const objectScan = require('object-scan');
 const set = require('lodash.set');
+const CompareFn = require('./compare-fn');
 
 module.exports = (keys) => objectScan(keys, {
   useArraySelector: false,
-  orderByNeedles: true,
+  compareFn: CompareFn(keys),
   filterFn: ({
     matchedBy, getKey, getValue, getParents, context
   }) => {
