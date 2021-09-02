@@ -73,7 +73,7 @@ All plugins define:
 - `fn` _Function_: result of this function is used by the plugin. Signature is `fn({ key, value, parents, context, cache })`.
 - `onInit({ context, cache })` _Function_ (optional): if present called once per init, used to initialize cache, if returns other than `true`, the plugin is disabled
 - `onRewrite({ data, context, cache })` _Function_ (optional): if present called once per rewrite, used to update cache, if returns other than `true`, the plugin is disabled
-- `contextSchema`: Object schema structure of what is expected to be present in `context` (subset)
+- `contextSchema`: Object schema structure of what is expected to be present in rewrite `context` (subset)
 - `valueSchema` (optional): Used to validate value before passed into `fn`
 
 where:
