@@ -8,6 +8,8 @@ module.exports = (plugins, fields, initContext) => {
     SORT: []
   };
 
+  const activeLookup = new Map();
+
   const activePlugins = new Set();
   const inactivePlugins = [...plugins];
   const requiredFields = [...new Set(fields)];
@@ -16,11 +18,17 @@ module.exports = (plugins, fields, initContext) => {
     const field = requiredFields[i];
     for (let j = 0; j < inactivePlugins.length; j += 1) {
       const plugin = inactivePlugins[j];
+      if (!activeLookup.has(plugin.self)) {
+        activeLookup.set(plugin.self, plugin.self.meta.onInit(initContext));
+      }
       if (
-        plugin.targets.includes(field)
-        || (
-          (plugin.type !== 'INJECT' || plugin.targetRel === '*')
-          && (`${field}.` === plugin.target || field.startsWith(plugin.target))
+        activeLookup.get(plugin.self) === true
+        && (
+          plugin.targets.includes(field)
+          || (
+            (plugin.type !== 'INJECT' || plugin.targetRel === '*')
+            && (`${field}.` === plugin.target || field.startsWith(plugin.target))
+          )
         )
       ) {
         const requires = [...plugin.requires(initContext)];
