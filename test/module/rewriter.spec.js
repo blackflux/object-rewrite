@@ -554,7 +554,7 @@ describe('Testing rewriter', () => {
     expect(data).to.deep.equal([{ settings: { a: 2, b: 3 } }, { settings: { a: 1, b: 2 } }]);
   });
 
-  it('Testing init', async () => {
+  it('Testing active', async () => {
     const dataStoreFields = ['a'];
     const data = [{ a: 2 }, { a: 1 }];
     const fields = ['a'];
@@ -567,8 +567,8 @@ describe('Testing rewriter', () => {
       contextSchema: {
         enabled: (e) => typeof e === 'boolean'
       },
-      init: ({ context, cache }) => {
-        logs.push('init');
+      active: ({ context, cache }) => {
+        logs.push('active');
         logs.push(`context = ${context.a}`);
         context.a = (context.a || 0) + 3;
         logs.push(`cache = ${cache.a}`);
@@ -592,16 +592,16 @@ describe('Testing rewriter', () => {
 
     rew.rewrite(data, { enabled: false });
     expect(logs).to.deep.equal([
-      'init', 'context = undefined', 'cache = undefined',
-      'init', 'context = undefined', 'cache = undefined'
+      'active', 'context = undefined', 'cache = undefined',
+      'active', 'context = undefined', 'cache = undefined'
     ]);
     expect(data).to.deep.equal([{ a: 2 }, { a: 1 }]);
 
     logs.length = 0;
     rew.rewrite(data, { enabled: true });
     expect(logs).to.deep.equal([
-      'init', 'context = undefined', 'cache = undefined',
-      'init', 'context = undefined', 'cache = undefined',
+      'active', 'context = undefined', 'cache = undefined',
+      'active', 'context = undefined', 'cache = undefined',
       'value = 1', 'context = 3', 'cache = 5',
       'value = 9', 'context = 3', 'cache = 5',
       'value = 2', 'context = 3', 'cache = 5',
@@ -610,7 +610,7 @@ describe('Testing rewriter', () => {
     expect(data).to.deep.equal([{ a: 18 }, { a: 17 }]);
   });
 
-  it('Testing init executes once per plugin', async () => {
+  it('Testing active executes once per plugin', async () => {
     const dataStoreFields = ['a', 'b.a'];
     const data = [{ a: 2, b: { a: 3 } }, { a: 1, b: { a: 4 } }];
     const fields = ['a', 'b.a'];
@@ -620,8 +620,8 @@ describe('Testing rewriter', () => {
       target: 'a',
       fnSchema: (r) => Number.isInteger(r),
       requires: ['a'],
-      init: () => {
-        logs.push('init');
+      active: () => {
+        logs.push('active');
         return true;
       },
       fn: ({ value }) => value.a + 1
@@ -633,7 +633,7 @@ describe('Testing rewriter', () => {
     expect(rew.fieldsToRequest).to.deep.equal(['a', 'b.a']);
 
     rew.rewrite(data);
-    expect(logs).to.deep.equal(['init']);
+    expect(logs).to.deep.equal(['active']);
     expect(data).to.deep.equal([{ a: 4, b: { a: 4 } }, { a: 3, b: { a: 5 } }]);
   });
 
@@ -646,21 +646,21 @@ describe('Testing rewriter', () => {
       target: 'a',
       fnSchema: (r) => Number.isInteger(r),
       requires: ['a'],
-      init: () => false,
+      active: () => false,
       fn: () => 3
     });
     const p2 = filterPlugin({
       name: 'filter-plugin-name',
       target: 'a',
       requires: ['a'],
-      init: () => false,
+      active: () => false,
       fn: () => false
     });
     const p3 = sortPlugin({
       name: 'sort-plugin-name',
       target: 'a',
       requires: ['a'],
-      init: () => false,
+      active: () => false,
       fn: () => []
     });
     expect(p1('').fn()).to.deep.equal(3);
