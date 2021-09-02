@@ -112,12 +112,12 @@ const plugin = (type, options) => {
     name,
     contextSchema,
     onInit: (initContext) => {
-      localCache = null;
-      localContext = null;
+      localCache = {};
+      localContext = initContext;
       if (onInit === undefined) {
         return true;
       }
-      return wrap(onInit)({ initContext });
+      return wrap(onInit)();
     },
     onRewrite: (data, context, logger) => {
       if (contextSchemaCompiled(context) === false) {
@@ -127,7 +127,6 @@ const plugin = (type, options) => {
         })}`);
         return false;
       }
-      localCache = {};
       localContext = contextSchema instanceof Object && !Array.isArray(contextSchema)
         ? Object.keys(contextSchema).reduce((p, k) => {
           // eslint-disable-next-line no-param-reassign

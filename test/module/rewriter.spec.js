@@ -600,14 +600,14 @@ describe('Testing rewriter', () => {
     logs.length = 0;
     rew.rewrite(data, { enabled: true });
     expect(logs).to.deep.equal([
-      'onRewrite', 'context = undefined', 'cache = undefined',
-      'onRewrite', 'context = undefined', 'cache = undefined',
-      'value = 1', 'context = 3', 'cache = 5',
-      'value = 9', 'context = 3', 'cache = 5',
-      'value = 2', 'context = 3', 'cache = 5',
-      'value = 10', 'context = 3', 'cache = 5'
+      'onRewrite', 'context = undefined', 'cache = 5',
+      'onRewrite', 'context = undefined', 'cache = 5',
+      'value = 1', 'context = 3', 'cache = 10',
+      'value = 14', 'context = 3', 'cache = 10',
+      'value = 2', 'context = 3', 'cache = 10',
+      'value = 15', 'context = 3', 'cache = 10'
     ]);
-    expect(data).to.deep.equal([{ a: 18 }, { a: 17 }]);
+    expect(data).to.deep.equal([{ a: 28 }, { a: 27 }]);
   });
 
   it('Testing onInit and onRewrite executes once per plugin', async () => {
