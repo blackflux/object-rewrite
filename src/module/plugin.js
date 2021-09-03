@@ -134,7 +134,7 @@ const plugin = (type, options) => {
           return p;
         }, {})
         : context;
-      return onRewrite === undefined ? true : wrap(onRewrite)();
+      return onRewrite === undefined ? true : wrap(onRewrite)({ data });
     }
   };
   return self;
