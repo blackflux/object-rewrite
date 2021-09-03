@@ -54,17 +54,17 @@ module.exports = (pluginMap, dataStoreFields_, logger = console) => {
       const rewriteStart = (input, context) => {
         assert(context instanceof Object && !Array.isArray(context));
         const { promises } = injectRewriter(input, {
-          injectMap: initPluginMap(injectMap, context, logger),
+          injectMap: initPluginMap(injectMap, input, context, logger),
           promises: []
         });
         return promises;
       };
       const rewriteEnd = (input, context) => {
         filterRewriter(input, {
-          filterMap: initPluginMap(filterMap, context, logger)
+          filterMap: initPluginMap(filterMap, input, context, logger)
         });
         sortRewriter(input, {
-          sortMap: initPluginMap(sortMap, context, logger),
+          sortMap: initPluginMap(sortMap, input, context, logger),
           lookups: []
         });
         retainResult(input);
@@ -72,12 +72,14 @@ module.exports = (pluginMap, dataStoreFields_, logger = console) => {
       return {
         fieldsToRequest,
         activePlugins,
-        rewrite: (input, context = {}) => {
+        rewrite: (input, context_ = {}) => {
+          const context = { ...context_, ...initContext };
           const promises = rewriteStart(input, context);
           assert(promises.length === 0, 'Please use rewriteAsync() for async logic');
           rewriteEnd(input, context);
         },
-        rewriteAsync: async (input, context = {}) => {
+        rewriteAsync: async (input, context_ = {}) => {
+          const context = { ...context_, ...initContext };
           const promises = rewriteStart(input, context);
           await Promise.all(promises.map((p) => p()));
           rewriteEnd(input, context);
