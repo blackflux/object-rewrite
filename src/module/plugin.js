@@ -15,14 +15,15 @@ const plugin = (type, options) => {
     ),
     contextSchema: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
     valueSchema: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
-    active: Joi.function().optional(),
+    onInit: Joi.function().optional(),
+    onRewrite: Joi.function().optional(),
     fn: Joi.function(),
     fnSchema: type === 'INJECT' ? Joi.alternatives(Joi.object(), Joi.array(), Joi.function()) : Joi.forbidden(),
     limit: type === 'SORT' ? Joi.function().optional() : Joi.forbidden()
   }));
 
   const {
-    name, target, requires, contextSchema, valueSchema, active, fn, fnSchema, limit
+    name, target, requires, contextSchema, valueSchema, onInit, onRewrite, fn, fnSchema, limit
   } = options;
 
   const contextSchemaCompiled = contextSchema === undefined
@@ -110,7 +111,15 @@ const plugin = (type, options) => {
   self.meta = {
     name,
     contextSchema,
-    active: (context, logger) => {
+    onInit: (initContext) => {
+      localCache = {};
+      localContext = initContext;
+      if (onInit === undefined) {
+        return true;
+      }
+      return wrap(onInit)();
+    },
+    onRewrite: (data, context, logger) => {
       if (contextSchemaCompiled(context) === false) {
         logger.warn(`Context validation failure\n${JSON.stringify({
           origin: 'object-rewrite',
@@ -118,7 +127,6 @@ const plugin = (type, options) => {
         })}`);
         return false;
       }
-      localCache = {};
       localContext = contextSchema instanceof Object && !Array.isArray(contextSchema)
         ? Object.keys(contextSchema).reduce((p, k) => {
           // eslint-disable-next-line no-param-reassign
@@ -126,7 +134,7 @@ const plugin = (type, options) => {
           return p;
         }, {})
         : context;
-      return active === undefined ? true : wrap(active)();
+      return onRewrite === undefined ? true : wrap(onRewrite)();
     }
   };
   return self;
