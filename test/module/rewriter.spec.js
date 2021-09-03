@@ -937,4 +937,29 @@ describe('Testing rewriter', () => {
     expect(data).to.deep.equal([{ idA: [1], idB: [2] }]);
     expect(logs).to.deep.equal([1, 2, 2, 1]);
   });
+
+  it('Testing onRewrite kwargs', () => {
+    const dataStoreFields = ['id'];
+    const data = { id: 1 };
+    const fields = ['name'];
+    let onRewriteKwargs;
+    const plugin = injectPlugin({
+      name: 'inject-plugin-name',
+      target: 'name',
+      onRewrite: (kwargs) => {
+        onRewriteKwargs = Object.keys(kwargs);
+        return true;
+      },
+      fnSchema: (r) => typeof r === 'string',
+      requires: ['id'],
+      fn: ({ value }) => `name: ${String(value.id)}`
+    });
+    const rew = rewriter({
+      '': [plugin]
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(['id']);
+    rew.rewrite(data);
+    expect(onRewriteKwargs).to.deep.equal(['cache', 'context']);
+    expect(data).to.deep.equal({ name: 'name: 1' });
+  });
 });
