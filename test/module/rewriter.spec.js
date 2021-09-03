@@ -657,7 +657,7 @@ describe('Testing rewriter', () => {
       name: 'filter-plugin-name',
       target: 'a',
       requires: ['a'],
-      onRewrite: () => false,
+      onInit: () => false,
       fn: () => false
     });
     const p3 = sortPlugin({
@@ -674,6 +674,7 @@ describe('Testing rewriter', () => {
       '': [p1, p2, p3]
     }, dataStoreFields).init(fields);
     expect(rew.fieldsToRequest).to.deep.equal(['a']);
+    expect(rew.activePlugins).to.deep.equal([p1.meta, p3.meta]);
 
     rew.rewrite(data);
     expect(data).to.deep.equal([{ a: 2 }, { a: 1 }]);
