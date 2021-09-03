@@ -959,7 +959,7 @@ describe('Testing rewriter', () => {
     }, dataStoreFields).init(fields);
     expect(rew.fieldsToRequest).to.deep.equal(['id']);
     rew.rewrite(data);
-    expect(onRewriteKwargs).to.deep.equal(['cache', 'context']);
+    expect(onRewriteKwargs).to.deep.equal(['data', 'cache', 'context']);
     expect(data).to.deep.equal({ name: 'name: 1' });
   });
 });
