@@ -564,8 +564,8 @@ describe('Testing rewriter', () => {
       target: 'a',
       fnSchema: (r) => Number.isInteger(r),
       requires: ['a'],
-      contextSchema: {
-        rewrite: {
+      schema: {
+        rewriteContext: {
           enabled: (e) => typeof e === 'boolean'
         }
       },
@@ -714,8 +714,8 @@ describe('Testing rewriter', () => {
       name: 'filter-plugin-name',
       target: '*',
       requires: [],
-      contextSchema: {
-        rewrite: {
+      schema: {
+        rewriteContext: {
           enabled: (e) => typeof e === 'boolean'
         }
       },
@@ -730,7 +730,7 @@ describe('Testing rewriter', () => {
       `Rewrite Context validation failure\n${JSON.stringify({
         origin: 'object-rewrite',
         options: {
-          name: 'filter-plugin-name', target: '*', requires: [], contextSchema: { rewrite: {} }
+          name: 'filter-plugin-name', target: '*', requires: [], schema: { rewriteContext: {} }
         }
       })}`
     ]);

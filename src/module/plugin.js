@@ -13,11 +13,11 @@ const plugin = (type, options) => {
       Joi.array().items(Joi.string()),
       Joi.function().arity(1)
     ),
-    contextSchema: Joi.object({
-      init: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
-      rewrite: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional()
+    schema: Joi.object({
+      initContext: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
+      rewriteContext: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional()
     }).optional(),
-    // todo: move this into contextSchema and rename to schema
+    // todo: move this into schema and rename to schema
     valueSchema: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
     onInit: Joi.function().optional(),
     onRewrite: Joi.function().optional(),
@@ -27,12 +27,12 @@ const plugin = (type, options) => {
   }));
 
   const {
-    name, target, requires, contextSchema, valueSchema, onInit, onRewrite, fn, fnSchema, limit
+    name, target, requires, schema, valueSchema, onInit, onRewrite, fn, fnSchema, limit
   } = options;
 
-  const contextSchemaCompiled = {
-    init: contextSchema?.init ? validationCompile(contextSchema.init, false) : () => true,
-    rewrite: contextSchema?.rewrite ? validationCompile(contextSchema.rewrite, false) : () => true
+  const schemaCompiled = {
+    initContext: schema?.initContext ? validationCompile(schema.initContext, false) : () => true,
+    rewriteContext: schema?.rewriteContext ? validationCompile(schema.rewriteContext, false) : () => true
   };
 
   let localCache;
@@ -50,9 +50,9 @@ const plugin = (type, options) => {
     };
   };
   const wrapInject = (f) => {
-    const schema = validationCompile(fnSchema);
+    const fnSchemaCompiled = validationCompile(fnSchema);
     const validate = (r) => {
-      if (schema(r) !== true) {
+      if (fnSchemaCompiled(r) !== true) {
         throw new Error(`${name}: bad fn return value "${r}"`);
       }
       return r;
@@ -115,10 +115,10 @@ const plugin = (type, options) => {
   };
   self.meta = {
     name,
-    contextSchema,
+    schema,
     // todo: generify and reuse for rewrite
     onInit: (initContext, logger) => {
-      if (contextSchemaCompiled.init(initContext) === false) {
+      if (schemaCompiled.initContext(initContext) === false) {
         logger.warn(`Init Context validation failure\n${JSON.stringify({
           origin: 'object-rewrite',
           options
@@ -126,8 +126,8 @@ const plugin = (type, options) => {
         return false;
       }
       localCache = {};
-      localContext = contextSchema?.init instanceof Object && !Array.isArray(contextSchema?.init)
-        ? Object.keys(contextSchema?.init).reduce((p, k) => {
+      localContext = schema?.initContext instanceof Object && !Array.isArray(schema?.initContext)
+        ? Object.keys(schema?.initContext).reduce((p, k) => {
           // eslint-disable-next-line no-param-reassign
           p[k] = initContext[k];
           return p;
@@ -139,15 +139,15 @@ const plugin = (type, options) => {
       return wrap(onInit)();
     },
     onRewrite: (data, rewriteContext, logger) => {
-      if (contextSchemaCompiled.rewrite(rewriteContext) === false) {
+      if (schemaCompiled.rewriteContext(rewriteContext) === false) {
         logger.warn(`Rewrite Context validation failure\n${JSON.stringify({
           origin: 'object-rewrite',
           options
         })}`);
         return false;
       }
-      localContext = contextSchema?.rewrite instanceof Object && !Array.isArray(contextSchema?.rewrite)
-        ? Object.keys(contextSchema?.rewrite).reduce((p, k) => {
+      localContext = schema?.rewriteContext instanceof Object && !Array.isArray(schema?.rewriteContext)
+        ? Object.keys(schema?.rewriteContext).reduce((p, k) => {
           // eslint-disable-next-line no-param-reassign
           p[k] = rewriteContext[k];
           return p;
