@@ -565,7 +565,9 @@ describe('Testing rewriter', () => {
       fnSchema: (r) => Number.isInteger(r),
       requires: ['a'],
       contextSchema: {
-        enabled: (e) => typeof e === 'boolean'
+        rewrite: {
+          enabled: (e) => typeof e === 'boolean'
+        }
       },
       onRewrite: ({ context, cache }) => {
         logs.push('onRewrite');
@@ -713,7 +715,9 @@ describe('Testing rewriter', () => {
       target: '*',
       requires: [],
       contextSchema: {
-        enabled: (e) => typeof e === 'boolean'
+        rewrite: {
+          enabled: (e) => typeof e === 'boolean'
+        }
       },
       fn: () => false
     });
@@ -723,9 +727,12 @@ describe('Testing rewriter', () => {
       .init(['a'])
       .rewrite(data, {});
     expect(log).to.deep.equal([
-      'Context validation failure\n'
-      + '{"origin":"object-rewrite","options":'
-      + '{"name":"filter-plugin-name","target":"*","requires":[],"contextSchema":{}}}'
+      `Rewrite Context validation failure\n${JSON.stringify({
+        origin: 'object-rewrite',
+        options: {
+          name: 'filter-plugin-name', target: '*', requires: [], contextSchema: { rewrite: {} }
+        }
+      })}`
     ]);
     expect(data).to.deep.equal([{ a: 1 }]);
   });
