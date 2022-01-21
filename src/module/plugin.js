@@ -132,10 +132,7 @@ const plugin = (type, options) => {
           return p;
         }, {})
         : initContext;
-      if (onInit === undefined) {
-        return true;
-      }
-      return wrap(onInit)();
+      return onInit === undefined ? true : wrap(onInit)();
     },
     onRewrite: (data, rewriteContext, logger) => {
       if (schemaCompiled.rewriteContext(rewriteContext) === false) {
