@@ -7,36 +7,37 @@
     "test": "test"
   },
   "dependencies": {
-    "joi-strict": "2.0.0",
+    "joi-strict": "2.0.1",
     "lodash.set": "4.3.2",
-    "object-fields": "3.0.0",
-    "object-scan": "17.0.0"
+    "object-fields": "3.0.1",
+    "object-scan": "17.1.0"
   },
   "devDependencies": {
-    "@babel/cli": "7.14.8",
-    "@babel/core": "7.15.0",
-    "@babel/register": "7.15.3",
-    "@blackflux/eslint-plugin-rules": "2.0.3",
-    "@blackflux/robo-config-plugin": "5.3.0",
-    "babel-eslint": "10.1.0",
-    "babel-preset-latest-node": "5.5.1",
+    "@babel/cli": "7.16.8",
+    "@babel/core": "7.16.10",
+    "@babel/eslint-parser": "7.16.5",
+    "@babel/preset-env": "7.16.11",
+    "@babel/register": "7.16.9",
+    "@blackflux/eslint-plugin-rules": "2.0.4",
+    "@blackflux/robo-config-plugin": "5.3.26",
+    "babel-plugin-istanbul": "6.1.1",
     "chai": "4.3.4",
     "coveralls": "3.1.1",
-    "eslint": "7.32.0",
-    "eslint-config-airbnb-base": "14.2.1",
-    "eslint-plugin-import": "2.24.2",
+    "eslint": "8.7.0",
+    "eslint-config-airbnb-base": "15.0.0",
+    "eslint-plugin-import": "2.25.4",
     "eslint-plugin-json": "3.1.0",
-    "eslint-plugin-markdown": "2.2.0",
-    "eslint-plugin-mocha": "9.0.0",
-    "js-gardener": "3.0.3",
+    "eslint-plugin-markdown": "2.2.1",
+    "eslint-plugin-mocha": "10.0.3",
+    "js-gardener": "3.0.5",
     "lodash.get": "4.4.2",
     "lodash.shuffle": "4.2.0",
     "nyc": "15.1.0",
-    "semantic-release": "17.4.7"
+    "semantic-release": "19.0.2"
   },
   "scripts": {
     "clean": "rm -rf lib",
-    "build": "npx babel src --out-dir lib --copy-files --include-dotfiles --config-file ./.babelrc",
+    "build": "cp -rf ./src ./lib",
     "build-clean": "yarn run clean && yarn run build",
     "test-simple": "nyc mocha \"./test/**/*.spec.js\"",
     "test": "yarn run clean && yarn run gardener && yarn run test-simple",
@@ -89,7 +90,9 @@
       "node_modules/*",
       "coverage/*",
       "lib/*"
-    ]
+    ],
+    "sourceMap": false,
+    "instrument": false
   },
   "licenses": [
     {
