@@ -3,11 +3,11 @@ const { injectPlugin, filterPlugin, sortPlugin } = require('../../src/module/plu
 
 describe('Testing plugin', () => {
   const fn = () => null;
-  const fnSchema = () => true;
+  const fnOutputSchema = () => true;
 
   it('Testing fn', () => {
     expect(fn()).to.equal(null);
-    expect(fnSchema()).to.equal(true);
+    expect(fnOutputSchema()).to.equal(true);
   });
 
   it('Testing nested prefix', () => {
@@ -67,7 +67,7 @@ describe('Testing plugin', () => {
 
   it('Testing plugin types', () => {
     const resultInject = injectPlugin({
-      name: 'inject-plugin-name', target: '*', requires: [], fn, fnSchema
+      name: 'inject-plugin-name', target: '*', requires: [], fn, schema: { fnOutput: fnOutputSchema }
     })('');
     const resultFilter = filterPlugin({
       name: 'filter-plugin-name', target: '*', requires: [], fn

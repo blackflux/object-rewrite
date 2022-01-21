@@ -5,19 +5,19 @@ const compileTargetMap = require('../../../src/module/rewriter/compile-target-ma
 
 describe('Testing get-plugin-target-map.js', () => {
   let fn;
-  let fnSchema;
+  let fnOutputSchema;
   let mkPlugin;
   before(() => {
     fn = () => 'value';
-    fnSchema = (e) => typeof e === 'string';
+    fnOutputSchema = (e) => typeof e === 'string';
     mkPlugin = (name, target, requires, prefix) => injectPlugin({
-      name, target, requires, fn, fnSchema
+      name, target, requires, fn, schema: { fnOutput: fnOutputSchema }
     })(prefix);
   });
 
   it('Testing fn', () => {
     expect(fn()).to.equal('value');
-    expect(fnSchema('str')).to.equal(true);
+    expect(fnOutputSchema('str')).to.equal(true);
   });
 
   it('Testing sorting', () => {

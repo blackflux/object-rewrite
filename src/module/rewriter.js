@@ -40,7 +40,7 @@ module.exports = (pluginMap, dataStoreFields_, logger = console) => {
 
       const {
         injectMap, filterMap, sortMap, fieldsToRequest, activePlugins
-      } = compileMeta(plugins, fields, initContext);
+      } = compileMeta(plugins, fields, initContext, logger);
 
       if (!fieldsToRequest.every((f) => dataStoreFields.has(f))) {
         throw new Error(`Bad Field Requested: ${fieldsToRequest.filter((f) => !dataStoreFields.has(f))}`);
