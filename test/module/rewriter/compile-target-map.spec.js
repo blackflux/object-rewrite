@@ -1,23 +1,23 @@
-const { expect } = require('chai');
-const objectScan = require('object-scan');
-const { injectPlugin } = require('../../../src/module/plugin');
-const compileTargetMap = require('../../../src/module/rewriter/compile-target-map');
+import { expect } from 'chai';
+import objectScan from 'object-scan';
+import { injectPlugin } from '../../../src/module/plugin';
+import compileTargetMap from '../../../src/module/rewriter/compile-target-map';
 
 describe('Testing get-plugin-target-map.js', () => {
   let fn;
-  let fnSchema;
+  let fnOutputSchema;
   let mkPlugin;
   before(() => {
     fn = () => 'value';
-    fnSchema = (e) => typeof e === 'string';
+    fnOutputSchema = (e) => typeof e === 'string';
     mkPlugin = (name, target, requires, prefix) => injectPlugin({
-      name, target, requires, fn, fnSchema
+      name, target, requires, fn, schema: { fnOutput: fnOutputSchema }
     })(prefix);
   });
 
   it('Testing fn', () => {
     expect(fn()).to.equal('value');
-    expect(fnSchema('str')).to.equal(true);
+    expect(fnOutputSchema('str')).to.equal(true);
   });
 
   it('Testing sorting', () => {

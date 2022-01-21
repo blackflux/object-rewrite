@@ -1,8 +1,8 @@
-const assert = require('assert');
-const Joi = require('joi-strict');
-const validationCompile = require('./plugin/validation-compile');
-const validationExtractKeys = require('./plugin/validation-extract-keys');
-const joinPath = require('./plugin/join-path');
+import assert from 'assert';
+import Joi from 'joi-strict';
+import validationCompile from './plugin/validation-compile';
+import validationExtractKeys from './plugin/validation-extract-keys';
+import joinPath from './plugin/join-path';
 
 const plugin = (type, options) => {
   assert(['FILTER', 'INJECT', 'SORT'].includes(type));
@@ -13,22 +13,28 @@ const plugin = (type, options) => {
       Joi.array().items(Joi.string()),
       Joi.function().arity(1)
     ),
-    contextSchema: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
-    valueSchema: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
+    schema: Joi.object({
+      initContext: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
+      rewriteContext: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
+      fnInput: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
+      fnOutput: type === 'INJECT' ? Joi.alternatives(Joi.object(), Joi.array(), Joi.function()) : Joi.forbidden()
+    })[type === 'INJECT' ? 'required' : 'optional'](),
     onInit: Joi.function().optional(),
     onRewrite: Joi.function().optional(),
     fn: Joi.function(),
-    fnSchema: type === 'INJECT' ? Joi.alternatives(Joi.object(), Joi.array(), Joi.function()) : Joi.forbidden(),
     limit: type === 'SORT' ? Joi.function().optional() : Joi.forbidden()
   }));
 
   const {
-    name, target, requires, contextSchema, valueSchema, onInit, onRewrite, fn, fnSchema, limit
+    name, target, requires, schema, onInit, onRewrite, fn, limit
   } = options;
 
-  const contextSchemaCompiled = contextSchema === undefined
-    ? () => true
-    : validationCompile(contextSchema, false);
+  const schemaCompiled = {
+    initContext: schema?.initContext ? validationCompile(schema.initContext, false) : () => true,
+    rewriteContext: schema?.rewriteContext ? validationCompile(schema.rewriteContext, false) : () => true,
+    fnInput: schema?.fnInput ? validationCompile(schema.fnInput, false) : null,
+    fnOutput: schema?.fnOutput ? validationCompile(schema.fnOutput) : null
+  };
 
   let localCache;
   let localContext;
@@ -45,9 +51,8 @@ const plugin = (type, options) => {
     };
   };
   const wrapInject = (f) => {
-    const schema = validationCompile(fnSchema);
     const validate = (r) => {
-      if (schema(r) !== true) {
+      if (schemaCompiled.fnOutput(r) !== true) {
         throw new Error(`${name}: bad fn return value "${r}"`);
       }
       return r;
@@ -62,12 +67,11 @@ const plugin = (type, options) => {
   };
   const fnWrapped = (() => {
     const wrapped = type === 'INJECT' ? wrapInject(wrap(fn)) : wrap(fn);
-    if (valueSchema === undefined) {
+    if (schemaCompiled.fnInput === null) {
       return wrapped;
     }
-    const valueSchemaCompiled = validationCompile(valueSchema, false);
     return (kwargs) => {
-      if (valueSchemaCompiled(kwargs.value) !== true) {
+      if (schemaCompiled.fnInput(kwargs.value) !== true) {
         throw new Error(`Value Schema validation failure\n${JSON.stringify({
           origin: 'object-rewrite',
           value: kwargs.value,
@@ -104,44 +108,61 @@ const plugin = (type, options) => {
     };
     if (type === 'INJECT') {
       result.targetNormalized = prefix;
-      result.targets = validationExtractKeys(targetAbs, fnSchema);
+      result.targets = validationExtractKeys(targetAbs, schema.fnOutput);
     }
     return result;
   };
+  const handleCb = ({
+    type: cbType,
+    before: cbBefore,
+    kwargs,
+    fn: cbFn,
+    context,
+    logger
+  }) => {
+    const fnName = `${cbType}Context`;
+    if (schemaCompiled[fnName](context) === false) {
+      logger.warn(`${cbType[0].toUpperCase()}${cbType.slice(1)} Context validation failure\n${JSON.stringify({
+        origin: 'object-rewrite',
+        options
+      })}`);
+      return false;
+    }
+    cbBefore();
+    localContext = schema?.[fnName] instanceof Object && !Array.isArray(schema?.[fnName])
+      ? Object.keys(schema?.[fnName]).reduce((p, k) => {
+        // eslint-disable-next-line no-param-reassign
+        p[k] = context[k];
+        return p;
+      }, {})
+      : context;
+    return cbFn === undefined ? true : wrap(cbFn)(kwargs);
+  };
   self.meta = {
     name,
-    contextSchema,
-    onInit: (initContext) => {
-      localCache = {};
-      localContext = initContext;
-      if (onInit === undefined) {
-        return true;
-      }
-      return wrap(onInit)();
-    },
-    onRewrite: (data, context, logger) => {
-      if (contextSchemaCompiled(context) === false) {
-        logger.warn(`Context validation failure\n${JSON.stringify({
-          origin: 'object-rewrite',
-          options
-        })}`);
-        return false;
-      }
-      localContext = contextSchema instanceof Object && !Array.isArray(contextSchema)
-        ? Object.keys(contextSchema).reduce((p, k) => {
-          // eslint-disable-next-line no-param-reassign
-          p[k] = context[k];
-          return p;
-        }, {})
-        : context;
-      return onRewrite === undefined ? true : wrap(onRewrite)({ data });
-    }
+    schema,
+    onInit: (context, logger) => handleCb({
+      type: 'init',
+      before: () => {
+        localCache = {};
+      },
+      kwargs: {},
+      fn: onInit,
+      context,
+      logger
+    }),
+    onRewrite: (data, context, logger) => handleCb({
+      type: 'rewrite',
+      before: () => {},
+      kwargs: { data },
+      fn: onRewrite,
+      logger,
+      context
+    })
   };
   return self;
 };
 
-module.exports = {
-  filterPlugin: (opts) => plugin('FILTER', opts),
-  injectPlugin: (opts) => plugin('INJECT', opts),
-  sortPlugin: (opts) => plugin('SORT', opts)
-};
+export const filterPlugin = (opts) => plugin('FILTER', opts);
+export const injectPlugin = (opts) => plugin('INJECT', opts);
+export const sortPlugin = (opts) => plugin('SORT', opts);

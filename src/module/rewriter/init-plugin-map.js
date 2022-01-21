@@ -1,4 +1,4 @@
-module.exports = (map, data, context, logger) => {
+export default (map, data, context, logger) => {
   const result = {};
   const activeLookup = new Map();
   Object.entries(map).forEach(([prefix, pls]) => {

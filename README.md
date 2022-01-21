@@ -24,12 +24,12 @@ npm i --save object-rewrite
 
 <!-- eslint-disable import/no-unresolved, import/no-extraneous-dependencies -->
 ```js
-const {
+import {
   injectPlugin,
   filterPlugin,
   sortPlugin,
   rewriter
-} = require('object-rewrite');
+} from 'object-rewrite';
 
 const queryDataStore = (fields) => { /* ... */ };
 
@@ -73,8 +73,7 @@ All plugins define:
 - `fn` _Function_: result of this function is used by the plugin. Signature is `fn({ key, value, parents, context, cache })`.
 - `onInit({ context, cache })` _Function_ (optional): if present called once per init, used to initialize cache, if returns other than `true`, the plugin is disabled
 - `onRewrite({ data, context, cache })` _Function_ (optional): if present called once per rewrite, used to update cache, if returns other than `true`, the plugin is disabled
-- `contextSchema`: Object schema structure of what is expected to be present in rewrite `context` (subset)
-- `valueSchema` (optional): Used to validate value before passed into `fn`
+- `schema`: Object schema structure of form `{ initContext: {}, rewriteContext: {}, fnInput: {}, fnOutput: {} }` of what is expected to be present in corresponding `context` (subset)
 
 where:
 - `key`: is the key for the processed entity
@@ -82,6 +81,8 @@ where:
 - `parents` are the parents of the processed entity
 - `context` is global as passed into the execution
 - `cache = {}` is locally defined per plugin
+- `schema.fnInput` (optional) is used to validate value before passed into `fn`
+- `schema.fnOutput` is used by the inject plugin only
 
 ### Inject Plugin
 
@@ -90,7 +91,7 @@ Used to inject data
 - `target`: field that is created or overwritten, can be `'*'`
 - `requires`: See above
 - `fn`: return value is used for target. Relative to prefix
-- `fnSchema`: Object schema structure of what is being injected (strict result of `fn`)
+- `schema.fnOutput`: Object schema structure of what is being injected (strict result of `fn`)
 
 ### Filter Plugin
 
@@ -124,7 +125,7 @@ Could for example re-use a plugin as
 
 <!-- eslint-disable-next-line import/no-unresolved, import/no-extraneous-dependencies -->
 ```js
-const { injectPlugin, rewriter } = require('object-rewrite');
+import { injectPlugin, rewriter } from 'object-rewrite';
 
 const plugin = injectPlugin(/* ... */);
 
