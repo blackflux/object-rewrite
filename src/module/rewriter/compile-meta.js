@@ -1,7 +1,7 @@
 const compileTargetMap = require('./compile-target-map');
 
 // todo: write separate test
-module.exports = (plugins, fields, initContext) => {
+module.exports = (plugins, fields, initContext, logger) => {
   const pluginsByType = {
     FILTER: [],
     INJECT: [],
@@ -19,7 +19,7 @@ module.exports = (plugins, fields, initContext) => {
     for (let j = 0; j < inactivePlugins.length; j += 1) {
       const plugin = inactivePlugins[j];
       if (!activeLookup.has(plugin.self)) {
-        activeLookup.set(plugin.self, plugin.self.meta.onInit(initContext));
+        activeLookup.set(plugin.self, plugin.self.meta.onInit(initContext, logger));
       }
       if (
         activeLookup.get(plugin.self) === true

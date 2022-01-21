@@ -112,44 +112,54 @@ const plugin = (type, options) => {
     }
     return result;
   };
+  const handleCb = ({
+    type: cbType,
+    before: cbBefore,
+    kwargs,
+    fn: cbFn,
+    context,
+    logger
+  }) => {
+    const fnName = `${cbType}Context`;
+    if (schemaCompiled[fnName](context) === false) {
+      logger.warn(`${cbType[0].toUpperCase()}${cbType.slice(1)} Context validation failure\n${JSON.stringify({
+        origin: 'object-rewrite',
+        options
+      })}`);
+      return false;
+    }
+    cbBefore();
+    localContext = schema?.[fnName] instanceof Object && !Array.isArray(schema?.[fnName])
+      ? Object.keys(schema?.[fnName]).reduce((p, k) => {
+        // eslint-disable-next-line no-param-reassign
+        p[k] = context[k];
+        return p;
+      }, {})
+      : context;
+    return cbFn === undefined ? true : wrap(cbFn)(kwargs);
+  };
   self.meta = {
     name,
     schema,
-    // todo: generify and reuse for rewrite
-    onInit: (initContext, logger) => {
-      if (schemaCompiled.initContext(initContext) === false) {
-        logger.warn(`Init Context validation failure\n${JSON.stringify({
-          origin: 'object-rewrite',
-          options
-        })}`);
-        return false;
-      }
-      localCache = {};
-      localContext = schema?.initContext instanceof Object && !Array.isArray(schema?.initContext)
-        ? Object.keys(schema?.initContext).reduce((p, k) => {
-          // eslint-disable-next-line no-param-reassign
-          p[k] = initContext[k];
-          return p;
-        }, {})
-        : initContext;
-      return onInit === undefined ? true : wrap(onInit)();
-    },
-    onRewrite: (data, rewriteContext, logger) => {
-      if (schemaCompiled.rewriteContext(rewriteContext) === false) {
-        logger.warn(`Rewrite Context validation failure\n${JSON.stringify({
-          origin: 'object-rewrite',
-          options
-        })}`);
-        return false;
-      }
-      localContext = schema?.rewriteContext instanceof Object && !Array.isArray(schema?.rewriteContext)
-        ? Object.keys(schema?.rewriteContext).reduce((p, k) => {
-          // eslint-disable-next-line no-param-reassign
-          p[k] = rewriteContext[k];
-          return p;
-        }, {})
-        : rewriteContext;
-      return onRewrite === undefined ? true : wrap(onRewrite)({ data });
+    onInit: (context, logger) => handleCb({
+      type: 'init',
+      before: () => {
+        localCache = {};
+      },
+      kwargs: {},
+      fn: onInit,
+      context,
+      logger
+    }),
+    onRewrite: (data, context, logger) => {
+      return handleCb({
+        type: 'rewrite',
+        before: () => {},
+        kwargs: { data },
+        fn: onRewrite,
+        logger,
+        context
+      });
     }
   };
   return self;

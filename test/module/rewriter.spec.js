@@ -711,7 +711,7 @@ describe('Testing rewriter', () => {
     }, ['a']).init(['a'])).to.throw('Bad Field Requested: id');
   });
 
-  it('Testing Bad Context', () => {
+  it('Testing Bad Rewrite Context', () => {
     const log = [];
     const logger = { warn: (arg) => log.push(arg) };
     const p1 = filterPlugin({
@@ -735,6 +735,36 @@ describe('Testing rewriter', () => {
         origin: 'object-rewrite',
         options: {
           name: 'filter-plugin-name', target: '*', requires: [], schema: { rewriteContext: {} }
+        }
+      })}`
+    ]);
+    expect(data).to.deep.equal([{ a: 1 }]);
+  });
+
+  it('Testing Bad Init Context', () => {
+    const log = [];
+    const logger = { warn: (arg) => log.push(arg) };
+    const p1 = filterPlugin({
+      name: 'filter-plugin-name',
+      target: '*',
+      requires: [],
+      schema: {
+        initContext: {
+          enabled: (e) => typeof e === 'boolean'
+        }
+      },
+      fn: () => false
+    });
+    expect(p1('').fn()).to.equal(false);
+    const data = [{ a: 1 }];
+    rewriter({ '': [p1] }, ['a'], logger)
+      .init(['a'], {})
+      .rewrite(data, {});
+    expect(log).to.deep.equal([
+      `Init Context validation failure\n${JSON.stringify({
+        origin: 'object-rewrite',
+        options: {
+          name: 'filter-plugin-name', target: '*', requires: [], schema: { initContext: {} }
         }
       })}`
     ]);
