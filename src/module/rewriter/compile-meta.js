@@ -1,7 +1,7 @@
-import compileTargetMap from './compile-target-map';
+const compileTargetMap = require('./compile-target-map');
 
 // todo: write separate test
-export default (plugins, fields, initContext, logger) => {
+module.exports = (plugins, fields, initContext, logger) => {
   const pluginsByType = {
     FILTER: [],
     INJECT: [],

@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import cmpFn from '../../src/util/cmp-fn';
+const { expect } = require('chai');
+const cmpFn = require('../../src/util/cmp-fn');
 
 describe('Testing cmp-fn.js', () => {
   it('Testing sort', () => {
