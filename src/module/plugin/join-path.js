@@ -1,4 +1,4 @@
-module.exports = (input) => {
+export default (input) => {
   const result = input.filter((e) => !!e).join('.');
   if (result === '*') {
     return '';

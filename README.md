@@ -24,12 +24,12 @@ npm i --save object-rewrite
 
 <!-- eslint-disable import/no-unresolved, import/no-extraneous-dependencies -->
 ```js
-const {
+import {
   injectPlugin,
   filterPlugin,
   sortPlugin,
   rewriter
-} = require('object-rewrite');
+} from 'object-rewrite';
 
 const queryDataStore = (fields) => { /* ... */ };
 
@@ -125,7 +125,7 @@ Could for example re-use a plugin as
 
 <!-- eslint-disable-next-line import/no-unresolved, import/no-extraneous-dependencies -->
 ```js
-const { injectPlugin, rewriter } = require('object-rewrite');
+import { injectPlugin, rewriter } from 'object-rewrite';
 
 const plugin = injectPlugin(/* ... */);
 

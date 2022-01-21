@@ -1,7 +1,7 @@
-const { expect } = require('chai');
-const objectScan = require('object-scan');
-const { injectPlugin } = require('../../../src/module/plugin');
-const compileTargetMap = require('../../../src/module/rewriter/compile-target-map');
+import { expect } from 'chai';
+import objectScan from 'object-scan';
+import { injectPlugin } from '../../../src/module/plugin';
+import compileTargetMap from '../../../src/module/rewriter/compile-target-map';
 
 describe('Testing get-plugin-target-map.js', () => {
   let fn;
