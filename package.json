@@ -102,7 +102,7 @@
   ],
   "homepage": "https://github.com/blackflux/object-rewrite#readme",
   "engines": {
-    "node": ">= 12"
+    "node": ">= 14"
   },
   "repository": {
     "type": "git",
