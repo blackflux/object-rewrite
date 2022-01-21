@@ -1,4 +1,4 @@
-export default (keys) => {
+module.exports = (keys) => {
   const lookups = keys.reduce((p, c, idx) => {
     const index = Math.max(0, c.lastIndexOf('.'));
     const k = c.slice(0, index);

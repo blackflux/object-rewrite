@@ -1,12 +1,12 @@
-import assert from 'assert';
-import objectFields from 'object-fields';
-import compileMeta from './rewriter/compile-meta';
-import mkInjectRewriter from './rewriter/mk-inject-rewriter';
-import mkFilterRewriter from './rewriter/mk-filter-rewriter';
-import mkSortRewriter from './rewriter/mk-sort-rewriter';
-import initPluginMap from './rewriter/init-plugin-map';
+const assert = require('assert');
+const objectFields = require('object-fields');
+const compileMeta = require('./rewriter/compile-meta');
+const mkInjectRewriter = require('./rewriter/mk-inject-rewriter');
+const mkFilterRewriter = require('./rewriter/mk-filter-rewriter');
+const mkSortRewriter = require('./rewriter/mk-sort-rewriter');
+const initPluginMap = require('./rewriter/init-plugin-map');
 
-export default (pluginMap, dataStoreFields_, logger = console) => {
+module.exports = (pluginMap, dataStoreFields_, logger = console) => {
   assert(pluginMap instanceof Object && !Array.isArray(pluginMap));
   assert(Array.isArray(dataStoreFields_) && dataStoreFields_.every((e) => typeof e === 'string'));
 

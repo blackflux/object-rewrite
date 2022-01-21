@@ -1,8 +1,8 @@
-import assert from 'assert';
-import objectScan from 'object-scan';
-import CompareFn from './compare-fn';
+const assert = require('assert');
+const objectScan = require('object-scan');
+const CompareFn = require('./compare-fn');
 
-export default (keys) => objectScan(keys, {
+module.exports = (keys) => objectScan(keys, {
   useArraySelector: false,
   compareFn: CompareFn(keys),
   filterFn: ({

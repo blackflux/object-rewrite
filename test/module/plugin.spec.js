@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import { injectPlugin, filterPlugin, sortPlugin } from '../../src/module/plugin';
+const { expect } = require('chai');
+const { injectPlugin, filterPlugin, sortPlugin } = require('../../src/module/plugin');
 
 describe('Testing plugin', () => {
   const fn = () => null;

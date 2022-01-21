@@ -1,7 +1,7 @@
-import { injectPlugin, filterPlugin, sortPlugin } from './module/plugin';
-import rewriter from './module/rewriter';
+const { injectPlugin, filterPlugin, sortPlugin } = require('./module/plugin');
+const rewriter = require('./module/rewriter');
 
-export default {
+module.exports = {
   injectPlugin,
   filterPlugin,
   sortPlugin,

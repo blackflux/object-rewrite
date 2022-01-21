@@ -1,4 +1,4 @@
-import assert from 'assert';
+const assert = require('assert');
 
 const validationCompile = (input, strict = true) => {
   if (typeof input === 'function') {
@@ -20,4 +20,4 @@ const validationCompile = (input, strict = true) => {
     && compiled.every(([k, v]) => v(r[k]) === true)
   );
 };
-export default validationCompile;
+module.exports = validationCompile;
