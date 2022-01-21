@@ -1,4 +1,4 @@
-const assert = require('assert');
+import assert from 'assert';
 
 const validationExtractKeys = (prefix, input) => {
   if (typeof input === 'function') {
@@ -15,4 +15,4 @@ const validationExtractKeys = (prefix, input) => {
     return p;
   }, []);
 };
-module.exports = validationExtractKeys;
+export default validationExtractKeys;
