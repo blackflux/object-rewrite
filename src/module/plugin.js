@@ -1,8 +1,8 @@
-import assert from 'assert';
-import Joi from 'joi-strict';
-import validationCompile from './plugin/validation-compile';
-import validationExtractKeys from './plugin/validation-extract-keys';
-import joinPath from './plugin/join-path';
+const assert = require('assert');
+const Joi = require('joi-strict');
+const validationCompile = require('./plugin/validation-compile');
+const validationExtractKeys = require('./plugin/validation-extract-keys');
+const joinPath = require('./plugin/join-path');
 
 const plugin = (type, options) => {
   assert(['FILTER', 'INJECT', 'SORT'].includes(type));
@@ -163,6 +163,6 @@ const plugin = (type, options) => {
   return self;
 };
 
-export const filterPlugin = (opts) => plugin('FILTER', opts);
-export const injectPlugin = (opts) => plugin('INJECT', opts);
-export const sortPlugin = (opts) => plugin('SORT', opts);
+module.exports.filterPlugin = (opts) => plugin('FILTER', opts);
+module.exports.injectPlugin = (opts) => plugin('INJECT', opts);
+module.exports.sortPlugin = (opts) => plugin('SORT', opts);

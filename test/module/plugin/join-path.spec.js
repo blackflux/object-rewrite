@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import joinPath from '../../../src/module/plugin/join-path';
+const { expect } = require('chai');
+const joinPath = require('../../../src/module/plugin/join-path');
 
 describe('Testing join-path.js', () => {
   it('Testing basic join', () => {
