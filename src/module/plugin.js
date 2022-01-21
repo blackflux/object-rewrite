@@ -16,8 +16,8 @@ const plugin = (type, options) => {
     schema: Joi.object({
       initContext: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
       rewriteContext: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
-      fn: type === 'INJECT' ? Joi.alternatives(Joi.object(), Joi.array(), Joi.function()) : Joi.forbidden(),
-      value: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional()
+      fnInput: Joi.alternatives(Joi.object(), Joi.array(), Joi.function()).optional(),
+      fnOutput: type === 'INJECT' ? Joi.alternatives(Joi.object(), Joi.array(), Joi.function()) : Joi.forbidden()
     })[type === 'INJECT' ? 'required' : 'optional'](),
     onInit: Joi.function().optional(),
     onRewrite: Joi.function().optional(),
@@ -32,8 +32,8 @@ const plugin = (type, options) => {
   const schemaCompiled = {
     initContext: schema?.initContext ? validationCompile(schema.initContext, false) : () => true,
     rewriteContext: schema?.rewriteContext ? validationCompile(schema.rewriteContext, false) : () => true,
-    fn: schema?.fn ? validationCompile(schema.fn) : null,
-    value: schema?.value ? validationCompile(schema.value, false) : null
+    fnInput: schema?.fnInput ? validationCompile(schema.fnInput, false) : null,
+    fnOutput: schema?.fnOutput ? validationCompile(schema.fnOutput) : null
   };
 
   let localCache;
@@ -52,7 +52,7 @@ const plugin = (type, options) => {
   };
   const wrapInject = (f) => {
     const validate = (r) => {
-      if (schemaCompiled.fn(r) !== true) {
+      if (schemaCompiled.fnOutput(r) !== true) {
         throw new Error(`${name}: bad fn return value "${r}"`);
       }
       return r;
@@ -67,11 +67,11 @@ const plugin = (type, options) => {
   };
   const fnWrapped = (() => {
     const wrapped = type === 'INJECT' ? wrapInject(wrap(fn)) : wrap(fn);
-    if (schemaCompiled.value === null) {
+    if (schemaCompiled.fnInput === null) {
       return wrapped;
     }
     return (kwargs) => {
-      if (schemaCompiled.value(kwargs.value) !== true) {
+      if (schemaCompiled.fnInput(kwargs.value) !== true) {
         throw new Error(`Value Schema validation failure\n${JSON.stringify({
           origin: 'object-rewrite',
           value: kwargs.value,
@@ -108,7 +108,7 @@ const plugin = (type, options) => {
     };
     if (type === 'INJECT') {
       result.targetNormalized = prefix;
-      result.targets = validationExtractKeys(targetAbs, schema.fn);
+      result.targets = validationExtractKeys(targetAbs, schema.fnOutput);
     }
     return result;
   };
@@ -151,16 +151,14 @@ const plugin = (type, options) => {
       context,
       logger
     }),
-    onRewrite: (data, context, logger) => {
-      return handleCb({
-        type: 'rewrite',
-        before: () => {},
-        kwargs: { data },
-        fn: onRewrite,
-        logger,
-        context
-      });
-    }
+    onRewrite: (data, context, logger) => handleCb({
+      type: 'rewrite',
+      before: () => {},
+      kwargs: { data },
+      fn: onRewrite,
+      logger,
+      context
+    })
   };
   return self;
 };
