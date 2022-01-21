@@ -11,7 +11,7 @@ describe('Testing get-plugin-target-map.js', () => {
     fn = () => 'value';
     fnSchema = (e) => typeof e === 'string';
     mkPlugin = (name, target, requires, prefix) => injectPlugin({
-      name, target, requires, fn, fnSchema
+      name, target, requires, fn, schema: { fn: fnSchema }
     })(prefix);
   });
 

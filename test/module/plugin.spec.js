@@ -67,7 +67,7 @@ describe('Testing plugin', () => {
 
   it('Testing plugin types', () => {
     const resultInject = injectPlugin({
-      name: 'inject-plugin-name', target: '*', requires: [], fn, fnSchema
+      name: 'inject-plugin-name', target: '*', requires: [], fn, schema: { fn: fnSchema }
     })('');
     const resultFilter = filterPlugin({
       name: 'filter-plugin-name', target: '*', requires: [], fn
