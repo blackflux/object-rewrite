@@ -1,5 +1,6 @@
 {
   "name": "object-rewrite",
+  "type": "module",
   "version": "0.0.0-development",
   "description": "Rewrite Object(s) in place using plugins.",
   "main": "lib/index.js",
