@@ -125,7 +125,7 @@ Could for example re-use a plugin as
 
 <!-- eslint-disable-next-line import/no-unresolved, import/no-extraneous-dependencies -->
 ```js
-const { injectPlugin, rewriter } = require('object-rewrite');
+import { injectPlugin, rewriter } from 'object-rewrite';
 
 const plugin = injectPlugin(/* ... */);
 
