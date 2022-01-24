@@ -1,8 +1,8 @@
-const get = require('lodash.get');
-const { expect } = require('chai');
-const shuffle = require('lodash.shuffle');
-const rewriter = require('../../src/module/rewriter');
-const { injectPlugin, filterPlugin, sortPlugin } = require('../../src/module/plugin');
+import get from 'lodash.get';
+import { expect } from 'chai';
+import shuffle from 'lodash.shuffle';
+import rewriter from '../../src/module/rewriter.js';
+import { injectPlugin, filterPlugin, sortPlugin } from '../../src/module/plugin.js';
 
 describe('Testing rewriter', () => {
   it('Testing name not unique', () => {

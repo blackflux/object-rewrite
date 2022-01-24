@@ -1,5 +1,5 @@
-const expect = require('chai').expect;
-const index = require('../src/index');
+import { expect } from 'chai';
+import index from '../src/index.js';
 
 describe('Testing Package', () => {
   it('Testing Exposed', () => {
