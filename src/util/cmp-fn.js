@@ -1,4 +1,4 @@
-const assert = require('assert');
+import assert from 'assert';
 
 const fn = (a, b) => {
   if (Array.isArray(a)) {
@@ -17,4 +17,4 @@ const fn = (a, b) => {
   }
   return a < b ? -1 : 1;
 };
-module.exports = fn;
+export default fn;

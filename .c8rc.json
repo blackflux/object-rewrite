@@ -1,0 +1,27 @@
+{
+  "reporter": [
+    "lcov",
+    "text-summary"
+  ],
+  "reports-dir": "./coverage",
+  "all": true,
+  "include": [
+    "**/*.js"
+  ],
+  "exclude": [
+    "gardener.js",
+    "node_modules/*",
+    "coverage/*",
+    "lib/*"
+  ],
+  "extension": [],
+  "skip-full": true,
+  "check-coverage": true,
+  "temp-directory": "./coverage/.c8_output",
+  "clean": true,
+  "per-file": false,
+  "lines": 100,
+  "statements": 100,
+  "functions": 100,
+  "branches": 100
+}

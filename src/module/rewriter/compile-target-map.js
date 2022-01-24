@@ -1,4 +1,4 @@
-module.exports = (type, plugins, initContext) => {
+export default (type, plugins, initContext) => {
   const result = {};
   for (let i = 0; i < plugins.length; i += 1) {
     const plugin = plugins[i];

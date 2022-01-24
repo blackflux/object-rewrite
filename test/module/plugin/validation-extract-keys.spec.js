@@ -1,5 +1,5 @@
-const { expect } = require('chai');
-const validationExtractKeys = require('../../../src/module/plugin/validation-extract-keys');
+import { expect } from 'chai';
+import validationExtractKeys from '../../../src/module/plugin/validation-extract-keys.js';
 
 describe('Testing validation-extract-keys.js', () => {
   let fn;
