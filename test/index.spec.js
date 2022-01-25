@@ -8,6 +8,6 @@ describe('Testing Package', () => {
       'filterPlugin',
       'sortPlugin',
       'rewriter'
-    ]);
+    ].sort());
   });
 });
