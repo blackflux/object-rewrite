@@ -1,9 +1,7 @@
-import { injectPlugin, filterPlugin, sortPlugin } from './module/plugin.js';
-import rewriter from './module/rewriter.js';
+import * as plugins from './module/plugin.js';
+import rew from './module/rewriter.js';
 
-export default {
-  injectPlugin,
-  filterPlugin,
-  sortPlugin,
-  rewriter
-};
+export const injectPlugin = plugins.injectPlugin;
+export const filterPlugin = plugins.filterPlugin;
+export const sortPlugin = plugins.sortPlugin;
+export const rewriter = rew;
