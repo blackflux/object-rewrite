@@ -141,6 +141,7 @@ const plugin = (type, options) => {
   self.meta = {
     name,
     schema,
+    isAsync: fn[Symbol.toStringTag] === 'AsyncFunction',
     onInit: (context, logger) => handleCb({
       type: 'init',
       before: () => {
