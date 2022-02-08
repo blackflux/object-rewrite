@@ -24,6 +24,7 @@ export default (keys) => objectScan(keys, {
       parents
     };
     const promises = [];
+    const sync = [];
     plugins.forEach((plugin) => {
       const exec = (r) => {
         if (plugin.targetRel === '*') {
@@ -32,14 +33,17 @@ export default (keys) => objectScan(keys, {
           set(kwargs.value, plugin.targetRel, r);
         }
       };
-      const result = plugin.fn(kwargs);
-      if (result instanceof Promise) {
-        promises.push(async () => exec(await result));
+      if (plugin.self.meta.isAsync) {
+        promises.push(async () => {
+          const r = await plugin.fn(kwargs);
+          return exec(r);
+        });
       } else {
-        exec(result);
+        sync.push(() => exec(plugin.fn(kwargs)));
       }
     });
     context.promises.push(...promises);
+    context.sync.push(...sync);
     return true;
   }
 });

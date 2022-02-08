@@ -532,6 +532,30 @@ describe('Testing rewriter', () => {
     expect(data).to.deep.equal([{ b: 3 }, { b: 2 }]);
   });
 
+  it('Testing async inject with dependent sync plugin', async () => {
+    const dataStoreFields = ['a'];
+    const data = [{ a: 2 }, { a: 1 }];
+    const fields = ['b', 'c'];
+    const p1 = injectPlugin({
+      name: 'inject-plugin-name-async',
+      target: 'b',
+      schema: { fnOutput: (r) => Number.isInteger(r) },
+      requires: ['a'],
+      fn: async ({ value }) => value.a + 1
+    });
+    const p2 = injectPlugin({
+      name: 'inject-plugin-name-sync',
+      target: 'c',
+      schema: { fnOutput: (r) => Number.isInteger(r) },
+      requires: ['b'],
+      fn: ({ value }) => value.b
+    });
+    const rew = rewriter({ '': [p1, p2] }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(['a']);
+    await rew.rewriteAsync(data);
+    expect(data).to.deep.equal([{ b: 3, c: 3 }, { b: 2, c: 2 }]);
+  });
+
   it('Testing nested inject', async () => {
     const dataStoreFields = ['a'];
     const data = [{ a: 2 }, { a: 1 }];
