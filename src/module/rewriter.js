@@ -53,11 +53,12 @@ export default (pluginMap, dataStoreFields_, logger = console) => {
 
       const rewriteStart = (input, context) => {
         assert(context instanceof Object && !Array.isArray(context));
-        const { promises } = injectRewriter(input, {
+        const { promises, sync } = injectRewriter(input, {
           injectMap: initPluginMap(injectMap, input, context, logger),
-          promises: []
+          promises: [],
+          sync: []
         });
-        return promises;
+        return { promises, sync };
       };
       const rewriteEnd = (input, context) => {
         filterRewriter(input, {
@@ -74,14 +75,16 @@ export default (pluginMap, dataStoreFields_, logger = console) => {
         activePlugins,
         rewrite: (input, context_ = {}) => {
           const context = { ...context_, ...initContext };
-          const promises = rewriteStart(input, context);
+          const { sync, promises } = rewriteStart(input, context);
           assert(promises.length === 0, 'Please use rewriteAsync() for async logic');
+          sync.map((f) => f());
           rewriteEnd(input, context);
         },
         rewriteAsync: async (input, context_ = {}) => {
           const context = { ...context_, ...initContext };
-          const promises = rewriteStart(input, context);
+          const { sync, promises } = rewriteStart(input, context);
           await Promise.all(promises.map((p) => p()));
+          sync.map((f) => f());
           rewriteEnd(input, context);
         }
       };
