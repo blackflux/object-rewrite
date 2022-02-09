@@ -20,7 +20,7 @@
     "@babel/preset-env": "7.16.11",
     "@babel/register": "7.16.9",
     "@blackflux/eslint-plugin-rules": "2.0.4",
-    "@blackflux/robo-config-plugin": "5.3.26",
+    "@blackflux/robo-config-plugin": "6.0.0",
     "babel-plugin-istanbul": "6.1.1",
     "c8": "7.11.0",
     "chai": "4.3.4",

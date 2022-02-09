@@ -6,6 +6,6 @@ import process from 'process';
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   gardener({
-    skip: ['robo']
+    skip: []
   }).catch(() => process.exit(1));
 }
