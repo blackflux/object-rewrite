@@ -1,5 +1,5 @@
-import assert from 'assert';
 import objectFields from 'object-fields';
+import assert from '../util/assert.js';
 import compileMeta from './rewriter/compile-meta.js';
 import mkInjectRewriter from './rewriter/mk-inject-rewriter.js';
 import mkFilterRewriter from './rewriter/mk-filter-rewriter.js';

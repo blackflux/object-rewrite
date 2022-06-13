@@ -1,4 +1,4 @@
-import assert from 'assert';
+import assert from '../../util/assert.js';
 
 const validationCompile = (input, strict = true) => {
   if (typeof input === 'function') {

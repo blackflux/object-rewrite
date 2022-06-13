@@ -1,5 +1,5 @@
-import assert from 'assert';
 import Joi from 'joi-strict';
+import assert from '../util/assert.js';
 import validationCompile from './plugin/validation-compile.js';
 import validationExtractKeys from './plugin/validation-extract-keys.js';
 import joinPath from './plugin/join-path.js';
