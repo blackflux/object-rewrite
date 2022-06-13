@@ -1,6 +1,6 @@
-import assert from 'assert';
 import objectScan from 'object-scan';
 import set from 'lodash.set';
+import assert from '../../util/assert.js';
 import CompareFn from './compare-fn.js';
 
 export default (keys) => objectScan(keys, {
