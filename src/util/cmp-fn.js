@@ -1,4 +1,4 @@
-import assert from 'assert';
+import assert from './assert.js';
 
 const fn = (a, b) => {
   if (Array.isArray(a)) {

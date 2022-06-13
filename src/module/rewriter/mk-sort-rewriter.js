@@ -1,5 +1,5 @@
-import assert from 'assert';
 import objectScan from 'object-scan';
+import assert from '../../util/assert.js';
 import cmpFn from '../../util/cmp-fn.js';
 import CompareFn from './compare-fn.js';
 

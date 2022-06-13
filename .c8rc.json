@@ -12,7 +12,8 @@
     "gardener.js",
     "node_modules/*",
     "coverage/*",
-    "lib/*"
+    "lib/*",
+    "test/hot.js"
   ],
   "extension": [],
   "skip-full": true,
