@@ -11,18 +11,18 @@
     "joi-strict": "2.0.1",
     "lodash.set": "4.3.2",
     "object-fields": "3.0.1",
-    "object-scan": "18.1.2"
+    "object-scan": "18.3.3"
   },
   "devDependencies": {
     "@babel/core": "7.18.5",
     "@babel/eslint-parser": "7.18.2",
     "@babel/register": "7.17.7",
     "@blackflux/eslint-plugin-rules": "2.1.0",
-    "@blackflux/robo-config-plugin": "7.8.5",
+    "@blackflux/robo-config-plugin": "7.8.8",
     "c8": "7.11.3",
     "chai": "4.3.6",
     "coveralls": "3.1.1",
-    "eslint": "8.17.0",
+    "eslint": "8.18.0",
     "eslint-config-airbnb-base": "15.0.0",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-json": "3.1.0",
