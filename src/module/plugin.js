@@ -21,12 +21,13 @@ const plugin = (type, options) => {
     })[type === 'INJECT' ? 'required' : 'optional'](),
     onInit: Joi.function().optional(),
     onRewrite: Joi.function().optional(),
+    beforeFn: Joi.function().optional(),
     fn: Joi.function(),
     limit: type === 'SORT' ? Joi.function().optional() : Joi.forbidden()
   }));
 
   const {
-    name, target, requires, schema, onInit, onRewrite, fn, limit
+    name, target, requires, schema, onInit, onRewrite, beforeFn, fn, limit
   } = options;
 
   const schemaCompiled = {
@@ -103,6 +104,7 @@ const plugin = (type, options) => {
         return r.map((f) => (f.startsWith('/') ? f.slice(1) : joinPath([prefix, f])));
       },
       type,
+      beforeFn: wrap(beforeFn),
       fn: fnWrapped,
       limit: wrap(limit)
     };

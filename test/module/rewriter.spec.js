@@ -556,6 +556,33 @@ describe('Testing rewriter', () => {
     expect(data).to.deep.equal([{ b: 3, c: 3 }, { b: 2, c: 2 }]);
   });
 
+  it('Testing async inject with beforeFn', async () => {
+    const dataStoreFields = ['a'];
+    const data = [{ a: 2 }, { a: 1 }];
+    const fields = ['b'];
+    const p1 = injectPlugin({
+      name: 'inject-plugin-name',
+      target: 'b',
+      schema: { fnOutput: [(r) => Number.isInteger(r)] },
+      requires: ['a'],
+      onRewrite: ({ cache }) => {
+        // eslint-disable-next-line no-param-reassign
+        cache.data = [];
+        return true;
+      },
+      beforeFn: ({ value, cache }) => {
+        cache.data.push(value.a);
+      },
+      fn: async ({ cache }) => cache.data
+    });
+    const rew = rewriter({
+      '': [p1]
+    }, dataStoreFields).init(fields);
+    expect(rew.fieldsToRequest).to.deep.equal(['a']);
+    await rew.rewriteAsync(data);
+    expect(data).to.deep.equal([{ b: [1, 2] }, { b: [1, 2] }]);
+  });
+
   it('Testing nested inject', async () => {
     const dataStoreFields = ['a'];
     const data = [{ a: 2 }, { a: 1 }];
