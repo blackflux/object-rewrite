@@ -70,6 +70,7 @@ All plugins define:
 
 - `target` _String_: target field relative to the plugin path.
 - `required` _Array_: required fields relative to the plugin path. Can specify relative to root by prefixing with `/`. Will influence `fieldsToRequest`. Can be specified as function that takes `initContext` and expected to return array.
+- `beforeFn` _Function_: executed before any fn execution happens for plugin type
 - `fn` _Function_: result of this function is used by the plugin. Signature is `fn({ key, value, parents, context, cache })`.
 - `onInit({ context, cache })` _Function_ (optional): if present called once per init, used to initialize cache, if returns other than `true`, the plugin is disabled
 - `onRewrite({ data, context, cache })` _Function_ (optional): if present called once per rewrite, used to update cache, if returns other than `true`, the plugin is disabled
