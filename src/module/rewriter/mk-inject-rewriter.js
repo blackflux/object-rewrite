@@ -33,6 +33,9 @@ export default (keys) => objectScan(keys, {
           set(kwargs.value, plugin.targetRel, r);
         }
       };
+      if (typeof plugin.beforeFn === 'function') {
+        plugin.beforeFn(kwargs);
+      }
       if (plugin.self.meta.isAsync) {
         promises.push(async () => {
           const r = await plugin.fn(kwargs);
