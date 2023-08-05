@@ -1,4 +1,4 @@
-import objectFields from 'object-fields';
+import { Retainer } from 'object-fields';
 import assert from '../util/assert.js';
 import compileMeta from './rewriter/compile-meta.js';
 import mkInjectRewriter from './rewriter/mk-inject-rewriter.js';
@@ -49,7 +49,7 @@ export default (pluginMap, dataStoreFields_, logger = console) => {
       const injectRewriter = mkInjectRewriter(Object.keys(injectMap));
       const filterRewriter = mkFilterRewriter(Object.keys(filterMap));
       const sortRewriter = mkSortRewriter(Object.keys(sortMap));
-      const retainResult = objectFields.Retainer(fields);
+      const retainResult = Retainer(fields);
 
       const rewriteStart = (input, context) => {
         assert(context instanceof Object && !Array.isArray(context));

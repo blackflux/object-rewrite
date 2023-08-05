@@ -8,17 +8,17 @@
     "test": "test"
   },
   "dependencies": {
-    "joi-strict": "2.0.1",
+    "joi-strict": "3.0.0",
     "lodash.set": "4.3.2",
-    "object-fields": "3.0.1",
+    "object-fields": "4.0.0",
     "object-scan": "19.0.0"
   },
   "devDependencies": {
     "@babel/core": "7.22.9",
     "@babel/eslint-parser": "7.22.9",
     "@babel/register": "7.22.5",
-    "@blackflux/eslint-plugin-rules": "2.2.0",
-    "@blackflux/robo-config-plugin": "9.1.8",
+    "@blackflux/eslint-plugin-rules": "3.0.0",
+    "@blackflux/robo-config-plugin": "9.1.9",
     "c8": "8.0.1",
     "chai": "4.3.7",
     "eslint": "8.46.0",
@@ -30,7 +30,7 @@
     "js-gardener": "5.0.1",
     "lodash.get": "4.4.2",
     "lodash.shuffle": "4.2.0",
-    "smart-fs": "3.0.2"
+    "smart-fs": "4.0.0"
   },
   "scripts": {
     "clean": "rm -rf lib",
