@@ -7,6 +7,7 @@ describe('Testing get-plugin-target-map.js', () => {
   let fn;
   let fnOutputSchema;
   let mkPlugin;
+
   before(() => {
     fn = () => 'value';
     fnOutputSchema = (e) => typeof e === 'string';

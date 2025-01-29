@@ -3,6 +3,7 @@ import validationExtractKeys from '../../../src/module/plugin/validation-extract
 
 describe('Testing validation-extract-keys.js', () => {
   let fn;
+
   before(() => {
     fn = (e) => typeof e === 'string';
   });

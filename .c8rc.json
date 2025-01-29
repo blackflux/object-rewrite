@@ -13,7 +13,9 @@
     "node_modules/*",
     "coverage/*",
     "lib/*",
-    "test/hot.js"
+    "test/hot.js",
+    "eslint.config.js",
+    "test/reg.js"
   ],
   "extension": {},
   "skip-full": true,
