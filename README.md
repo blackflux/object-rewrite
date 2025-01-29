@@ -16,7 +16,7 @@ in a dynamic way that allows for powerful abstraction.
 
 ## Install
 
-```bash
+```
 npm i --save object-rewrite
 ```
 
